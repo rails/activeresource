@@ -166,6 +166,13 @@ class BaseTest < Test::Unit::TestCase
     assert_equal(5, Forum.connection.timeout)
   end
 
+  def test_should_accept_setting_ssl_options
+    expected = {:verify => 1}
+    Forum.ssl_options= expected
+    assert_equal(expected, Forum.ssl_options)
+    assert_equal(expected, Forum.connection.ssl_options)
+  end
+
   def test_user_variable_can_be_reset
     actor = Class.new(ActiveResource::Base)
     actor.site = 'http://cinema'
@@ -194,6 +201,16 @@ class BaseTest < Test::Unit::TestCase
     actor.timeout = nil
     assert_nil actor.timeout
     assert_nil actor.connection.timeout
+  end
+
+  def test_ssl_options_hash_can_be_reset
+    actor = Class.new(ActiveResource::Base)
+    actor.site = 'https://cinema'
+    assert_nil actor.ssl_options
+    actor.ssl_options = {:foo => 5}
+    actor.ssl_options = nil
+    assert_nil actor.ssl_options
+    assert_nil actor.connection.ssl_options
   end
 
   def test_credentials_from_site_are_decoded
@@ -395,6 +412,40 @@ class BaseTest < Test::Unit::TestCase
     assert_equal fruit.timeout, apple.timeout, 'subclass did not adopt changes from parent class'
   end
 
+  def test_ssl_options_reader_uses_superclass_ssl_options_until_written
+    # Superclass is Object so returns nil.
+    assert_nil ActiveResource::Base.ssl_options
+    assert_nil Class.new(ActiveResource::Base).ssl_options
+    Person.ssl_options = {:foo => 'bar'}
+
+    # Subclass uses superclass ssl_options.
+    actor = Class.new(Person)
+    assert_equal Person.ssl_options, actor.ssl_options
+
+    # Changing subclass ssl_options doesn't change superclass ssl_options.
+    actor.ssl_options = {:baz => ''}
+    assert_not_equal Person.ssl_options, actor.ssl_options
+
+    # Changing superclass ssl_options doesn't overwrite subclass ssl_options.
+    Person.ssl_options = {:color => 'blue'}
+    assert_not_equal Person.ssl_options, actor.ssl_options
+
+    # Changing superclass ssl_options after subclassing changes subclass ssl_options.
+    jester = Class.new(actor)
+    actor.ssl_options = {:color => 'red'}
+    assert_equal actor.ssl_options, jester.ssl_options
+
+    # Subclasses are always equal to superclass ssl_options when not overridden.
+    fruit = Class.new(ActiveResource::Base)
+    apple = Class.new(fruit)
+
+    fruit.ssl_options = {:alpha => 'betas'}
+    assert_equal fruit.ssl_options, apple.ssl_options, 'subclass did not adopt changes from parent class'
+
+    fruit.ssl_options = {:omega => 'moos'}
+    assert_equal fruit.ssl_options, apple.ssl_options, 'subclass did not adopt changes from parent class'
+  end
+
   def test_updating_baseclass_site_object_wipes_descendent_cached_connection_objects
     # Subclasses are always equal to superclass site when not overridden
     fruit = Class.new(ActiveResource::Base)
@@ -586,45 +637,12 @@ class BaseTest < Test::Unit::TestCase
     assert_equal [:person_id].to_set, StreetAddress.__send__(:prefix_parameters)
   end
 
-  def test_find_by_id
-    matz = Person.find(1)
-    assert_kind_of Person, matz
-    assert_equal "Matz", matz.name
-    assert matz.name?
-  end
-
   def test_respond_to
     matz = Person.find(1)
     assert matz.respond_to?(:name)
     assert matz.respond_to?(:name=)
     assert matz.respond_to?(:name?)
     assert !matz.respond_to?(:super_scalable_stuff)
-  end
-
-  def test_find_by_id_with_custom_prefix
-    addy = StreetAddress.find(1, :params => { :person_id => 1 })
-    assert_kind_of StreetAddress, addy
-    assert_equal '12345 Street', addy.street
-  end
-
-  def test_find_all
-    all = Person.find(:all)
-    assert_equal 2, all.size
-    assert_kind_of Person, all.first
-    assert_equal "Matz", all.first.name
-    assert_equal "David", all.last.name
-  end
-
-  def test_find_first
-    matz = Person.find(:first)
-    assert_kind_of Person, matz
-    assert_equal "Matz", matz.name
-  end
-
-  def test_find_last
-    david = Person.find(:last)
-    assert_kind_of Person, david
-    assert_equal 'David', david.name
   end
 
   def test_custom_header
@@ -634,52 +652,15 @@ class BaseTest < Test::Unit::TestCase
     Person.headers.delete('key')
   end
 
-  def test_find_by_id_not_found
-    assert_raise(ActiveResource::ResourceNotFound) { Person.find(99) }
-    assert_raise(ActiveResource::ResourceNotFound) { StreetAddress.find(1) }
-  end
-
-  def test_find_all_by_from
-    ActiveResource::HttpMock.respond_to { |m| m.get "/companies/1/people.xml", {}, @people_david }
-
-    people = Person.find(:all, :from => "/companies/1/people.xml")
-    assert_equal 1, people.size
-    assert_equal "David", people.first.name
-  end
-
-  def test_find_all_by_from_with_options
-    ActiveResource::HttpMock.respond_to { |m| m.get "/companies/1/people.xml", {}, @people_david }
-
-    people = Person.find(:all, :from => "/companies/1/people.xml")
-    assert_equal 1, people.size
-    assert_equal "David", people.first.name
-  end
-
-  def test_find_all_by_symbol_from
-    ActiveResource::HttpMock.respond_to { |m| m.get "/people/managers.xml", {}, @people_david }
-
-    people = Person.find(:all, :from => :managers)
-    assert_equal 1, people.size
-    assert_equal "David", people.first.name
-  end
-
-  def test_find_single_by_from
-    ActiveResource::HttpMock.respond_to { |m| m.get "/companies/1/manager.xml", {}, @david }
-
-    david = Person.find(:one, :from => "/companies/1/manager.xml")
-    assert_equal "David", david.name
-  end
-
-  def test_find_single_by_symbol_from
-    ActiveResource::HttpMock.respond_to { |m| m.get "/people/leader.xml", {}, @david }
-
-    david = Person.find(:one, :from => :leader)
-    assert_equal "David", david.name
-  end
-
   def test_save
     rick = Person.new
-    assert_equal true, rick.save
+    assert rick.save
+    assert_equal '5', rick.id
+  end
+
+  def test_save!
+    rick = Person.new
+    assert rick.save!
     assert_equal '5', rick.id
   end
 
@@ -848,6 +829,14 @@ class BaseTest < Test::Unit::TestCase
     assert_raise(ActiveResource::ResourceNotFound) { StreetAddress.find(1, :params => { :person_id => 1 }) }
   end
 
+  def test_destroy_with_410_gone
+    assert Person.find(1).destroy
+    ActiveResource::HttpMock.respond_to do |mock|
+      mock.get "/people/1.xml", {}, nil, 410
+    end
+    assert_raise(ActiveResource::ResourceGone) { Person.find(1).destroy }
+  end
+
   def test_delete
     assert Person.delete(1)
     ActiveResource::HttpMock.respond_to do |mock|
@@ -862,6 +851,14 @@ class BaseTest < Test::Unit::TestCase
       mock.get "/people/1/addresses/1.xml", {}, nil, 404
     end
     assert_raise(ActiveResource::ResourceNotFound) { StreetAddress.find(1, :params => { :person_id => 1 }) }
+  end
+  
+  def test_delete_with_410_gone
+    assert Person.delete(1)
+    ActiveResource::HttpMock.respond_to do |mock|
+      mock.get "/people/1.xml", {}, nil, 410
+    end
+    assert_raise(ActiveResource::ResourceGone) { Person.find(1) }
   end
 
   def test_exists
@@ -913,6 +910,22 @@ class BaseTest < Test::Unit::TestCase
       alias_method :exists_to_param, :to_param
       alias_method :to_param, :original_to_param_exists
     end
+  end
+
+  def test_exists_without_http_mock
+    http = Net::HTTP.new(Person.site.host, Person.site.port)
+    ActiveResource::Connection.any_instance.expects(:http).returns(http)
+    http.expects(:request).returns(ActiveResource::Response.new(""))
+
+    assert Person.exists?('not-mocked')
+  end
+
+  def test_exists_with_410_gone
+    ActiveResource::HttpMock.respond_to do |mock|
+      mock.head "/people/1.xml", {}, nil, 410
+    end
+
+    assert !Person.exists?(1)
   end
 
   def test_to_xml
