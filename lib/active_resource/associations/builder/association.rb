@@ -20,7 +20,7 @@ module ActiveResource::Associations::Builder
 
     def build
       validate_options
-      reflection = model.create_reflection(self.class.macro, name, options)
+      model.create_reflection(self.class.macro, name, options)
     end
 
     private

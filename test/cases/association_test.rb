@@ -22,7 +22,9 @@ class AssociationTest < ActiveSupport::TestCase
   end
 
   def test_valid_options
-    assert_raise ArgumentError do 
+    assert @klass.build(Person, :customers, {:class_name => 'Client'})
+
+    assert_raise ArgumentError do
       @klass.build(Person, :customers, {:soo_invalid => true})
     end
   end
@@ -41,13 +43,19 @@ class AssociationTest < ActiveSupport::TestCase
     assert_equal 1, External::Person.reflections.select{|name, reflection| reflection.macro.eql?(:has_one)}.count
   end
 
-  def test_has_many
-    External::Person.send(:has_many, :people)
-    assert_equal 1, External::Person.reflections.select{|name, reflection| reflection.macro.eql?(:has_many)}.count
+  def test_belongs_to
+    External::Person.belongs_to(:Customer)
+    assert_equal 1, External::Person.reflections.select{|name, reflection| reflection.macro.eql?(:belongs_to)}.count
   end
-  
-  def test_has_one
-    External::Person.send(:has_one, :customer)
-    assert_equal 1, External::Person.reflections.select{|name, reflection| reflection.macro.eql?(:has_one)}.count
+
+  def test_defines_belongs_to_finder_method_with_instance_variable_cache
+    Person.defines_belongs_to_finder_method(:customer, Customer, 'customer_id')
+
+    person = Person.new
+    assert !person.instance_variable_defined?(:@customer)
+    person.stubs(:customer_id).returns(2)
+    Customer.expects(:find).with(2).once()
+    2.times{person.customer}
+    assert person.instance_variable_defined?(:@customer)
   end
 end
