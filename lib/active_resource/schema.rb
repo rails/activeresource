@@ -1,5 +1,3 @@
-require 'active_resource/exceptions'
-
 module ActiveResource # :nodoc:
   class Schema # :nodoc:
     # attributes can be known to be one of these types. They are easy to
