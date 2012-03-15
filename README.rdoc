@@ -1,4 +1,4 @@
-= Active Resource
+= Active Resource {<img src="https://secure.travis-ci.org/rails/activeresource.png" />}[http://travis-ci.org/rails/activeresource]
 
 Active Resource (ARes) connects business objects and Representational State Transfer (REST)
 web services.  It implements object-relational mapping for REST web services to provide transparent
