@@ -36,5 +36,6 @@ module ActiveResource
   autoload :HttpMock
   autoload :Observing
   autoload :Schema
+  autoload :Singleton
   autoload :Validations
 end
