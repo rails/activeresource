@@ -953,8 +953,9 @@ module ActiveResource
           end
         end
 
-        # Find a single resource from the default URL
+        # Find a single resource from the default URL, or use the given url
         def find_single(scope, options)
+          return find_one(options.merge(:from => scope)) if URI.parse(scope.to_s).scheme
           prefix_options, query_options = split_options(options[:params])
           path = element_path(scope, prefix_options, query_options)
           instantiate_record(format.decode(connection.get(path, headers).body), prefix_options)

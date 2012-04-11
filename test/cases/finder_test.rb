@@ -17,6 +17,12 @@ class FinderTest < ActiveSupport::TestCase
     assert_equal "Matz", matz.name
     assert matz.name?
   end
+  
+  def test_find_by_url
+    matz = Person.find("#{Person.site}people/1")
+    assert_kind_of Person, matz
+    assert_equal "Matz", matz.name
+  end
 
   def test_find_by_id_with_custom_prefix
     addy = StreetAddress.find(1, :params => { :person_id => 1 })
