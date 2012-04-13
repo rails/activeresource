@@ -228,7 +228,7 @@ module ActiveResource
   #
   # Active Resource supports validations on resources and will return errors if any of these validations fail
   # (e.g., "First name can not be blank" and so on). These types of errors are denoted in the response by
-  # a response code of <tt>422</tt> and an XML or JSON representation of the validation errors. The save operation will
+  # a response code of <tt>422</tt> and an JSON or XML representation of the validation errors. The save operation will
   # then fail (with a <tt>false</tt> return value) and the validation errors can be accessed on the resource in question.
   #
   #   ryan = Person.find(1)
