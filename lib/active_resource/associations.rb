@@ -114,5 +114,13 @@ module ActiveResource::Associations
       instance_variable_defined?(ivar_name) ? instance_variable_get(ivar_name) : instance_variable_set(ivar_name, association_model.find(send(finder_key)))
     end
   end
+  
+  def defines_has_many_finder_method(method_name, association_model)
+    ivar_name = :"@#{method_name}"
+    
+    define_method(method_name) do
+      instance_variable_defined?(ivar_name) ? instance_variable_get(ivar_name) : instance_variable_set(ivar_name, association_model.find(:all, :params => {:"#{self.class.element_name}_id" => self.id}))
+    end
+  end
 
 end
