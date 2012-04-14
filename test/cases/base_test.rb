@@ -7,6 +7,8 @@ require "fixtures/beast"
 require "fixtures/proxy"
 require "fixtures/address"
 require "fixtures/subscription_plan"
+require "fixtures/post"
+require "fixtures/comment"
 require 'active_support/json'
 require 'active_support/core_ext/hash/conversions'
 require 'mocha'
@@ -1121,6 +1123,14 @@ class BaseTest < ActiveSupport::TestCase
     luis = Customer.find(1)
     luis.enemies.each do |enemy|
       assert_kind_of External::Person, enemy
+    end
+  end
+
+  def test_parse_resources_with_has_many_makes_get_request_on_nested_route
+    Post.send(:has_many, :comments)
+    post = Post.find(1)
+    post.comments.each do |comment|
+      assert_kind_of Comment, comment
     end
   end
 
