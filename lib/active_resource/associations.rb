@@ -17,15 +17,19 @@ module ActiveResource::Associations
   #   be used for resolving the association class. 
   #
   # ==== Example for [:class_name] - option
-  # GET /posts/123.xml delivers following response body:
-  #   <post>
-  #     <title>ActiveResource now have associations</title>
-  #     <content> ... </content>
-  #     <comments>
-  #       <comment> ... </comment>
-  #       <comment> ... </comment>
-  #     </comments>
-  #   </post>
+  # GET /posts/123.json delivers following response body:
+  #   {
+  #     title: "ActiveResource now has associations",
+  #     body: "Lorem Ipsum"
+  #     comments: [
+  #       {
+  #         content: "..."
+  #       },
+  #       {
+  #         content: "..."
+  #       }
+  #     ]
+  #   }
   # ====
   #
   # <tt>has_many :comments, :class_name => 'myblog/comment'</tt>
@@ -47,14 +51,14 @@ module ActiveResource::Associations
   #   be used for resolving the association class. 
   #
   # ==== Example for [:class_name] - option
-  # GET /posts/123.xml delivers following response body:
-  #   <post>
-  #     <title>ActiveResource now have associations</title>
-  #     <content> ... </content>
-  #     <author>
-  #       <name>caffeinatedBoys</name>
-  #     </author>
-  #   </post>
+  # GET /posts/1.json delivers following response body:
+  #   {
+  #     title: "ActiveResource now has associations",
+  #     body: "Lorem Ipsum",
+  #     author: {
+  #       name: "Gabby Blogger",
+  #     }
+  #   }
   # ====
   #
   # <tt>has_one :author, :class_name => 'myblog/author'</tt>
