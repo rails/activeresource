@@ -1127,7 +1127,7 @@ class BaseTest < ActiveSupport::TestCase
     end
   end
   
-  def test_parse_resources_with_has_many_makes_gets_nested_route
+  def test_parse_resources_with_has_many_makes_get_request_on_nested_route
     Post.send(:has_many, :comments)
     post = Post.find(1)
     post.comments.each do |comment|
