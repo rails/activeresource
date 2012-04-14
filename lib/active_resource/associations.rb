@@ -30,6 +30,11 @@ module ActiveResource::Associations
   #
   # <tt>has_many :comments, :class_name => 'myblog/comment'</tt>
   # Would resolve those comments into the <tt>Myblog::Comment</tt> class.
+  # 
+  # If the response body does not contain an attribute matching the association name
+  # a request sent to the index action under the current resource.
+  # For the example above, if the comments are not present the requested path would be:
+  # GET /posts/123/comments.xml
   def has_many(name, options = {})
     Builder::HasMany.build(self, name, options)
   end
@@ -119,7 +124,11 @@ module ActiveResource::Associations
     ivar_name = :"@#{method_name}"
     
     define_method(method_name) do
-      instance_variable_defined?(ivar_name) ? instance_variable_get(ivar_name) : instance_variable_set(ivar_name, association_model.find(:all, :params => {:"#{self.class.element_name}_id" => self.id}))
+      if instance_variable_defined?(ivar_name)
+        instance_variable_get(ivar_name)
+      else
+        attributes.include?(method_name) ? attributes[method_name] : instance_variable_set(ivar_name, association_model.find(:all, :params => {:"#{self.class.element_name}_id" => self.id}))
+      end
     end
   end
 
