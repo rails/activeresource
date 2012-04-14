@@ -26,6 +26,9 @@ def setup_response
   @people = { :people => [ { :person => { :id => 1, :name => 'Matz' } }, { :person => { :id => 2, :name => 'David' } }] }.to_json
   @people_david = { :people => [ { :person => { :id => 2, :name => 'David' } }] }.to_json
   @addresses = { :addresses => [{ :address => { :id => 1, :street => '12345 Street', :country => 'Australia' } }] }.to_json
+  @post  = {:id => 1, :title => 'Hello World', :body => 'Lorem Ipsum'}.to_json
+  @posts = [{:id => 1, :title => 'Hello World', :body => 'Lorem Ipsum'},{:id => 2, :title => 'Second Post', :body => 'Lorem Ipsum'}].to_json
+  @comments = [{:id => 1, :post_id => 1, :content => 'Interesting post'},{:id => 2, :post_id => 1, :content => 'I agree'}].to_json
 
   # - deep nested resource -
   # - Luis (Customer)
@@ -138,6 +141,10 @@ def setup_response
     mock.get    "/customers/1.json",             {}, @luis
     # sound
     mock.get    "/sounds/1.json",                {}, @startup_sound
+    # post
+    mock.get    "/posts.json",                   {}, @posts
+    mock.get    "/posts/1.json",                 {}, @post
+    mock.get    "/posts/1/comments.json",        {}, @comments
   end
 
   Person.user = nil
