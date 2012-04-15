@@ -17,7 +17,7 @@ for ActiveResource::Base.
 == Overview
 
 Model classes are mapped to remote REST resources by Active Resource much the same way Active Record maps model classes to database
-tables.  When a request is made to a remote resource, a REST XML request is generated, transmitted, and the result
+tables.  When a request is made to a remote resource, a REST JSON request is generated, transmitted, and the result
 received and serialized into a usable Ruby object.
 
 == Download and installation
@@ -26,7 +26,11 @@ The latest version of Active Resource can be installed with RubyGems:
 
   % [sudo] gem install activeresource
 
-Source code can be downloaded as part of the Rails project on GitHub
+Or added to a Gemfile:
+
+  gem 'activeresource', :require => 'active_resource'
+
+Source code can be downloaded on GitHub
 
 * https://github.com/rails/activeresource/tree/master/activeresource
 
@@ -43,7 +47,7 @@ Now the Person class is REST enabled and can invoke REST services very similarly
 life cycle methods that operate against a persistent store.
 
    # Find a person with id = 1
-   ryan = Person.find(1)
+   tyler = Person.find(1)
    Person.exists?(1)  # => true
 
 As you can see, the methods are quite similar to Active Record's methods for dealing with database
@@ -51,7 +55,7 @@ records.  But rather than dealing directly with a database record, you're dealin
 
 ==== Protocol
 
-Active Resource is built on a standard XML format for requesting and submitting resources over HTTP.  It mirrors the RESTful routing
+Active Resource is built on a standard JSON or XML format for requesting and submitting resources over HTTP.  It mirrors the RESTful routing
 built into Action Controller but will also work with any other REST service that properly implements the protocol.
 REST uses HTTP, but unlike "typical" web applications, it makes use of all the verbs available in the HTTP specification:
 
@@ -65,73 +69,72 @@ for more general information on REST web services, see the article here[http://e
 
 ==== Find
 
-Find requests use the GET method and expect the XML form of whatever resource/resources is/are being requested.  So,
-for a request for a single element, the XML of that item is expected in response:
+Find requests use the GET method and expect the JSON form of whatever resource/resources is/are being requested.  So,
+for a request for a single element, the JSON of that item is expected in response:
 
    # Expects a response of
    #
-   # <person><id type="integer">1</id><attribute1>value1</attribute1><attribute2>..</attribute2></person>
+   # {"id":1,"first":"Tyler","last":"Durden"}
    #
-   # for GET http://api.people.com:3000/people/1.xml
+   # for GET http://api.people.com:3000/people/1.json
    #
-   ryan = Person.find(1)
+   tyler = Person.find(1)
 
-The XML document that is received is used to build a new object of type Person, with each
-XML element becoming an attribute on the object.
+The JSON document that is received is used to build a new object of type Person, with each
+JSON element becoming an attribute on the object.
 
-   ryan.is_a? Person  # => true
-   ryan.attribute1  # => 'value1'
+   tyler.is_a? Person  # => true
+   tyler.last  # => 'Durden'
 
 Any complex element (one that contains other elements) becomes its own object:
 
    # With this response:
+   # {"id":1,"first":"Tyler","address":{"street":"Paper St.","state":"CA"}}
    #
-   # <person><id>1</id><attribute1>value1</attribute1><complex><attribute2>value2</attribute2></complex></person>
+   # for GET http://api.people.com:3000/people/1.json
    #
-   # for GET http://api.people.com:3000/people/1.xml
-   #
-   ryan = Person.find(1)
-   ryan.complex  # => <Person::Complex::xxxxx>
-   ryan.complex.attribute2  # => 'value2'
+   tyler = Person.find(1)
+   tyler.address  # => <Person::Address::xxxxx>
+   tyler.address.street  # => 'Paper St.'
 
 Collections can also be requested in a similar fashion
 
    # Expects a response of
    #
-   # <people type="array">
-   #  <person><id type="integer">1</id><first>Ryan</first></person>
-   #  <person><id type="integer">2</id><first>Jim</first></person>
-   # </people>
+   # [ 
+   #   {"id":1,"first":"Tyler","last":"Durden"},
+   #   {"id":2,"first":"Tony","last":"Stark",}
+   # ]
    #
-   # for GET http://api.people.com:3000/people.xml
+   # for GET http://api.people.com:3000/people.json
    #
    people = Person.all
-   people.first  # => <Person::xxx 'first' => 'Ryan' ...>
-   people.last  # => <Person::xxx 'first' => 'Jim' ...>
+   people.first  # => <Person::xxx 'first' => 'Tyler' ...>
+   people.last  # => <Person::xxx 'first' => 'Tony' ...>
 
 ==== Create
 
-Creating a new resource submits the XML form of the resource as the body of the request and expects
+Creating a new resource submits the JSON form of the resource as the body of the request and expects
 a 'Location' header in the response with the RESTful URL location of the newly created resource.  The
 id of the newly created resource is parsed out of the Location response header and automatically set
 as the id of the ARes object.
 
-  # <person><first>Ryan</first></person>
+  # {"person":{"first":"Tyler","last":"Durden"}}
   #
   # is submitted as the body on
   #
-  # POST http://api.people.com:3000/people.xml
+  # POST http://api.people.com:3000/people.json
   #
   # when save is called on a new Person object.  An empty response is
   # is expected with a 'Location' header value:
   #
   # Response (201): Location: http://api.people.com:3000/people/2
   #
-  ryan = Person.new(:first => 'Ryan')
-  ryan.new?  # => true
-  ryan.save  # => true
-  ryan.new?  # => false
-  ryan.id    # => 2
+  tyler = Person.new(:first => 'Tyler')
+  tyler.new?  # => true
+  tyler.save  # => true
+  tyler.new?  # => false
+  tyler.id    # => 2
 
 ==== Update
 
@@ -139,19 +142,19 @@ as the id of the ARes object.
 with the exception that no response headers are needed -- just an empty response when the update on the
 server side was successful.
 
-  # <person><first>Ryan</first></person>
+  # {"person":{"first":"Tyler"}}
   #
   # is submitted as the body on
   #
-  # PUT http://api.people.com:3000/people/1.xml
+  # PUT http://api.people.com:3000/people/1.json
   #
   # when save is called on an existing Person object.  An empty response is
   # is expected with code (204)
   #
-  ryan = Person.find(1)
-  ryan.first # => 'Ryan'
-  ryan.first = 'Rizzle'
-  ryan.save  # => true
+  tyler = Person.find(1)
+  tyler.first # => 'Tyler'
+  tyler.first = 'Tyson'
+  tyler.save  # => true
 
 ==== Delete
 
@@ -159,14 +162,14 @@ Destruction of a resource can be invoked as a class and instance method of the r
 
   # A request is made to
   #
-  # DELETE http://api.people.com:3000/people/1.xml
+  # DELETE http://api.people.com:3000/people/1.json
   #
   # for both of these forms.  An empty response with
   # is expected with response code (200)
   #
-  ryan = Person.find(1)
-  ryan.destroy  # => true
-  ryan.exists?  # => false
+  tyler = Person.find(1)
+  tyler.destroy  # => true
+  tyler.exists?  # => false
   Person.delete(2)  # => true
   Person.exists?(2) # => false
 
