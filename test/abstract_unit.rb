@@ -100,6 +100,9 @@ def setup_response
       :name => "Mac Startup Sound", :author => { :name => "Jim Reekes" }
     }
   }.to_json
+  
+  @product = {id: 1, name: 'Rails book'}.to_json
+  @inventory = {status: 'Sold Out', total: 10, used: 10}.to_json
 
   ActiveResource::HttpMock.respond_to do |mock|
     mock.get    "/people/1.json",               {}, @matz
@@ -145,6 +148,9 @@ def setup_response
     mock.get    "/posts.json",                   {}, @posts
     mock.get    "/posts/1.json",                 {}, @post
     mock.get    "/posts/1/comments.json",        {}, @comments
+    # products
+    mock.get '/products/1.json', {}, @product
+    mock.get '/products/1/inventory.json', {}, @inventory
   end
 
   Person.user = nil

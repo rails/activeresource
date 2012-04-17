@@ -63,6 +63,12 @@ module ActiveResource::Associations
   #
   # <tt>has_one :author, :class_name => 'myblog/author'</tt>
   # Would resolve this author into the <tt>Myblog::Author</tt> class.
+  #
+  # If the response body does not contain an attribute matching the association name
+  # a request is sent to a singelton path under the current resource.
+  # For example, if a Product class <tt>has_one :inventory</tt> calling <tt>Product#inventory</tt>
+  # will generate a request on /product/:product_id/inventory.json.
+  #
   def has_one(name, options = {})
     Builder::HasOne.build(self, name, options)
   end
@@ -134,6 +140,21 @@ module ActiveResource::Associations
         attributes[method_name]
       else
         instance_variable_set(ivar_name, association_model.find(:all, :params => {:"#{self.class.element_name}_id" => self.id}))
+      end
+    end
+  end
+  
+  # Defines the has_one association
+  def defines_has_one_finder_method(method_name, association_model)
+    ivar_name = :"@#{method_name}"
+
+    define_method(method_name) do
+      if instance_variable_defined?(ivar_name)
+        instance_variable_get(ivar_name)
+      elsif attributes.include?(method_name)
+        attributes[method_name]
+      else
+        instance_variable_set(ivar_name, association_model.find(:params => {:"#{self.class.element_name}_id" => self.id}))
       end
     end
   end
