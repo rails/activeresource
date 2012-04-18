@@ -406,6 +406,12 @@ class SchemaTest < ActiveModel::TestCase
       assert known_attrs.include?(the_attr), "should have found schema attr: #{the_attr} in known attributes, but only had: #{known_attrs.inspect}"
     end
   end
+  
+  test 'known attributes should be unique' do
+    new_schema = {'age' => 'integer', 'name' => 'string'}
+    Person.schema = new_schema
+    assert_equal Person.new(:age => 20, :name => 'Matz').known_attributes, ['age', 'name']
+  end
 
 
 end
