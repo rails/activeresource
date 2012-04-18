@@ -1134,6 +1134,29 @@ class BaseTest < ActiveSupport::TestCase
     end
   end
   
+  def test_parse_resources_with_has_many_infers_association_prefix
+    Post.send(:has_many, :comments)
+    post = Post.find(1)
+    post.comments.each do |comment|
+      assert_kind_of Comment, comment
+    end
+  end
+  
+  def test_has_many_honors_prefix
+    c_prefix = Comment.prefix
+    p_prefix = Post.prefix
+    Comment.prefix = "/api/"
+    Post.prefix = "/api/"
+    Post.send(:has_many, :comments)
+    post = Post.find(2)
+    post.comments.each do |comment|
+      assert_kind_of Comment, comment
+    end
+  ensure
+    Comment.prefix = c_prefix
+    Post.prefix = p_prefix
+  end
+  
   def test_parse_resource_with_has_one_makes_get_request_on_child_route
     Product.send(:has_one, :inventory)
     product = Product.find(1)

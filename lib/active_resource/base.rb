@@ -685,10 +685,35 @@ module ActiveResource
       #   # => /posts/5/comments/1.json?active=1
       #
       def element_path(id, prefix_options = {}, query_options = nil)
-        check_prefix_options(prefix_options)
-
         prefix_options, query_options = split_options(prefix_options) if query_options.nil?
-        "#{prefix(prefix_options)}#{collection_name}/#{URI.parser.escape id.to_s}.#{format.extension}#{query_string(query_options)}"
+        "#{element_base_path(id, prefix_options)}.#{format.extension}#{query_string(query_options)}"
+      end
+
+      # Gets the element base path for the given ID in +id+. This will never return a format extension or params,
+      # it is useful for building prefix paths. See <tt>element_path</tt> if you need format extensions and params.
+      #
+      # ==== Options
+      # +prefix_options+ - A \hash to add a \prefix to the request for nested URLs (e.g., <tt>:account_id => 19</tt>
+      #                    would yield a URL like <tt>/accounts/19</tt>).
+      #
+      # ==== Examples
+      #   Class Post < ActiveResource::Base
+      #     self.site = "https://37s.sunrise.com/api"
+      #   end
+      #
+      #   Post.element_base_path(1)
+      #   # => /api/posts/1
+      #
+      #   class Comment < ActiveResource::Base
+      #     self.site = "https://37s.sunrise.com/api/posts/:post_id"
+      #   end
+      #
+      #   Comment.element_base_path(1, :post_id => 5)
+      #   # => /api/posts/5/comments/1
+      #
+      def element_base_path(id, prefix_options = {})
+        check_prefix_options(prefix_options)
+        "#{prefix(prefix_options)}#{collection_name}/#{URI.parser.escape id.to_s}"
       end
 
       # Gets the new element path for REST resources.
@@ -1422,6 +1447,10 @@ module ActiveResource
 
       def element_path(options = nil)
         self.class.element_path(to_param, options || prefix_options)
+      end
+      
+      def element_base_path(options = nil)
+        self.class.element_base_path(to_param, options || prefix_options)
       end
 
       def new_element_path

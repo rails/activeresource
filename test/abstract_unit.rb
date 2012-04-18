@@ -27,8 +27,10 @@ def setup_response
   @people_david = { :people => [ { :person => { :id => 2, :name => 'David' } }] }.to_json
   @addresses = { :addresses => [{ :address => { :id => 1, :street => '12345 Street', :country => 'Australia' } }] }.to_json
   @post  = {:id => 1, :title => 'Hello World', :body => 'Lorem Ipsum'}.to_json
+  @post_two  = {:id => 2, :title => 'Hello World', :body => 'Lorem Ipsum'}.to_json
   @posts = [{:id => 1, :title => 'Hello World', :body => 'Lorem Ipsum'},{:id => 2, :title => 'Second Post', :body => 'Lorem Ipsum'}].to_json
   @comments = [{:id => 1, :post_id => 1, :content => 'Interesting post'},{:id => 2, :post_id => 1, :content => 'I agree'}].to_json
+  @comments_two = [{:id => 3, :post_id => 2, :content => 'Interesting post'},{:id => 4, :post_id => 2, :content => 'I agree'}].to_json
 
   # - deep nested resource -
   # - Luis (Customer)
@@ -148,6 +150,8 @@ def setup_response
     mock.get    "/posts.json",                   {}, @posts
     mock.get    "/posts/1.json",                 {}, @post
     mock.get    "/posts/1/comments.json",        {}, @comments
+    mock.get    "/api/posts/2.json",             {}, @post_two
+    mock.get    "/api/posts/2/comments.json",    {}, @comments_two
     # products
     mock.get '/products/1.json', {}, @product
     mock.get '/products/1/inventory.json', {}, @inventory
