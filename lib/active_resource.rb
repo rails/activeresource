@@ -38,4 +38,5 @@ module ActiveResource
   autoload :Schema
   autoload :Singleton
   autoload :Validations
+  autoload :Collection
 end
