@@ -1204,4 +1204,11 @@ class BaseTest < ActiveSupport::TestCase
     sound = Asset::Sound.find(1)
     assert_equal "Asset::Sound::Author", sound.author.class.to_s
   end
+
+  def test_response_block
+    Person.find(:all) do |response|
+      assert_kind_of ActiveResource::Response, response
+    end
+  end
+
 end
