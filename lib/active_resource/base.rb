@@ -1320,6 +1320,9 @@ module ActiveResource
               value.duplicable? ? value.dup : value
           end
       end
+      self.class.attributes_list.each do |key|
+        @attributes[key.to_s] = nil unless @attributes[key.to_s]
+      end
       self
     end
 

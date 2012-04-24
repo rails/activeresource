@@ -350,6 +350,12 @@ class SchemaTest < ActiveModel::TestCase
     assert Person.new.attributes_list.blank?, "should have no known attributes on a new instance"
   end
 
+  test "new model should have attributes from class" do
+    Person.schema = {'age' => 'integer', 'name' => 'string'}
+    assert_equal Person.attributes_list.sort, ['age', 'name'].sort
+    assert_equal Person.new.attributes_list.sort, ['age', 'name'].sort
+  end
+
   test "setting schema should set known attributes on class and instance" do
     new_schema = {'age' => 'integer', 'name' => 'string',
       'height' => 'float', 'bio' => 'text',
@@ -407,11 +413,9 @@ class SchemaTest < ActiveModel::TestCase
     end
   end
 
-  test 'known attributes should be unique' do
+  test 'attributes should be unique' do
     new_schema = {'age' => 'integer', 'name' => 'string'}
     Person.schema = new_schema
-    assert_equal Person.new(:age => 20, :name => 'Matz').attributes_list, ['age', 'name']
+    assert_equal Person.new(:age => 20, :language => 'ruby').attributes_list.sort, ['age', 'name', 'language'].sort
   end
-
-
 end
