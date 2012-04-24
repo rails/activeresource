@@ -876,7 +876,6 @@ module ActiveResource
         find(:all, *args)
       end
 
-
       # Deletes the resources with the ID in the +id+ parameter.
       #
       # ==== Options
@@ -972,7 +971,6 @@ module ActiveResource
           end
         end
 
-
         # Accepts a URI and creates the site URI from that.
         def create_site_uri_from(site)
           site.is_a?(URI) ? site.dup : URI.parse(site)
@@ -1026,7 +1024,6 @@ module ActiveResource
 
     alias_method :known_attributes, :attributes_list
 
-
     # Constructor method for \new resources; the optional +attributes+ parameter takes a \hash
     # of attributes for the \new resource.
     #
@@ -1076,7 +1073,6 @@ module ActiveResource
       resource.send :instance_variable_set, '@attributes', cloned
       resource
     end
-
 
     # Returns +true+ if this object hasn't yet been saved, otherwise, returns +false+.
     #
