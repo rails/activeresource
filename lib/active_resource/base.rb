@@ -291,6 +291,7 @@ module ActiveResource
     cattr_accessor :logger
 
     class_attribute :_format
+    class_attribute :_collection_parser
 
     class << self
       # Creates a schema for this resource - setting the attributes that are
@@ -528,6 +529,16 @@ module ActiveResource
       # Returns the current format, default is ActiveResource::Formats::JsonFormat.
       def format
         self._format || ActiveResource::Formats::JsonFormat
+      end
+
+      # Sets the parser to use when a collection is returned.  The parser must be Enumerable.
+      def collection_parser=(parser_instance)
+        parser_instance = parser_instance.constantize if parser_instance.is_a?(String)
+        self._collection_parser = parser_instance
+      end
+
+      def collection_parser
+        self._collection_parser || ActiveResource::Collection
       end
 
       # Sets the number of seconds after which requests to the REST API should time out.
@@ -961,7 +972,7 @@ module ActiveResource
         end
 
         def instantiate_collection(collection, prefix_options = {})
-          collection.collect! { |record| instantiate_record(record, prefix_options) }
+          collection_parser.new(collection).collect! { |record| instantiate_record(record, prefix_options) }
         end
 
         def instantiate_record(record, prefix_options = {})
