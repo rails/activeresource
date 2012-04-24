@@ -296,11 +296,11 @@ module ActiveResource
       # Creates a schema for this resource - setting the attributes that are
       # known prior to fetching an instance from the remote system.
       #
-      # The schema helps define the set of <tt>known_attributes</tt> of the
+      # The schema helps define the set of known <tt>attributes_list</tt> of the
       # current resource.
       #
       # There is no need to specify a schema for your Active Resource. If
-      # you do not, the <tt>known_attributes</tt> will be guessed from the
+      # you do not, the known <tt>attributes_list</tt> will be guessed from the
       # instance attributes returned when an instance is fetched from the
       # remote system.
       #
@@ -355,11 +355,11 @@ module ActiveResource
           return unless schema_definition.attrs.present?
 
           @schema ||= {}.with_indifferent_access
-          @known_attributes ||= []
+          @attributes_list ||= []
 
           schema_definition.attrs.each do |k,v|
             @schema[k] = v
-            @known_attributes << k
+            @attributes_list << k
           end
 
           schema
@@ -389,7 +389,7 @@ module ActiveResource
         unless the_schema.present?
           # purposefully nulling out the schema
           @schema = nil
-          @known_attributes = []
+          @attributes_list = []
           return
         end
 
@@ -405,11 +405,13 @@ module ActiveResource
       # Attributes that are known will cause your resource to return 'true'
       # when <tt>respond_to?</tt> is called on them. A known attribute will
       # return nil if not set (rather than <t>MethodNotFound</tt>); thus
-      # known attributes can be used with <tt>validates_presence_of</tt>
+      # known attributes list can be used with <tt>validates_presence_of</tt>
       # without a getter-method.
-      def known_attributes
-        @known_attributes ||= []
+      def attributes_list
+        @attributes_list ||= []
       end
+
+      alias_method :known_attributes, :attributes_list
 
       # Gets the URI of the REST resources to map for this class. The site variable is required for
       # Active Resource's mapping to work.
@@ -1018,9 +1020,11 @@ module ActiveResource
     # This is a list of known attributes for this resource. Either
     # gathered from the provided <tt>schema</tt>, or from the attributes
     # set on this instance after it has been fetched from the remote system.
-    def known_attributes
-      (self.class.known_attributes + self.attributes.keys.map(&:to_s)).uniq
+    def attributes_list
+      (self.class.attributes_list + self.attributes.keys.map(&:to_s)).uniq
     end
+
+    alias_method :known_attributes, :attributes_list
 
 
     # Constructor method for \new resources; the optional +attributes+ parameter takes a \hash
@@ -1363,7 +1367,7 @@ module ActiveResource
       method_name = method.to_s
       if attributes.nil?
         super
-      elsif known_attributes.include?(method_name)
+      elsif attributes_list.include?(method_name)
         true
       elsif method_name =~ /(?:=|\?)$/ && attributes.include?($`)
         true
@@ -1511,7 +1515,7 @@ module ActiveResource
         else
           return attributes[method_name] if attributes.include?(method_name)
           # not set right now but we know about it
-          return nil if known_attributes.include?(method_name)
+          return nil if attributes_list.include?(method_name)
           super
         end
       end
