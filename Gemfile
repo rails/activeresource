@@ -2,22 +2,15 @@ source 'https://rubygems.org'
 
 gemspec
 
-local_rails_path = File.expand_path(File.dirname(__FILE__) + '/../rails')
-if File.exists?(local_rails_path)
-  rails_gem_source = { :path => local_rails_path }
-else
-  rails_gem_source = { :git => "git://github.com/rails/rails.git" }
-end
-
-gem 'activesupport', rails_gem_source.dup
-gem 'activemodel', rails_gem_source.dup
+gem 'activesupport', :git => "git://github.com/rails/rails.git"
+gem 'activemodel', :git => "git://github.com/rails/rails.git"
 
 group :doc do
   # The current sdoc cannot generate GitHub links due
   # to a bug, but the PR that fixes it has been there
   # for some weeks unapplied. As a temporary solution
   # this is our own fork with the fix.
-  gem 'sdoc',  :git => 'git://github.com/fxn/sdoc.git'
+  gem 'sdoc', :git => 'git://github.com/fxn/sdoc.git'
   gem 'RedCloth', '~> 4.2'
   gem 'w3c_validators'
 end
