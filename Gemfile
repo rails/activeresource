@@ -11,6 +11,7 @@ end
 
 gem 'activesupport', rails_gem_source.dup
 gem 'activemodel', rails_gem_source.dup
+gem 'rake'
 
 group :doc do
   # The current sdoc cannot generate GitHub links due

@@ -2,6 +2,8 @@
 require 'rake/testtask'
 require 'rake/packagetask'
 require 'rubygems/package_task'
+require 'rdoc/task'
+require 'sdoc'
 
 desc "Default Task"
 task :default => [ :test ]
@@ -55,6 +57,18 @@ task :lines do
   puts "Total: Lines #{total_lines}, LOC #{total_codelines}"
 end
 
+desc "Generate documentation for the ActiveResource"
+RDoc::Task.new do |rdoc|
+  rdoc_main = File.read('README.rdoc')
+
+  rdoc.rdoc_dir = 'doc/rdoc'
+  rdoc.title    = "ActiveResource Documentation"
+
+  rdoc.options << '-g' # SDoc flag, link methods to GitHub
+  rdoc.options << '-f' << 'sdoc'
+
+  rdoc.rdoc_files.include("README.rdoc", "lib/**/*.rb")
+end
 
 # Publishing ------------------------------------------------------
 
