@@ -346,8 +346,14 @@ class SchemaTest < ActiveModel::TestCase
   # This will only differ from 'attributes' if a schema has been set.
 
   test "new model should have no known attributes" do
-    assert Person.known_attributes.blank?, "should have no known attributes"
-    assert Person.new.known_attributes.blank?, "should have no known attributes on a new instance"
+    assert Person.attributes_list.blank?, "should have no known attributes"
+    assert Person.new.attributes_list.blank?, "should have no known attributes on a new instance"
+  end
+
+  test "new model should have attributes from class" do
+    Person.schema = {'age' => 'integer', 'name' => 'string'}
+    assert_equal Person.attributes_list.sort, ['age', 'name'].sort
+    assert_equal Person.new.attributes_list.sort, ['age', 'name'].sort
   end
 
   test "setting schema should set known attributes on class and instance" do
@@ -359,13 +365,13 @@ class SchemaTest < ActiveModel::TestCase
 
     assert_nothing_raised { Person.schema = new_schema }
 
-    assert_equal new_schema.keys.sort, Person.known_attributes.sort
-    assert_equal new_schema.keys.sort, Person.new.known_attributes.sort
+    assert_equal new_schema.keys.sort, Person.attributes_list.sort
+    assert_equal new_schema.keys.sort, Person.new.attributes_list.sort
   end
 
   test "known attributes on a fetched resource should return all the attributes of the instance" do
     p = Person.find(1)
-    attrs = p.known_attributes
+    attrs = p.attributes_list
 
     assert attrs.present?, "should have found some attributes!"
 
@@ -383,7 +389,7 @@ class SchemaTest < ActiveModel::TestCase
 
     assert_not_equal m_attrs, r_attrs, "should have different attributes on each model"
 
-    assert_not_equal matz.known_attributes, rick.known_attributes, "should have had different known attributes too"
+    assert_not_equal matz.attributes_list, rick.attributes_list, "should have had different known attributes too"
   end
 
   test "setting schema then fetching should add schema attributes to the instance attributes" do
@@ -397,7 +403,7 @@ class SchemaTest < ActiveModel::TestCase
     assert_nothing_raised { Person.schema = new_schema }
 
     matz = Person.find(1)
-    known_attrs = matz.known_attributes
+    known_attrs = matz.attributes_list
 
     matz.attributes.keys.each do |the_attr|
       assert known_attrs.include?(the_attr), "should have found instance attr: #{the_attr} in known attributes, but only had: #{known_attrs.inspect}"
@@ -406,12 +412,10 @@ class SchemaTest < ActiveModel::TestCase
       assert known_attrs.include?(the_attr), "should have found schema attr: #{the_attr} in known attributes, but only had: #{known_attrs.inspect}"
     end
   end
-  
-  test 'known attributes should be unique' do
+
+  test 'attributes should be unique' do
     new_schema = {'age' => 'integer', 'name' => 'string'}
     Person.schema = new_schema
-    assert_equal Person.new(:age => 20, :name => 'Matz').known_attributes, ['age', 'name']
+    assert_equal Person.new(:age => 20, :language => 'ruby').attributes_list.sort, ['age', 'name', 'language'].sort
   end
-
-
 end
