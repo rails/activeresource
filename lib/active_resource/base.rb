@@ -305,39 +305,39 @@ module ActiveResource
       # remote system.
       #
       # example:
-      # class Person < ActiveResource::Base
-      #   schema do
-      #     # define each attribute separately
-      #     attribute 'name', :string
-      #
-      #     # or use the convenience methods and pass >=1 attribute names
-      #     string  'eye_color', 'hair_color'
-      #     integer 'age'
-      #     float   'height', 'weight'
-      #
-      #     # unsupported types should be left as strings
-      #     # overload the accessor methods if you need to convert them
-      #     attribute 'created_at', 'string'
+      #   class Person < ActiveResource::Base
+      #     schema do
+      #       # define each attribute separately
+      #       attribute 'name', :string
+      #   
+      #       # or use the convenience methods and pass >=1 attribute names
+      #       string  'eye_color', 'hair_color'
+      #       integer 'age'
+      #       float   'height', 'weight'
+      #   
+      #       # unsupported types should be left as strings
+      #       # overload the accessor methods if you need to convert them
+      #       attribute 'created_at', 'string'
+      #     end
       #   end
-      # end
       #
-      # p = Person.new
-      # p.respond_to? :name   # => true
-      # p.respond_to? :age    # => true
-      # p.name                # => nil
-      # p.age                 # => nil
+      #   p = Person.new
+      #   p.respond_to? :name   # => true
+      #   p.respond_to? :age    # => true
+      #   p.name                # => nil
+      #   p.age                 # => nil
       #
-      # j = Person.find_by_name('John') # <person><name>John</name><age>34</age><num_children>3</num_children></person>
-      # j.respond_to? :name   # => true
-      # j.respond_to? :age    # => true
-      # j.name                # => 'John'
-      # j.age                 # => '34'  # note this is a string!
-      # j.num_children        # => '3'  # note this is a string!
+      #   j = Person.find_by_name('John')
+      #   <person><name>John</name><age>34</age><num_children>3</num_children></person>
+      #   j.respond_to? :name   # => true
+      #   j.respond_to? :age    # => true
+      #   j.name                # => 'John'
+      #   j.age                 # => '34'  # note this is a string!
+      #   j.num_children        # => '3'  # note this is a string!
       #
-      # p.num_children        # => NoMethodError
+      #   p.num_children        # => NoMethodError
       #
-      # Attribute-types must be one of:
-      #  string, integer, float
+      # Attribute-types must be one of: <tt>string, integer, float</tt>
       #
       # Note: at present the attribute-type doesn't do anything, but stay
       # tuned...
@@ -378,9 +378,9 @@ module ActiveResource
       #
       # example:
       #
-      # class Person < ActiveResource::Base
-      #   schema = {'name' => :string, 'age' => :integer }
-      # end
+      #   class Person < ActiveResource::Base
+      #     schema = {'name' => :string, 'age' => :integer }
+      #   end
       #
       # The keys/values can be strings or symbols. They will be converted to
       # strings.
@@ -404,7 +404,7 @@ module ActiveResource
       # from the provided <tt>schema</tt>
       # Attributes that are known will cause your resource to return 'true'
       # when <tt>respond_to?</tt> is called on them. A known attribute will
-      # return nil if not set (rather than <t>MethodNotFound</tt>); thus
+      # return nil if not set (rather than <tt>MethodNotFound</tt>); thus
       # known attributes can be used with <tt>validates_presence_of</tt>
       # without a getter-method.
       def known_attributes
@@ -664,7 +664,8 @@ module ActiveResource
       #
       # ==== Options
       # +prefix_options+ - A \hash to add a \prefix to the request for nested URLs (e.g., <tt>:account_id => 19</tt>
-      #                    would yield a URL like <tt>/accounts/19/purchases.json</tt>).
+      # would yield a URL like <tt>/accounts/19/purchases.json</tt>).
+      #
       # +query_options+ - A \hash to add items to the query string for the request.
       #
       # ==== Examples
@@ -695,7 +696,7 @@ module ActiveResource
       #
       # ==== Options
       # * +prefix_options+ - A hash to add a prefix to the request for nested URLs (e.g., <tt>:account_id => 19</tt>
-      #   would yield a URL like <tt>/accounts/19/purchases/new.json</tt>).
+      # would yield a URL like <tt>/accounts/19/purchases/new.json</tt>).
       #
       # ==== Examples
       #   Post.new_element_path
@@ -829,9 +830,9 @@ module ActiveResource
       #   # => GET /people/1/street_addresses/1.json
       #
       # == Failure or missing data
-      #   A failure to find the requested object raises a ResourceNotFound
-      #   exception if the find was called with an id.
-      #   With any other scope, find returns nil when no data is returned.
+      # A failure to find the requested object raises a ResourceNotFound
+      # exception if the find was called with an id.
+      # With any other scope, find returns nil when no data is returned.
       #
       #   Person.find(1)
       #   # => raises ResourceNotFound
@@ -1325,7 +1326,7 @@ module ActiveResource
 
     # Updates a single attribute and then saves the object.
     #
-    # Note: Unlike ActiveRecord::Base.update_attribute, this method <b>is</b>
+    # Note: <tt>Unlike ActiveRecord::Base.update_attribute</tt>, this method <b>is</b>
     # subject to normal validation routines as an update sends the whole body
     # of the resource in the request. (See Validations).
     #
