@@ -9,7 +9,7 @@ module ActiveResource
   #                           :member => { :promote => :put, :deactivate => :delete }
   #                           :collection => { :active => :get }
   #
-  #  This route set creates routes for the following HTTP requests:
+  # This route set creates routes for the following HTTP requests:
   #
   #    POST      /people/new/register.json # PeopleController.register
   #    PATCH/PUT /people/1/promote.json    # PeopleController.promote with :id => 1

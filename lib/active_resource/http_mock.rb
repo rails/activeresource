@@ -133,7 +133,7 @@ module ActiveResource
       #
       # === Example
       #
-      # Request.new(:#{method}, path, nil, request_headers)
+      # Request.new(method, path, nil, request_headers)
       #
       #   @matz  = { :person => { :id => 1, :name => "Matz" } }.to_json
       #

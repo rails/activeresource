@@ -13,9 +13,10 @@ module ActiveResource
       # will split from the \prefix options.
       #
       # ==== Options
-      # +prefix_options+ - A \hash to add a \prefix to the request for nested URLs (e.g., <tt>:account_id => 19</tt>
-      #                    would yield a URL like <tt>/accounts/19/purchases.json</tt>).
-      # +query_options+ - A \hash to add items to the query string for the request.
+      # * +prefix_options+ - A \hash to add a \prefix to the request for nested URLs (e.g., <tt>:account_id => 19</tt>
+      # would yield a URL like <tt>/accounts/19/purchases.json</tt>).
+      #
+      # * +query_options+ - A \hash to add items to the query string for the request.
       #
       # ==== Examples
       #   Weather.singleton_path
@@ -55,8 +56,7 @@ module ActiveResource
       #   # => GET /weather.json?degrees=fahrenheit
       #
       # == Failure or missing data
-      #   A failure to find the requested object raises a ResourceNotFound
-      #   exception.
+      # A failure to find the requested object raises a ResourceNotFound exception.
       #
       #   Inventory.find
       #   # => raises ResourceNotFound
@@ -75,7 +75,7 @@ module ActiveResource
       end
 
     end
-    # Deletes the resource from the remove service.
+    # Deletes the resource from the remote service.
     #
     # ==== Examples
     #   weather = Weather.find
