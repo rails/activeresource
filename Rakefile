@@ -2,7 +2,6 @@
 require 'rake/testtask'
 require 'rake/packagetask'
 require 'rubygems/package_task'
-require 'rdoc/task'
 
 desc "Default Task"
 task :default => [ :test ]
