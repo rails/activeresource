@@ -798,6 +798,9 @@ module ActiveResource
       # * <tt>:from</tt> - Sets the path or custom method that resources will be fetched from.
       # * <tt>:params</tt> - Sets query and \prefix (nested URL) parameters.
       #
+      # ==== Optional Block
+      # Optionally takes a block which yields the response to the request.
+      #
       # ==== Examples
       #   Person.find(1)
       #   # => GET /people/1.json
@@ -829,6 +832,10 @@ module ActiveResource
       #   StreetAddress.find(1, :params => { :person_id => 1 })
       #   # => GET /people/1/street_addresses/1.json
       #
+      #   Person.find(:all) do |response|
+      #     response # => Response from request
+      #   end
+      #
       # == Failure or missing data
       # A failure to find the requested object raises a ResourceNotFound
       # exception if the find was called with an id.
@@ -841,16 +848,16 @@ module ActiveResource
       #   Person.find(:first)
       #   Person.find(:last)
       #   # => nil
-      def find(*arguments)
+      def find(*arguments, &block)
         scope   = arguments.slice!(0)
         options = arguments.slice!(0) || {}
 
         case scope
-          when :all   then find_every(options)
-          when :first then find_every(options).first
-          when :last  then find_every(options).last
-          when :one   then find_one(options)
-          else             find_single(scope, options)
+          when :all   then find_every(options, &block)
+          when :first then find_every(options, &block).first
+          when :last  then find_every(options, &block).last
+          when :one   then find_one(options, &block)
+          else             find_single(scope, options, &block)
         end
       end
 
@@ -923,7 +930,7 @@ module ActiveResource
         end
 
         # Find every resource
-        def find_every(options)
+        def find_every(options, &block)
           begin
             case from = options[:from]
             when Symbol
@@ -934,7 +941,9 @@ module ActiveResource
             else
               prefix_options, query_options = split_options(options[:params])
               path = collection_path(prefix_options, query_options)
-              instantiate_collection( (format.decode(connection.get(path, headers).body) || []), prefix_options )
+              response = connection.get(path, headers)
+              block.call(response) if block_given?
+              instantiate_collection( (format.decode(response.body) || []), prefix_options )
             end
           rescue ActiveResource::ResourceNotFound
             # Swallowing ResourceNotFound exceptions and return nil - as per
