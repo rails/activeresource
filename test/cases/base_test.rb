@@ -945,6 +945,17 @@ class BaseTest < ActiveSupport::TestCase
     assert_raise(ActiveResource::ResourceGone) { Person.find(1) }
   end
 
+  def test_delete_with_custom_header
+    Person.headers['key'] = 'value'
+    ActiveResource::HttpMock.respond_to do |mock|
+      mock.delete "/people/1.json", {}, nil, 200
+      mock.delete "/people/1.json", { 'key' => 'value' }, nil, 404
+    end
+    assert_raise(ActiveResource::ResourceNotFound) { Person.delete(1) }
+  ensure
+    Person.headers.delete('key')
+  end
+
   ########################################################################
   # Tests the more miscellaneous helper methods
   ########################################################################
