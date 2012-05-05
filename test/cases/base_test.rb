@@ -644,8 +644,12 @@ class BaseTest < ActiveSupport::TestCase
     Person.headers.delete('key')
   end
 
-  def test_custom_header_on_build
+  def test_build_with_custom_header
     Person.headers['key'] = 'value'
+    ActiveResource::HttpMock.respond_to do |mock|
+      mock.get "/people/new.json", {}, Person.new.to_json
+      mock.get "/people/new.json", { 'key' => 'value' }, Person.new.to_json, 404
+    end
     assert_raise(ActiveResource::ResourceNotFound) { Person.build }
   ensure
     Person.headers.delete('key')
