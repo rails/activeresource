@@ -644,6 +644,17 @@ class BaseTest < ActiveSupport::TestCase
     Person.headers.delete('key')
   end
 
+  def test_build_with_custom_header
+    Person.headers['key'] = 'value'
+    ActiveResource::HttpMock.respond_to do |mock|
+      mock.get "/people/new.json", {}, Person.new.to_json
+      mock.get "/people/new.json", { 'key' => 'value' }, Person.new.to_json, 404
+    end
+    assert_raise(ActiveResource::ResourceNotFound) { Person.build }
+  ensure
+    Person.headers.delete('key')
+  end
+
   def test_save
     rick = Person.new
     assert rick.save
@@ -932,6 +943,17 @@ class BaseTest < ActiveSupport::TestCase
       mock.get "/people/1.json", {}, nil, 410
     end
     assert_raise(ActiveResource::ResourceGone) { Person.find(1) }
+  end
+
+  def test_delete_with_custom_header
+    Person.headers['key'] = 'value'
+    ActiveResource::HttpMock.respond_to do |mock|
+      mock.delete "/people/1.json", {}, nil, 200
+      mock.delete "/people/1.json", { 'key' => 'value' }, nil, 404
+    end
+    assert_raise(ActiveResource::ResourceNotFound) { Person.delete(1) }
+  ensure
+    Person.headers.delete('key')
   end
 
   ########################################################################
