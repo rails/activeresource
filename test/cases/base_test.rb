@@ -1146,6 +1146,19 @@ class BaseTest < ActiveSupport::TestCase
     end
   end
 
+  def test_persisted_nested_resources_from_response
+    luis = Customer.find(1)
+    luis.friends.each do |friend|
+      assert !friend.new?
+      friend.brothers.each do |brother|
+        assert !brother.new?
+        brother.children.each do |child|
+          assert !child.new?
+        end
+      end
+    end
+  end
+
   def test_parse_resource_with_given_has_one_resources
     Customer.send(:has_one, :mother, :class_name => "external/person")
     luis = Customer.find(1)
