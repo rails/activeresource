@@ -130,8 +130,14 @@ module ActiveResource::Associations
     end
   end
 
+  # Defines the has_many finder method
   def defines_has_many_finder_method(method_name, association_model)
     ivar_name = :"@#{method_name}"
+
+    if method_defined?(method_name)
+      instance_variable_set(ivar_name, nil)
+      remove_method(method_name)
+    end
 
     define_method(method_name) do
       if instance_variable_defined?(ivar_name)
@@ -139,7 +145,7 @@ module ActiveResource::Associations
       elsif attributes.include?(method_name)
         attributes[method_name]
       else
-        instance_variable_set(ivar_name, association_model.find(:all, :params => {:"#{self.class.element_name}_id" => self.id}))
+        instance_variable_set(ivar_name, association_model.find(:all, :from => "#{element_base_path}/#{method_name}.#{association_model.format.extension}"))
       end
     end
   end
