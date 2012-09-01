@@ -1077,10 +1077,10 @@ class BaseTest < ActiveSupport::TestCase
   end
 
   def test_to_json
+    ActiveResource::Base.include_root_in_json = true
     joe = Person.find(6)
     encode = joe.encode
     json = joe.to_json
-
     assert_equal encode, json
     assert_match %r{^\{"person":\{}, json
     assert_match %r{"id":6}, json
@@ -1167,7 +1167,7 @@ class BaseTest < ActiveSupport::TestCase
       assert_kind_of Comment, comment
     end
   end
-  
+
   def test_parse_resource_with_has_one_makes_get_request_on_child_route
     Product.send(:has_one, :inventory)
     product = Product.find(1)
