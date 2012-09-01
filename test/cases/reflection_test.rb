@@ -2,6 +2,7 @@ require 'abstract_unit'
 
 require 'fixtures/person'
 require 'fixtures/customer'
+require 'fixtures/business'
 
 
 
@@ -44,7 +45,7 @@ class ReflectionTest < ActiveSupport::TestCase
     assert_equal 'person_id', object.foreign_key
   end
 
-  def test_foreign_key_method_with_with_foreign_key_option
+  def test_foreign_key_method_with_foreign_key_option
     object = ActiveResource::Reflection::AssociationReflection.new(:test, :people, {:foreign_key => 'client_id'})
     assert_equal 'client_id', object.foreign_key
   end
@@ -57,4 +58,11 @@ class ReflectionTest < ActiveSupport::TestCase
     assert_equal Person, Person.reflections[:people].klass
   end
 
+  def test_class_name_when_association_name_has_complex_singular
+    object = ActiveResource::Reflection::AssociationReflection.new(:test, :business, {:class_name => 'business'})
+    assert_equal Business, object.klass
+
+    object = ActiveResource::Reflection::AssociationReflection.new(:test, :businesses, {:class_name => 'business'})
+    assert_equal Business, object.klass
+  end
 end
