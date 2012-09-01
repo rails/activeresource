@@ -15,6 +15,7 @@ require 'mocha'
 
 class BaseTest < ActiveSupport::TestCase
   def setup
+    ActiveResource::Base.include_root_in_json = true
     setup_response # find me in abstract_unit
     @original_person_site = Person.site
   end
