@@ -291,6 +291,8 @@ module ActiveResource
 
     class_attribute :_format
     class_attribute :_collection_parser
+    class_attribute :include_format_in_path
+    self.include_format_in_path = true
 
     class << self
       # Creates a schema for this resource - setting the attributes that are
@@ -309,12 +311,12 @@ module ActiveResource
       #     schema do
       #       # define each attribute separately
       #       attribute 'name', :string
-      #   
+      #
       #       # or use the convenience methods and pass >=1 attribute names
       #       string  'eye_color', 'hair_color'
       #       integer 'age'
       #       float   'height', 'weight'
-      #   
+      #
       #       # unsupported types should be left as strings
       #       # overload the accessor methods if you need to convert them
       #       attribute 'created_at', 'string'
@@ -669,6 +671,10 @@ module ActiveResource
       alias_method :set_element_name, :element_name=  #:nodoc:
       alias_method :set_collection_name, :collection_name=  #:nodoc:
 
+      def format_extension
+        include_format_in_path ? ".#{format.extension}" : ""
+      end
+
       # Gets the element path for the given ID in +id+. If the +query_options+ parameter is omitted, Rails
       # will split from the \prefix options.
       #
@@ -699,7 +705,7 @@ module ActiveResource
         check_prefix_options(prefix_options)
 
         prefix_options, query_options = split_options(prefix_options) if query_options.nil?
-        "#{prefix(prefix_options)}#{collection_name}/#{URI.parser.escape id.to_s}.#{format.extension}#{query_string(query_options)}"
+        "#{prefix(prefix_options)}#{collection_name}/#{URI.parser.escape id.to_s}#{format_extension}#{query_string(query_options)}"
       end
 
       # Gets the new element path for REST resources.
@@ -719,7 +725,7 @@ module ActiveResource
       #   Comment.collection_path(:post_id => 5)
       #   # => /posts/5/comments/new.json
       def new_element_path(prefix_options = {})
-        "#{prefix(prefix_options)}#{collection_name}/new.#{format.extension}"
+        "#{prefix(prefix_options)}#{collection_name}/new#{format_extension}"
       end
 
       # Gets the collection path for the REST resources. If the +query_options+ parameter is omitted, Rails
@@ -746,7 +752,7 @@ module ActiveResource
       def collection_path(prefix_options = {}, query_options = nil)
         check_prefix_options(prefix_options)
         prefix_options, query_options = split_options(prefix_options) if query_options.nil?
-        "#{prefix(prefix_options)}#{collection_name}.#{format.extension}#{query_string(query_options)}"
+        "#{prefix(prefix_options)}#{collection_name}#{format_extension}#{query_string(query_options)}"
       end
 
       alias_method :set_primary_key, :primary_key=  #:nodoc:
