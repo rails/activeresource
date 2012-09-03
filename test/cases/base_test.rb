@@ -1239,4 +1239,20 @@ class BaseTest < ActiveSupport::TestCase
     sound = Asset::Sound.find(1)
     assert_equal "Asset::Sound::Author", sound.author.class.to_s
   end
+
+  def test_paths_with_format
+    assert_equal "/customers.json",      Customer.collection_path
+    assert_equal "/customers/1.json",    Customer.element_path(1)
+    assert_equal "/customers/new.json",  Customer.new_element_path
+  end
+
+  def test_paths_without_format
+    ActiveResource::Base.include_format_in_path = false
+    assert_equal "/customers",      Customer.collection_path
+    assert_equal "/customers/1",    Customer.element_path(1)
+    assert_equal "/customers/new",  Customer.new_element_path
+
+  ensure
+    ActiveResource::Base.include_format_in_path = true
+  end
 end

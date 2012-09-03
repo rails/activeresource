@@ -37,7 +37,7 @@ module ActiveResource
         check_prefix_options(prefix_options)
 
         prefix_options, query_options = split_options(prefix_options) if query_options.nil?
-        "#{prefix(prefix_options)}#{singleton_name}.#{format.extension}#{query_string(query_options)}"
+        "#{prefix(prefix_options)}#{singleton_name}#{format_extension}#{query_string(query_options)}"
       end
 
       # Core method for finding singleton resources.
@@ -67,7 +67,7 @@ module ActiveResource
       private
       # Find singleton resource
       def find_singleton(options)
-        prefix_options, query_options = split_options(options[:params]) 
+        prefix_options, query_options = split_options(options[:params])
 
         path = singleton_path(prefix_options, query_options)
         resp = self.format.decode(self.connection.get(path, self.headers).body)

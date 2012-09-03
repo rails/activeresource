@@ -85,7 +85,7 @@ module ActiveResource
     module ClassMethods
       def custom_method_collection_url(method_name, options = {})
         prefix_options, query_options = split_options(options)
-        "#{prefix(prefix_options)}#{collection_name}/#{method_name}.#{format.extension}#{query_string(query_options)}"
+        "#{prefix(prefix_options)}#{collection_name}/#{method_name}#{format_extension}#{query_string(query_options)}"
       end
     end
 
@@ -117,11 +117,11 @@ module ActiveResource
 
     private
       def custom_method_element_url(method_name, options = {})
-        "#{self.class.prefix(prefix_options)}#{self.class.collection_name}/#{id}/#{method_name}.#{self.class.format.extension}#{self.class.__send__(:query_string, options)}"
+        "#{self.class.prefix(prefix_options)}#{self.class.collection_name}/#{id}/#{method_name}#{self.class.format_extension}#{self.class.__send__(:query_string, options)}"
       end
 
       def custom_method_new_element_url(method_name, options = {})
-        "#{self.class.prefix(prefix_options)}#{self.class.collection_name}/new/#{method_name}.#{self.class.format.extension}#{self.class.__send__(:query_string, options)}"
+        "#{self.class.prefix(prefix_options)}#{self.class.collection_name}/new/#{method_name}#{self.class.format_extension}#{self.class.__send__(:query_string, options)}"
       end
   end
 end

@@ -11,6 +11,7 @@ class CustomMethodsTest < ActiveSupport::TestCase
     @ryan  = { :person => { :name => 'Ryan' } }.to_json
     @addy  = { :address => { :id => 1, :street => '12345 Street' } }.to_json
     @addy_deep  = { :address => { :id => 1, :street => '12345 Street', :zip => "27519" } }.to_json
+    @active = [{ id: 1, name: "Matz", id: 5, name: "Bob" }].to_json
 
     ActiveResource::HttpMock.respond_to do |mock|
       mock.get    "/people/1.json",        {}, @matz
@@ -97,5 +98,46 @@ class CustomMethodsTest < ActiveSupport::TestCase
 
   def test_find_custom_resources
     assert_equal 'Matz', Person.find(:all, :from => :managers).first.name
+  end
+
+  def test_paths_with_format
+    path_with_format = "/people/active.json"
+
+    ActiveResource::HttpMock.respond_to do |mock|
+      mock.get      path_with_format, {}, @active
+      mock.post     path_with_format, {}, nil
+      mock.patch    path_with_format, {}, nil
+      mock.delete   path_with_format, {}, nil
+      mock.put      path_with_format, {}, nil
+    end
+
+    [:get, :post, :delete, :patch, :put].each_with_index do |method, index|
+      Person.send(method, :active)
+      expected_request = ActiveResource::Request.new(method, path_with_format)
+      assert_equal expected_request.path, ActiveResource::HttpMock.requests[index].path
+      assert_equal expected_request.method, ActiveResource::HttpMock.requests[index].method
+    end
+  end
+
+  def test_paths_without_format
+    ActiveResource::Base.include_format_in_path = false
+    path_without_format = "/people/active"
+
+    ActiveResource::HttpMock.respond_to do |mock|
+      mock.get      path_without_format, {}, @active
+      mock.post     path_without_format, {}, nil
+      mock.patch    path_without_format, {}, nil
+      mock.delete   path_without_format, {}, nil
+      mock.put      path_without_format, {}, nil
+    end
+
+    [:get, :post, :delete, :patch, :put].each_with_index do |method, index|
+      Person.send(method, :active)
+      expected_request = ActiveResource::Request.new(method, path_without_format)
+      assert_equal expected_request.path, ActiveResource::HttpMock.requests[index].path
+      assert_equal expected_request.method, ActiveResource::HttpMock.requests[index].method
+    end
+  ensure
+    ActiveResource::Base.include_format_in_path = true
   end
 end
