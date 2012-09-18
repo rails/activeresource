@@ -108,6 +108,12 @@ class BaseLoadTest < ActiveSupport::TestCase
     assert_equal @first_address.values.first.stringify_keys, address.attributes
   end
 
+  def test_load_one_with_unknown_resource_from_anonymous_subclass
+    subclass = Class.new(Person).tap { |c| c.element_name = 'person' }
+    address = silence_warnings { subclass.new.load(@first_address).address }
+    assert_kind_of subclass::Address, address
+  end
+
   def test_load_collection_with_existing_resource
     addresses = @person.load(@addresses_from_json).street_addresses
     assert_kind_of Array, addresses
