@@ -1490,7 +1490,7 @@ module ActiveResource
         if self.class.const_defined?(*const_args)
           self.class.const_get(*const_args)
         else
-          ancestors = self.class.name.split("::")
+          ancestors = self.class.name.to_s.split("::")
           if ancestors.size > 1
             find_or_create_resource_in_modules(resource_name, ancestors)
           else
