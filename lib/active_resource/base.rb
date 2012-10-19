@@ -1055,7 +1055,7 @@ module ActiveResource
       @attributes     = {}.with_indifferent_access
       @prefix_options = {}
       @persisted = persisted
-      load(attributes)
+      load(attributes, false, persisted)
     end
 
     # Returns a \clone of the resource that hasn't been assigned an +id+ yet and
@@ -1283,7 +1283,7 @@ module ActiveResource
     #   my_branch.reload
     #   my_branch.name # => "Wilson Road"
     def reload
-      self.load(self.class.find(to_param, :params => @prefix_options).attributes)
+      self.load(self.class.find(to_param, :params => @prefix_options).attributes, false, true)
     end
 
     # A method to manually load attributes from a \hash. Recursively loads collections of
@@ -1307,7 +1307,7 @@ module ActiveResource
     #   your_supplier = Supplier.new
     #   your_supplier.load(my_attrs)
     #   your_supplier.save
-    def load(attributes, remove_root = false)
+    def load(attributes, remove_root = false, persisted = false)
       raise ArgumentError, "expected an attributes Hash, got #{attributes.inspect}" unless attributes.is_a?(Hash)
       @prefix_options, attributes = split_options(attributes)
 
@@ -1325,14 +1325,14 @@ module ActiveResource
               value.map do |attrs|
                 if attrs.is_a?(Hash)
                   resource ||= find_or_create_resource_for_collection(key)
-                  resource.new(attrs)
+                  resource.new(attrs, persisted)
                 else
                   attrs.duplicable? ? attrs.dup : attrs
                 end
               end
             when Hash
               resource = find_or_create_resource_for(key)
-              resource.new(value)
+              resource.new(value, persisted)
             else
               value.duplicable? ? value.dup : value
           end
@@ -1427,7 +1427,7 @@ module ActiveResource
         if (response_code_allows_body?(response.code) &&
             (response['Content-Length'].nil? || response['Content-Length'] != "0") &&
             !response.body.nil? && response.body.strip.size > 0)
-          load(self.class.format.decode(response.body), true)
+          load(self.class.format.decode(response.body), true, true)
           @persisted = true
         end
       end
