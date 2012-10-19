@@ -656,6 +656,20 @@ class BaseTest < ActiveSupport::TestCase
     Person.headers.delete('key')
   end
 
+  def test_build_without_attributes_for_prefix_call
+    ActiveResource::HttpMock.respond_to do |mock|
+      mock.get "/people/1/addresses/new.json", {}, StreetAddress.new.to_json
+    end
+    assert_raise(ActiveResource::InvalidRequestError) { StreetAddress.build }
+  end
+  
+  def test_build_with_attributes_for_prefix_call
+    ActiveResource::HttpMock.respond_to do |mock|
+      mock.get "/people/1/addresses/new.json", {}, StreetAddress.new.to_json
+    end
+    assert_nothing_raised { StreetAddress.build(person_id: 1) }
+  end
+
   def test_save
     rick = Person.new
     assert rick.save

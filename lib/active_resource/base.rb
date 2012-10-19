@@ -766,7 +766,7 @@ module ActiveResource
       # Returns the new resource instance.
       #
       def build(attributes = {})
-        attrs = self.format.decode(connection.get("#{new_element_path}", headers).body).merge(attributes)
+        attrs = self.format.decode(connection.get("#{new_element_path(attributes)}", headers).body)
         self.new(attrs)
       end
 
