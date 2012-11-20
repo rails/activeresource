@@ -22,5 +22,5 @@ Gem::Specification.new do |s|
 
   s.add_dependency('activesupport', '~> 4.0.0.beta')
   s.add_dependency('activemodel',   '~> 4.0.0.beta')
-  s.add_development_dependency('mocha', '>= 0.9.8')
+  s.add_development_dependency('mocha', '>= 0.13.0')
 end
