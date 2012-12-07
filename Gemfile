@@ -11,6 +11,8 @@ end
 
 gem 'activesupport', rails_gem_source.dup
 gem 'activemodel', rails_gem_source.dup
+gem 'rails-observers', github: 'rails/rails-observers'
+gem 'journey', github: 'rails/journey'
 gem 'rake'
 
 # Add your own local bundler stuff
