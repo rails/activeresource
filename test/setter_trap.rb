@@ -1,4 +1,4 @@
-class SetterTrap < ActiveSupport::BasicObject
+class SetterTrap < ActiveSupport::ProxyObject
   class << self
     def rollback_sets(obj)
       trapped = new(obj)

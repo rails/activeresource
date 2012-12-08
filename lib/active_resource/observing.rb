@@ -1,3 +1,5 @@
+require 'rails/observers/active_model/observing'
+
 module ActiveResource
   module Observing
     extend ActiveSupport::Concern
