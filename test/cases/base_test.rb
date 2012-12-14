@@ -135,13 +135,23 @@ class BaseTest < ActiveSupport::TestCase
   end
 
   def test_ssl_options_hash_can_be_reset
+    # SSL options are nil, resulting in an empty hash on the connection.
     actor = Class.new(ActiveResource::Base)
     actor.site = 'https://cinema'
     assert_nil actor.ssl_options
-    actor.ssl_options = {:foo => 5}
+    connection = actor.connection
+    assert_equal Hash.new, connection.ssl_options
+
+    # Setting SSL options wipes the connection.
+    actor.ssl_options = { :foo => 5 }
+    assert_not_equal connection, actor.connection
+    connection = actor.connection
+    assert_equal 5, connection.ssl_options[:foo]
+
+    # Setting SSL options to nil also wipes the connection.
     actor.ssl_options = nil
-    assert_nil actor.ssl_options
-    assert_nil actor.connection.ssl_options
+    assert_not_equal connection, actor.connection
+    assert_equal Hash.new, actor.connection.ssl_options
   end
 
   def test_credentials_from_site_are_decoded

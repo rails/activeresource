@@ -222,12 +222,18 @@ class ConnectionTest < ActiveSupport::TestCase
 
   def test_ssl_options_get_applied_to_http
     http = Net::HTTP.new('')
-    @conn.site="https://secure"
-    @conn.ssl_options={:verify_mode => OpenSSL::SSL::VERIFY_PEER}
+    @conn.site = 'https://secure'
+    @conn.ssl_options = { :verify_mode => OpenSSL::SSL::VERIFY_PEER }
     @conn.send(:configure_http, http)
 
     assert http.use_ssl?
     assert_equal http.verify_mode, OpenSSL::SSL::VERIFY_PEER
+  end
+
+  def test_ssl_options_get_applied_to_https_urls_without_explicitly_setting_ssl_options
+    http = Net::HTTP.new('')
+    @conn.site = 'https://secure'
+    assert @conn.send(:configure_http, http).use_ssl?
   end
 
   def test_ssl_error

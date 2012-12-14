@@ -568,9 +568,9 @@ module ActiveResource
       # * <tt>:verify_depth</tt> - The maximum depth for the certificate chain verification.
       # * <tt>:cert_store</tt> - OpenSSL::X509::Store to verify peer certificate.
       # * <tt>:ssl_timeout</tt> -The SSL timeout in seconds.
-      def ssl_options=(opts={})
+      def ssl_options=(options)
         @connection   = nil
-        @ssl_options  = opts
+        @ssl_options  = options
       end
 
       # Returns the SSL options hash.

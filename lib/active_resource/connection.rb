@@ -41,6 +41,7 @@ module ActiveResource
     # Set URI for remote service.
     def site=(site)
       @site = site.is_a?(URI) ? site : URI.parse(site)
+      @ssl_options ||= {} if @site.is_a?(URI::HTTPS)
       @user = URI.parser.unescape(@site.user) if @site.user
       @password = URI.parser.unescape(@site.password) if @site.password
     end
@@ -71,8 +72,8 @@ module ActiveResource
     end
 
     # Hash of options applied to Net::HTTP instance when +site+ protocol is 'https'.
-    def ssl_options=(opts={})
-      @ssl_options = opts
+    def ssl_options=(options)
+      @ssl_options = options
     end
 
     # Executes a GET request.
