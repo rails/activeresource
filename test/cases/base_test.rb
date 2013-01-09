@@ -11,7 +11,7 @@ require "fixtures/post"
 require "fixtures/comment"
 require 'active_support/json'
 require 'active_support/core_ext/hash/conversions'
-require 'mocha'
+require 'mocha/setup'
 
 class BaseTest < ActiveSupport::TestCase
   def setup
