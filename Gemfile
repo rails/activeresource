@@ -2,16 +2,9 @@ source 'https://rubygems.org'
 
 gemspec
 
-local_rails_path = File.expand_path(File.dirname(__FILE__) + '/../rails')
-if File.exists?(local_rails_path)
-  rails_gem_source = { :path => local_rails_path }
-else
-  rails_gem_source = { :git => "git://github.com/rails/rails.git" }
-end
-
-gem 'activesupport', rails_gem_source.dup
-gem 'activemodel', rails_gem_source.dup
-gem 'rails-observers', github: 'rails/rails-observers'
+gem 'activesupport', github: 'rails/rails', branch: 'master'
+gem 'activemodel', github: 'rails/rails', branch: 'master'
+gem 'rails-observers', github: 'rails/rails-observers', branch: 'master'
 gem 'rake'
 
 # Add your own local bundler stuff
