@@ -672,7 +672,7 @@ class BaseTest < ActiveSupport::TestCase
     end
     assert_raise(ActiveResource::InvalidRequestError) { StreetAddress.build }
   end
-  
+
   def test_build_with_attributes_for_prefix_call
     ActiveResource::HttpMock.respond_to do |mock|
       mock.get "/people/1/addresses/new.json", {}, StreetAddress.new.to_json
@@ -1205,24 +1205,11 @@ class BaseTest < ActiveSupport::TestCase
       assert_kind_of Comment, comment
     end
   end
-  
+
   def test_parse_resource_with_has_one_makes_get_request_on_child_route
     Product.send(:has_one, :inventory)
     product = Product.find(1)
     assert product.inventory.status == ActiveSupport::JSON.decode(@inventory)['status']
-  end
-
-  def test_load_yaml_array
-    assert_nothing_raised do
-      Person.format = :xml
-      marty = Person.find(5)
-      assert_equal 3, marty.colors.size
-      marty.colors.each do |color|
-        assert_kind_of String, color
-      end
-    end
-  ensure
-    Person.format = :json
   end
 
   def test_with_custom_formatter
