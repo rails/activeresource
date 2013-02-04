@@ -3,7 +3,7 @@ require 'active_support/core_ext/module/delegation'
 module ActiveResource # :nodoc:
   class Collection # :nodoc:
     include Enumerable
-    delegate :to_xml, :to_yaml, :length, :collect, :map, :each, :all?, :include?, :to_ary, :size, :last, :first, :to => :to_a
+    delegate :to_xml, :to_yaml, :length, :collect, :map, :each, :all?, :include?, :to_ary, :size, :last, :first, :[], :to => :to_a
 
     # The array of actual elements returned by index actions
     attr_accessor :elements
