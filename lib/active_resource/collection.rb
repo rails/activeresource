@@ -1,4 +1,5 @@
 require 'active_support/core_ext/module/delegation'
+require 'active_support/inflector'
 
 module ActiveResource # :nodoc:
   class Collection # :nodoc:
@@ -6,7 +7,7 @@ module ActiveResource # :nodoc:
     delegate :to_xml, :to_yaml, :length, :collect, :map, :each, :all?, :include?, :to_ary, :size, :last, :first, :[], :to => :to_a
 
     # The array of actual elements returned by index actions
-    attr_accessor :elements
+    attr_accessor :elements, :resource_class, :original_params
     
     # ActiveResource::Collection is a wrapper to handle parsing index responses that
     # do not directly map to Rails conventions.
@@ -69,5 +70,16 @@ module ActiveResource # :nodoc:
     end
     alias map! collect!
 
+    def first_or_create(attributes = {})
+      first || resource_class.create(original_params.update(attributes))
+    rescue NoMethodError
+      raise "Cannot create resource from resource type: #{resource_class.inspect}"
+    end
+
+    def first_or_initialize(attributes = {})
+      first || resource_class.build(original_params.update(attributes))
+    rescue NoMethodError
+      raise "Cannot build resource from resource type: #{resource_class.inspect}"
+    end
   end
 end
