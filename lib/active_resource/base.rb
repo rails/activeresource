@@ -983,10 +983,10 @@ module ActiveResource
         end
 
         def instantiate_collection(collection, original_params = {}, prefix_options = {})
-          parser = collection_parser.new(collection)
-          parser.resource_class  = self
-          parser.original_params = original_params
-          parser.collect! { |record| instantiate_record(record, prefix_options) }
+          collection_parser.new(collection).tap do |parser|
+            parser.resource_class  = self
+            parser.original_params = original_params
+          end.collect! { |record| instantiate_record(record, prefix_options) }
         end
 
         def instantiate_record(record, prefix_options = {})
