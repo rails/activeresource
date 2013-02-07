@@ -77,7 +77,7 @@ module ActiveResource # :nodoc:
     end
 
     def first_or_initialize(attributes = {})
-      first || resource_class.build(original_params.update(attributes))
+      first || resource_class.new(original_params.update(attributes))
     rescue NoMethodError
       raise "Cannot build resource from resource type: #{resource_class.inspect}"
     end
