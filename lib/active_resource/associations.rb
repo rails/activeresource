@@ -126,7 +126,13 @@ module ActiveResource::Associations
     end
 
     define_method(method_name) do
-      instance_variable_defined?(ivar_name) ? instance_variable_get(ivar_name) : instance_variable_set(ivar_name, association_model.find(send(finder_key)))
+      if instance_variable_defined?(ivar_name)
+        instance_variable_get(ivar_name)
+      elsif attributes.include?(method_name)
+        attributes[method_name]
+      else
+        instance_variable_set(ivar_name, association_model.find(send(finder_key)))
+      end
     end
   end
 
