@@ -8,8 +8,25 @@ class BasicCollectionTest < CollectionTest
   def test_collection_respond_to_collect!
     assert @collection.respond_to?(:collect!)
   end
+
   def test_collection_respond_to_map!
     assert @collection.respond_to?(:map!)
+  end
+
+  def test_collection_respond_to_first_or_create
+    assert @collection.respond_to?(:first_or_create)
+  end
+
+  def test_collection_respond_to_first_or_initialize
+    assert @collection.respond_to?(:first_or_initialize)
+  end
+
+  def test_first_or_create_without_resource_class_raises_error
+    assert_raise(RuntimeError) { @collection.first_or_create }
+  end
+
+  def test_first_or_initialize_without_resource_class_raises_error
+    assert_raise(RuntimeError) { @collection.first_or_initialize }
   end
   
   def test_collect_bang_modifies_elements
@@ -51,18 +68,41 @@ class CollectionInheretanceTest < ActiveSupport::TestCase
     @posts_hash = {"results" => [@post], :next_page => '/paginated_posts.json?page=2'}
     @posts = @posts_hash.to_json
     @posts2 = {"results" => [@post.merge({:id => 2})], :next_page => nil}.to_json
+
+    @empty_posts = { "results" => [], :next_page => nil }.to_json
+    @new_post = { :id => nil, :title => nil }.to_json
     ActiveResource::HttpMock.respond_to do |mock|
       mock.get    '/paginated_posts.json', {}, @posts
+      mock.get    '/paginated_posts/new.json', {}, @new_post
       mock.get    '/paginated_posts.json?page=2', {}, @posts
+      mock.get    '/paginated_posts.json?title=test', {}, @empty_posts
+      mock.post   '/paginated_posts.json', {}, nil
     end
   end
   
   def test_setting_collection_parser
     assert_kind_of PaginatedCollection, PaginatedPost.find(:all)
   end
+
+  def test_setting_collection_parser_resource_class
+    assert_equal PaginatedPost, PaginatedPost.where(:page => 2).resource_class
+  end
+
+  def test_setting_collection_parser_original_params
+    assert_equal({:page => 2}, PaginatedPost.where(:page => 2).original_params)
+  end
   
   def test_custom_accessor
     assert_equal PaginatedPost.find(:all).next_page, @posts_hash[:next_page]
   end
 
+  def test_first_or_create
+    post = PaginatedPost.where(:title => 'test').first_or_create
+    assert post.valid?
+  end
+
+  def test_first_or_initialize
+    post = PaginatedPost.where(:title => 'test').first_or_initialize
+    assert post.valid?
+  end
 end

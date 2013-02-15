@@ -891,6 +891,11 @@ module ActiveResource
         find(:all, *args)
       end
 
+      def where(clauses = {})
+        raise ArgumentError, "expected a clauses Hash, got #{clauses.inspect}" unless clauses.is_a? Hash
+        find(:all, :params => clauses)
+      end
+
 
       # Deletes the resources with the ID in the +id+ parameter.
       #
@@ -943,14 +948,14 @@ module ActiveResource
           begin
             case from = options[:from]
             when Symbol
-              instantiate_collection(get(from, options[:params]))
+              instantiate_collection(get(from, options[:params]), options[:params])
             when String
               path = "#{from}#{query_string(options[:params])}"
-              instantiate_collection(format.decode(connection.get(path, headers).body) || [])
+              instantiate_collection(format.decode(connection.get(path, headers).body) || [], options[:params])
             else
               prefix_options, query_options = split_options(options[:params])
               path = collection_path(prefix_options, query_options)
-              instantiate_collection( (format.decode(connection.get(path, headers).body) || []), prefix_options )
+              instantiate_collection( (format.decode(connection.get(path, headers).body) || []), query_options, prefix_options )
             end
           rescue ActiveResource::ResourceNotFound
             # Swallowing ResourceNotFound exceptions and return nil - as per
@@ -977,8 +982,11 @@ module ActiveResource
           instantiate_record(format.decode(connection.get(path, headers).body), prefix_options)
         end
 
-        def instantiate_collection(collection, prefix_options = {})
-          collection_parser.new(collection).collect! { |record| instantiate_record(record, prefix_options) }
+        def instantiate_collection(collection, original_params = {}, prefix_options = {})
+          collection_parser.new(collection).tap do |parser|
+            parser.resource_class  = self
+            parser.original_params = original_params
+          end.collect! { |record| instantiate_record(record, prefix_options) }
         end
 
         def instantiate_record(record, prefix_options = {})
