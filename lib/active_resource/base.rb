@@ -625,7 +625,15 @@ module ActiveResource
       attr_writer :primary_key
 
       def primary_key
-        @primary_key ||= 'id'
+        if defined?(@primary_key)
+          @primary_key
+        elsif superclass != Object && superclass.primary_key
+          primary_key = superclass.primary_key
+          return primary_key if primary_key.is_a?(Symbol)
+          primary_key.dup.freeze
+        else
+          'id'
+        end
       end
 
       # Gets the \prefix for a resource's nested URL (e.g., <tt>prefix/collectionname/1.json</tt>)
