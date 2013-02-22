@@ -353,6 +353,43 @@ class BaseTest < ActiveSupport::TestCase
     assert_equal fruit.timeout, apple.timeout, 'subclass did not adopt changes from parent class'
   end
 
+  def test_primary_key_uses_superclass_primary_key_until_written
+    # Superclass is Object so defaults to 'id'
+    assert_equal 'id', ActiveResource::Base.primary_key
+    assert_equal 'id', Class.new(ActiveResource::Base).primary_key
+    Person.primary_key = :first
+
+    # Subclass uses superclass primary_key
+    actor = Class.new(Person)
+    assert_equal Person.primary_key, actor.primary_key
+
+    # Changing subclass primary_key doesn't change superclass primary_key
+    actor.primary_key = :second
+    assert_not_equal Person.primary_key, actor.primary_key
+
+    # Changing superclass primary_key doesn't overwrite subclass primary_key
+    Person.primary_key = :third
+    assert_not_equal Person.primary_key, actor.primary_key
+
+    # Changing superclass primary_key after subclassing changes subclass primary_key
+    jester = Class.new(actor)
+    actor.primary_key = :fourth
+    assert_equal actor.primary_key, jester.primary_key
+
+    # Subclass primary_keys are always equal to superclass primary_key when not overridden
+    fruit = Class.new(ActiveResource::Base)
+    apple = Class.new(fruit)
+
+    fruit.primary_key = :fifth
+    assert_equal fruit.primary_key, apple.primary_key, 'subclass did not adopt changes from parent class'
+
+    fruit.primary_key = :sixth
+    assert_equal fruit.primary_key, apple.primary_key, 'subclass did not adopt changes from parent class'
+
+    # Reset the primary key for subsequent tests
+    Person.primary_key = 'id'
+  end
+
   def test_ssl_options_reader_uses_superclass_ssl_options_until_written
     # Superclass is Object so returns nil.
     assert_nil ActiveResource::Base.ssl_options
