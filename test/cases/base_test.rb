@@ -9,6 +9,7 @@ require "fixtures/address"
 require "fixtures/subscription_plan"
 require "fixtures/post"
 require "fixtures/comment"
+require "fixtures/polymorphic"
 require 'active_support/json'
 require 'active_support/core_ext/hash/conversions'
 require 'mocha/setup'
@@ -756,6 +757,36 @@ class BaseTest < ActiveSupport::TestCase
     resp['Content-Length'] = "0"
     Person.connection.expects(:post).returns(resp)
     assert !Person.create.persisted?
+  end
+
+  # Polymorphic _type attribute (main resource)
+  def test_polymorphic_type_attribute_for_main_resource
+    boss = { :id => 7, :_type => 'Boss', :name => 'John' }.to_json
+    ActiveResource::HttpMock.respond_to do |mock|
+      mock.get "/employees/7.json", {}, boss
+    end
+    boss = Employee.find 7
+    assert boss.is_a? Boss
+  end
+
+  # Polymorphic _type attribute (sub resources)
+  def test_polymorphic_type_attribute_for_sub_resources
+    employee = {
+      :id => 8,
+      :name => 'Mary',
+      :mood => { :_type => 'GoodMood' },
+      :qualities => [
+        { :_type => 'GoodQuality', :name => 'Curious' },
+        { :_type => 'BadQuality', :name => 'Idiot' }
+      ]
+    }.to_json
+    ActiveResource::HttpMock.respond_to do |mock|
+      mock.get "/employees/8.json", {}, employee
+    end
+    employee = Employee.find 8
+    assert employee.mood.is_a? GoodMood
+    assert employee.qualities[0].is_a? GoodQuality
+    assert employee.qualities[1].is_a? BadQuality
   end
 
   # These response codes aren't allowed to have bodies per HTTP spec

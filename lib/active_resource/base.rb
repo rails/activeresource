@@ -998,7 +998,8 @@ module ActiveResource
         end
 
         def instantiate_record(record, prefix_options = {})
-          new(record, true).tap do |resource|
+          resource = (record.key? "_type") ? record["_type"].constantize : self
+          resource.new(record, true).tap do |resource|
             resource.prefix_options = prefix_options
           end
         end
@@ -1340,14 +1341,18 @@ module ActiveResource
               resource = nil
               value.map do |attrs|
                 if attrs.is_a?(Hash)
-                  resource ||= find_or_create_resource_for_collection(key)
+                  if attrs.key? "_type"
+                    resource = attrs["_type"].constantize
+                  else
+                    resource ||= find_or_create_resource_for_collection(key)
+                  end
                   resource.new(attrs, persisted)
                 else
                   attrs.duplicable? ? attrs.dup : attrs
                 end
               end
             when Hash
-              resource = find_or_create_resource_for(key)
+              resource = (value.key? "_type") ? value["_type"].constantize : find_or_create_resource_for(key)
               resource.new(value, persisted)
             else
               value.duplicable? ? value.dup : value
