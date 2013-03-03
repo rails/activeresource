@@ -850,7 +850,7 @@ module ActiveResource
       #   Person.find(:one, :from => "/companies/1/manager.json")
       #   # => GET /companies/1/manager.json
       #
-      #   StreetAddress.find(1, :params => { :person_id => 1 })
+      #   StreetAddress.find(1, :person_id => 1)
       #   # => GET /people/1/street_addresses/1.json
       #
       # == Failure or missing data
@@ -985,7 +985,7 @@ module ActiveResource
 
         # Find a single resource from the default URL
         def find_single(scope, options)
-          prefix_options, query_options = split_options(options[:params])
+          prefix_options, query_options = split_options(options[:params] || options)
           path = element_path(scope, prefix_options, query_options)
           instantiate_record(format.decode(connection.get(path, headers).body), prefix_options)
         end
