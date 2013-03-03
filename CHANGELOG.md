@@ -1,6 +1,11 @@
-## Rails 4.0.0 (unreleased) ##
+## Active Resource 4.0.0 (unreleased) ##
 
-* Adds support for PATCH requests. *dlee*
+*   No changes
+
+
+## Active Resource 4.0.0.beta1 (March 3, 2013) ##
+
+*   Adds support for PATCH requests. *dlee*
 
 
 ## Rails 3.2.2 (March 1, 2012) ##
