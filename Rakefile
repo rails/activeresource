@@ -25,12 +25,6 @@ namespace :test do
   end
 end
 
-spec = eval(File.read('activeresource.gemspec'))
-
-Gem::PackageTask.new(spec) do |p|
-  p.gem_spec = spec
-end
-
 task :lines do
   lines, codelines, total_lines, total_codelines = 0, 0, 0, 0
 
@@ -57,9 +51,26 @@ end
 
 # Publishing ------------------------------------------------------
 
-desc "Release to gemcutter"
-task :release => :package do
-  require 'rake/gemcutter'
-  Rake::Gemcutter::Tasks.new(spec).define
-  Rake::Task['gem:push'].invoke
+spec = eval(File.read('activeresource.gemspec'))
+gem = "pkg/activeresource-#{spec.version}.gem"
+tag = "v#{spec.version}"
+
+desc "Release to rubygems.org"
+task :release => [:ensure_clean_state, :tag, :push]
+
+task(:tag) { sh "git tag #{tag} && git push --tags" }
+
+task(:push => :repackage) { sh "gem push #{gem}" }
+task(:install => :repackage) { sh "gem install #{gem}" }
+Gem::PackageTask.new(spec) { |p| p.gem_spec = spec }
+
+task :ensure_clean_state do
+  unless `git status -s`.strip.empty?
+    abort "[ABORTING] `git status` reports a dirty tree. Make sure all changes are committed"
+  end
+
+  unless ENV['SKIP_TAG'] || `git tag | grep #{tag}`.strip.empty?
+    abort "[ABORTING] `git tag` shows that #{tag} already exists. Has this version already\n"\
+      "           been released? Git tagging can be skipped by setting SKIP_TAG=1"
+  end
 end
