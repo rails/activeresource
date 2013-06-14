@@ -10,11 +10,7 @@ gem 'rails-observers', github: 'rails/rails-observers', branch: 'master'
 local_gemfile = File.dirname(__FILE__) + "/.Gemfile"
 instance_eval File.read local_gemfile if File.exists? local_gemfile
 
-platforms :ruby do
-  gem 'json'
-  gem 'yajl-ruby'
-  gem 'nokogiri', '>= 1.4.5'
-  
+platform :mri do
   group :test do
     gem 'ruby-prof'
   end
