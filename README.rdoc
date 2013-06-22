@@ -173,6 +173,34 @@ Destruction of a resource can be invoked as a class and instance method of the r
   Person.delete(2)  # => true
   Person.exists?(2) # => false
 
+==== Associations
+
+Relationships between resources can be declared using the standard association syntax
+that should be familiar to anyone who uses activerecord. For example, using the
+class definition below:
+
+  class Post < ActiveResource::Base
+    self.site = "http://blog.io"
+    has_many :comments
+  end
+
+  post = Post.find(1)      # issues GET http://blog.io/posts/1.json
+  comments = post.comments # issues GET http://blog.io/posts/1/comments.json
+
+
+If you control the server, you may wish to include nested resources thus avoiding a
+second network request. Given the resource above, if the response includes comments
+in the response, they will be automatically loaded into the activeresource object.
+The server-side model can be adjusted as follows to include comments in the response.
+
+  class Post < ActiveRecord::Base
+    has_many :comments
+
+    def as_json(options)
+      super.merge(:include=>[:comments])
+    end
+  end
+
 == License
 
 Active Resource is released under the MIT license:
