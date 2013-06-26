@@ -58,4 +58,22 @@ class AssociationTest < ActiveSupport::TestCase
     2.times{person.customer}
     assert person.instance_variable_defined?(:@customer)
   end
+
+  def test_belongs_to_with_finder_key
+    Person.defines_belongs_to_finder_method(:customer, Customer, 'customer_id')
+
+    person = Person.new
+    person.stubs(:customer_id).returns(1)
+    Customer.expects(:find).with(1).once()
+    person.customer
+  end
+
+  def test_belongs_to_with_nil_finder_key
+    Person.defines_belongs_to_finder_method(:customer, Customer, 'customer_id')
+
+    person = Person.new
+    person.stubs(:customer_id).returns(nil)
+    Customer.expects(:find).with(nil).never()
+    person.customer
+  end
 end
