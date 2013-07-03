@@ -39,6 +39,11 @@ class ReflectionTest < ActiveSupport::TestCase
     assert_equal External::Person, object.klass
   end
 
+  def test_correct_class_name_matching_as_plural_string_with_namespace
+    object = ActiveResource::Reflection::AssociationReflection.new(:test, :people, {:class_name => 'external/profile_data'})
+    assert_equal External::ProfileData, object.klass
+  end
+
   def test_foreign_key_method_with_no_foreign_key_option
     object = ActiveResource::Reflection::AssociationReflection.new(:test, :person, {})
     assert_equal 'person_id', object.foreign_key

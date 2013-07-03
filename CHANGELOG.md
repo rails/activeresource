@@ -1,3 +1,14 @@
+## Active Resource 4.1.0 (unreleased) ##
+*   Fix `options[:class_name]` to keep the given class name, and not transform it to singular.
+    Example:
+
+    ```ruby
+    has_one :profile_data, class_name: 'profile_data' #will correctly use ProfileData, and not ProfileDatum
+    ```
+    Fixed and pull request available: https://github.com/rails/activeresource/pull/80
+
+    *Lucian Cancescu*
+
 ## Active Resource 4.0.0 (unreleased) ##
 
 *   No changes
