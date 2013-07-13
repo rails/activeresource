@@ -260,16 +260,19 @@ module ActiveResource
       end
 
       def auth_attributes_for(uri, request_digest, params)
-        [
-          %Q(username="#{@user}"),
-          %Q(realm="#{params['realm']}"),
-          %Q(qop="#{params['qop']}"),
-          %Q(uri="#{uri.path}"),
-          %Q(nonce="#{params['nonce']}"),
-          %Q(nc="0"),
-          %Q(cnonce="#{params['cnonce']}"),
-          %Q(opaque="#{params['opaque']}"),
-          %Q(response="#{request_digest}")].join(", ")
+        auth_attrs = 
+          [
+            %Q(username="#{@user}"),
+            %Q(realm="#{params['realm']}"),
+            %Q(qop="#{params['qop']}"),
+            %Q(uri="#{uri.path}"),
+            %Q(nonce="#{params['nonce']}"),
+            %Q(nc="0"),
+            %Q(cnonce="#{params['cnonce']}"),
+            %Q(response="#{request_digest}")].join(", ")
+
+        auth_attrs << %Q(opaque="#{params['opaque']}") unless params['opaque'].blank?
+        auth_attrs
       end
 
       def http_format_header(http_method)
