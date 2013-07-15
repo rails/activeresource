@@ -269,10 +269,10 @@ module ActiveResource
             %Q(nonce="#{params['nonce']}"),
             %Q(nc="0"),
             %Q(cnonce="#{params['cnonce']}"),
-            %Q(response="#{request_digest}")].join(", ")
+            %Q(response="#{request_digest}")]
 
         auth_attrs << %Q(opaque="#{params['opaque']}") unless params['opaque'].blank?
-        auth_attrs
+        auth_attrs.join(", ")
       end
 
       def http_format_header(http_method)
