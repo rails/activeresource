@@ -601,12 +601,12 @@ module ActiveResource
       end
 
       def headers
-        @headers ||= {}
-
+        Thread.current["active.resource.headers.#{self.object_id}"] ||= {}         
+        
         if superclass != Object && superclass.headers
-          @headers = superclass.headers.merge(@headers)
+          Thread.current["active.resource.headers.#{self.object_id}"] = superclass.headers.merge(Thread.current["active.resource.headers.#{self.object_id}"])
         else
-          @headers
+          Thread.current["active.resource.headers.#{self.object_id}"]
         end
       end
 
