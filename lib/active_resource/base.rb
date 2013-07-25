@@ -963,7 +963,8 @@ module ActiveResource
             else
               prefix_options, query_options = split_options(options[:params])
               path = collection_path(prefix_options, query_options)
-              instantiate_collection( (format.decode(connection.get(path, headers).body) || []), query_options, prefix_options )
+              response = connection.get(path, headers)
+              instantiate_collection( (format.decode(response.body) || []), query_options, prefix_options,  response)
             end
           rescue ActiveResource::ResourceNotFound
             # Swallowing ResourceNotFound exceptions and return nil - as per
@@ -990,8 +991,8 @@ module ActiveResource
           instantiate_record(format.decode(connection.get(path, headers).body), prefix_options)
         end
 
-        def instantiate_collection(collection, original_params = {}, prefix_options = {})
-          collection_parser.new(collection).tap do |parser|
+        def instantiate_collection(collection, original_params = {}, prefix_options = {}, response = nil)
+          collection_parser.new(collection, response).tap do |parser|
             parser.resource_class  = self
             parser.original_params = original_params
           end.collect! { |record| instantiate_record(record, prefix_options) }

@@ -139,13 +139,13 @@ module ActiveResource::Associations
   def defines_has_many_finder_method(method_name, association_model)
     ivar_name = :"@#{method_name}"
 
-    define_method(method_name) do
+    define_method(method_name) do |options = {}|
       if instance_variable_defined?(ivar_name)
         instance_variable_get(ivar_name)
       elsif attributes.include?(method_name)
         attributes[method_name]
       else
-        instance_variable_set(ivar_name, association_model.find(:all, :params => {:"#{self.class.element_name}_id" => self.id}))
+        instance_variable_set(ivar_name, association_model.find(:all, :params => {:"#{self.class.element_name}_id" => self.id}.merge(options[:params] || {})))
       end
     end
   end
