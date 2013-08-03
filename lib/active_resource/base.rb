@@ -871,8 +871,8 @@ module ActiveResource
 
         case scope
           when :all   then find_every(options)
-          when :first then find_every(options).first
-          when :last  then find_every(options).last
+          when :first then find_every(options).to_a.first
+          when :last  then find_every(options).to_a.last
           when :one   then find_one(options)
           else             find_single(scope, options)
         end
