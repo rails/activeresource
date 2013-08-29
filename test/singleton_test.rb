@@ -1,6 +1,8 @@
 require 'abstract_unit'
 require 'fixtures/weather'
 require 'fixtures/inventory'
+require 'fixtures/product'
+require 'fixtures/sub_product'
 
 class SingletonTest < ActiveSupport::TestCase
   def setup_weather
@@ -57,6 +59,16 @@ class SingletonTest < ActiveSupport::TestCase
 
     path = Inventory.singleton_path({:product_id =>5}, {:sold => true})
     assert_equal '/products/5/inventory.json?sold=true', path
+  end
+
+  def test_subclass_instantiation
+    product  = { :id => 1, :type => "SubProduct" }
+    ActiveResource::HttpMock.respond_to do |mock|
+      mock.get    '/products/1.json', {}, product.to_json
+    end
+    sub_product = Product.find 1
+    assert_not_nil sub_product
+    assert_equal 'SubProduct', sub_product.class.name
   end
 
   def test_find_singleton

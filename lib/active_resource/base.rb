@@ -998,11 +998,14 @@ module ActiveResource
         end
 
         def instantiate_record(record, prefix_options = {})
-          new(record, true).tap do |resource|
+          instance_klass = self
+          if defined?(self::SUBCLASSES) && self::SUBCLASSES.include?(record["type"])
+            instance_klass = record["type"].constantize
+          end
+          instance_klass.new(record, true).tap do |resource|
             resource.prefix_options = prefix_options
           end
         end
-
 
         # Accepts a URI and creates the site URI from that.
         def create_site_uri_from(site)
