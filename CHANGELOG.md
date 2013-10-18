@@ -1,4 +1,9 @@
-## Active Resource 4.0.0 (unreleased) ##
+## Active Resource 4.0.1 (unreleased) ##
+
+*   Adding activeresource.rb so `require 'active_resource'` is not
+    needed anymore in the Gemfile.
+
+## Active Resource 4.0.0 ##
 
 *   No changes
 
