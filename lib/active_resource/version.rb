@@ -3,7 +3,7 @@ module ActiveResource
     MAJOR = 4
     MINOR = 0
     TINY  = 0
-    PRE   = '98a2f'
+    PRE   = nil
 
     STRING = [MAJOR, MINOR, TINY, PRE].compact.join('.')
   end
