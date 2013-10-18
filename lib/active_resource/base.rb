@@ -352,6 +352,6 @@ module ActiveResource
 
     include Persistence, AttributeMethods
     include CoreMethods
-    include Callbacks, CustomMethods, Observing, Validations
+    include Callbacks, CustomMethods, Observing, Validations, Dirty
   end
 end
