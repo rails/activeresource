@@ -59,14 +59,11 @@ module ActiveResource
       end
 
       def encode_changed_attributes(options={})
-        options.merge!({:only => changed_attributes.keys})
-        send("to_#{self.class.format.extension}", options)
+        send("to_#{self.class.format.extension}", options.merge({:only => keys_for_partial_write}))
       end
 
-      # Serialized attributes should always be written in case they've been
-      # changed in place.
       def keys_for_partial_write
-        changed | (attributes.keys & self.class.serialized_attributes.keys)
+        changed_attributes.keys
       end
 
       def non_zero?(value)
