@@ -13,7 +13,7 @@ module ActiveResource
     # or not (by passing true).
     def from_array(messages, save_cache = false)
       clear unless save_cache
-      humanized_attributes = Hash[@base.attributes.keys.map { |attr_name| [attr_name.humanize, attr_name] }]
+      humanized_attributes = Hash[@base.known_attributes.map { |attr_name| [attr_name.humanize, attr_name] }]
       messages.each do |message|
         attr_message = humanized_attributes.keys.sort_by { |a| -a.length }.detect do |attr_name|
           if message[0, attr_name.size + 1] == "#{attr_name} "
@@ -35,7 +35,7 @@ module ActiveResource
 
       messages.each do |(key,errors)|
         errors.each do |error|
-          if @base.attributes.keys.include?(key)
+          if @base.known_attributes.include?(key)
             add key, error
           elsif key == 'base'
             self[:base] << error
