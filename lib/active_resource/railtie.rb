@@ -10,5 +10,16 @@ module ActiveResource
         ActiveResource::Base.send "#{k}=", v
       end
     end
+
+    config.after_initialize do |app|
+      ActiveSupport.on_load(:active_resource) do
+        ActiveResource::Base.instantiate_observers
+
+        ActionDispatch::Reloader.to_prepare do
+          ActiveResource::Base.instantiate_observers
+        end
+      end
+    end
   end
 end
+

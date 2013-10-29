@@ -1560,4 +1560,7 @@ module ActiveResource
     include ActiveModel::Serializers::Xml
     include ActiveResource::Reflection
   end
+
+  ActiveSupport.run_load_hooks(:active_resource, Base)
 end
+
