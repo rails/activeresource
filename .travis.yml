@@ -7,6 +7,10 @@ rvm:
   - jruby-19mode
   - rbx-19mode
 
+gemfile:
+  - gemfiles/Gemfile-rails-4
+  - Gemfile
+
 notifications:
   email: false
   campfire:
