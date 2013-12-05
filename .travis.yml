@@ -7,6 +7,14 @@ rvm:
   - jruby-19mode
   - rbx-19mode
 
+gemfile:
+  - gemfiles/Gemfile-rails-master
+  - Gemfile
+
+matrix:
+  allow_failures:
+    - gemfile: gemfiles/Gemfile-rails-master
+
 notifications:
   email: false
   campfire:
