@@ -40,4 +40,11 @@ module ActiveResource
   autoload :Singleton
   autoload :Validations
   autoload :Collection
+  autoload :Querying
+  autoload :CoreMethods
+  autoload :AttributeMethods
+  autoload :Dirty
+  autoload :ConnectionHandling
+  autoload :Serialization
+  autoload :Persistence
 end
