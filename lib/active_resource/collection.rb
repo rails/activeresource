@@ -31,7 +31,7 @@ module ActiveResource # :nodoc:
     #
     #   class Post < ActiveResource::Base
     #     self.site = "http://example.com"
-    #     self.collection_parser = PostParser
+    #     self.collection_parser = PostCollection
     #   end
     #
     # And the collection parser:
