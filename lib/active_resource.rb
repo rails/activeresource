@@ -41,3 +41,6 @@ module ActiveResource
   autoload :Validations
   autoload :Collection
 end
+
+require 'active_resource/railtie' if defined? Rails
+
