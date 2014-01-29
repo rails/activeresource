@@ -38,6 +38,12 @@ class AssociationTest < ActiveSupport::TestCase
     assert_equal 1, External::Person.reflections.select{|name, reflection| reflection.macro.eql?(:has_many)}.count
   end
 
+  def test_has_many_on_new_record
+    Post.send(:has_many, :topics)
+    Topic.stubs(:find).returns([:unexpected_response])
+    assert_equal [], Post.new.topics.to_a
+  end
+
   def test_has_one
     External::Person.send(:has_one, :customer)
     assert_equal 1, External::Person.reflections.select{|name, reflection| reflection.macro.eql?(:has_one)}.count
