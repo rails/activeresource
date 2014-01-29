@@ -15,6 +15,7 @@ class SchemaTest < ActiveModel::TestCase
     Person.schema = nil # hack to stop test bleedthrough...
   end
 
+
   #####################################################
   # Passing in a schema directly and returning it
   ####
@@ -39,7 +40,6 @@ class SchemaTest < ActiveModel::TestCase
       'alive' => 'boolean', 'created_at' => 'timestamp',
       'thetime' => 'time', 'thedate' => 'date', 'mydatetime' => 'datetime'}
 
-
     assert_nothing_raised { Person.schema = new_schema }
     assert_equal new_schema, Person.schema
   end
@@ -56,7 +56,6 @@ class SchemaTest < ActiveModel::TestCase
   end
 
   test "schema should accept all known attribute types as values" do
-    # I'd prefer to use  here...
     ActiveResource::Schema::KNOWN_ATTRIBUTE_TYPES.each do |the_type|
       assert_nothing_raised("should have accepted #{the_type.inspect}"){ Person.schema = {'my_key' => the_type }}
     end
@@ -82,11 +81,9 @@ class SchemaTest < ActiveModel::TestCase
     assert_nothing_raised { Person.schema = new_schema }
     assert_equal new_schema, Person.schema # sanity check
 
-
     assert_nothing_raised { Person.schema = nil }
     assert_nil Person.schema, "should have nulled out the schema, but still had: #{Person.schema.inspect}"
   end
-
 
   test "schema should be with indifferent access" do
     new_schema = {'age' => 'integer', 'name' => 'string',
@@ -103,7 +100,6 @@ class SchemaTest < ActiveModel::TestCase
       assert Person.new.respond_to?(col.to_sym), "should respond to the schema's symbol key, but failed on: #{col.to_sym}"
     end
   end
-
 
   test "schema on a fetched resource should return all the attributes of that model instance" do
     p = Person.find(1)
@@ -203,8 +199,8 @@ class SchemaTest < ActiveModel::TestCase
     assert_nothing_raised do
       s = nil
       Person.schema do
-        attribute(:foo, :integer)
         s = self
+        attribute(:foo, :integer)
       end
 
       assert s.attrs.has_key?('foo'), "should have saved the attribute name as a string"
@@ -246,7 +242,6 @@ class SchemaTest < ActiveModel::TestCase
     end
   end
 
-
   test "should accept attribute types as the type's name as the method" do
     ActiveResource::Schema::KNOWN_ATTRIBUTE_TYPES.each do |the_type|
       s = nil
@@ -271,6 +266,7 @@ class SchemaTest < ActiveModel::TestCase
       assert_equal 'string', s.attrs[the_name], "should have saved the attribute as a string"
     end
   end
+
 
   #####################################################
   # What a schema does for us
@@ -412,6 +408,4 @@ class SchemaTest < ActiveModel::TestCase
     Person.schema = new_schema
     assert_equal Person.new(:age => 20, :name => 'Matz').known_attributes, ['age', 'name']
   end
-
-
 end
