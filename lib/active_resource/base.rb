@@ -339,7 +339,7 @@ module ActiveResource
       #
       #   p.num_children        # => NoMethodError
       #
-      # Attribute-types must be one of: <tt>string, integer, float</tt>
+      # Attribute-types must be one of: <tt>string, text, integer, float, decimal, datetime, timestamp, time, date, binary, boolean</tt>
       #
       # Note: at present the attribute-type doesn't do anything, but stay
       # tuned...
