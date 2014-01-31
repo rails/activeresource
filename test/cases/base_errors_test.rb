@@ -135,7 +135,7 @@ class BaseErrorsTest < ActiveSupport::TestCase
   def invalid_user_using_format(mime_type_reference)
     previous_format = Person.format
     Person.format = mime_type_reference
-    @person = Person.new(:name => '', :age => '', :phone => '', :phone_work => '')
+    @person = Person.new(:age => '', :phone => '', :phone_work => '')
     assert_equal false, @person.save
 
     yield
