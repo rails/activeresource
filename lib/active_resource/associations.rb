@@ -67,7 +67,7 @@ module ActiveResource::Associations
   # If the response body does not contain an attribute matching the association name
   # a request is sent to a singelton path under the current resource.
   # For example, if a Product class <tt>has_one :inventory</tt> calling <tt>Product#inventory</tt>
-  # will generate a request on /product/:product_id/inventory.json.
+  # will generate a request on /products/:product_id/inventory.json.
   #
   def has_one(name, options = {})
     Builder::HasOne.build(self, name, options)
@@ -161,8 +161,10 @@ module ActiveResource::Associations
         instance_variable_get(ivar_name)
       elsif attributes.include?(method_name)
         attributes[method_name]
-      else
+      elsif association_model.respond_to?(:singleton_name)
         instance_variable_set(ivar_name, association_model.find(:params => {:"#{self.class.element_name}_id" => self.id}))
+      else
+        instance_variable_set(ivar_name, association_model.find(:one, :from => "/#{self.class.collection_name}/#{self.id}/#{method_name}#{self.class.format_extension}"))
       end
     end
   end
