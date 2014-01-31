@@ -1,7 +1,22 @@
 ## Active Resource 4.0.1 (unreleased) ##
 
-*   Adding activeresource.rb so `require 'active_resource'` is not
-    needed anymore in the Gemfile.
+### Enhancements ###
+
+*   Adds activeresource.rb so `require: 'active_resource'` is no longer needed
+    in Gemfile. ([#95], [Pedro Nascimento])
+*   `ActiveResource::Collection` delegates all instance methods for `Array`.
+    ([#101], [printercu])
+*   Railtie enables configuration and dev reloading of observers just like
+    ActiveRecord when using ARes with Rails. ARes also now runs ActiveSupport
+    load hooks for `:active_resource`. ([#109], [Ches Martin])
+
+### Fixes ###
+
+*   Improvement to thread safety of headers. ([#61], [niedfelj])
+*   A `belongs_to` child with a missing parent ID returns nil for the
+    association instead of making a bogus remote call. ([#68], [Javier Saldana])
+*   A `has_many` association does not trigger a remote call if parent is a new
+    record. ([#97], [Sasha Shamne])
 
 ## Active Resource 4.0.0 ##
 
@@ -375,26 +390,41 @@
     * Allow overriding of element_name, collection_name, and primary key
     * Provide simpler HTTP mock interface for testing
 
-        # rails routing code
-        map.resources :posts do |post|
-          post.resources :comments
-        end
+            # rails routing code
+            map.resources :posts do |post|
+              post.resources :comments
+            end
 
-        # ActiveResources
-        class Post < ActiveResource::Base
-          self.site = "http://37s.sunrise.i:3000/"
-        end
+            # ActiveResources
+            class Post < ActiveResource::Base
+              self.site = "http://37s.sunrise.i:3000/"
+            end
 
-        class Comment < ActiveResource::Base
-          self.site = "http://37s.sunrise.i:3000/posts/:post_id/"
-        end
+            class Comment < ActiveResource::Base
+              self.site = "http://37s.sunrise.i:3000/posts/:post_id/"
+            end
 
-        @post     = Post.find 5
-        @comments = Comment.find :all, :post_id => @post.id
+            @post     = Post.find 5
+            @comments = Comment.find :all, :post_id => @post.id
 
-        @comment  = Comment.new({:body => 'hello world'}, {:post_id => @post.id})
-        @comment.save
+            @comment  = Comment.new({:body => 'hello world'}, {:post_id => @post.id})
+            @comment.save
 
 *   Base.site= accepts URIs. 200...400 are valid response codes. PUT and POST request bodies default to ''. *Jeremy Kemper*
 
 *   Initial checkin: object-oriented client for restful HTTP resources which follow the Rails convention. *David Heinemeier Hansson*
+
+[#61]: https://github.com/rails/activeresource/pull/61
+[#68]: https://github.com/rails/activeresource/pull/68
+[#95]: https://github.com/rails/activeresource/pull/95
+[#97]: https://github.com/rails/activeresource/pull/97
+[#101]: https://github.com/rails/activeresource/pull/101
+[#109]: https://github.com/rails/activeresource/pull/109
+
+[Ches Martin]: https://github.com/ches
+[Javier Saldana]: https://github.com/jassa
+[niedfelj]: https://github.com/niedfelj
+[Pedro Nascimento]: https://github.com/lunks
+[printercu]: https://github.com/printercu
+[Sasha Shamne]: https://github.com/shamne
+
