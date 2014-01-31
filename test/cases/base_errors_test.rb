@@ -4,8 +4,8 @@ require "fixtures/person"
 class BaseErrorsTest < ActiveSupport::TestCase
   def setup
     ActiveResource::HttpMock.respond_to do |mock|
-      mock.post "/people.xml", {}, %q(<?xml version="1.0" encoding="UTF-8"?><errors><error>Age can't be blank</error><error>Name can't be blank</error><error>Name must start with a letter</error><error>Person quota full for today.</error><error>Phone work can't be blank</error><error>Phone is not valid</error></errors>), 422, {'Content-Type' => 'application/xml; charset=utf-8'}
-      mock.post "/people.json", {}, %q({"errors":{"age":["can't be blank"],"name":["can't be blank", "must start with a letter"],"person":["quota full for today."],"phone_work":["can't be blank"],"phone":["is not valid"]}}), 422, {'Content-Type' => 'application/json; charset=utf-8'}
+      mock.post "/people.xml", {}, %q(<?xml version="1.0" encoding="UTF-8"?><errors><error>Age can't be blank</error><error>Known attribute can't be blank</error><error>Name can't be blank</error><error>Name must start with a letter</error><error>Person quota full for today.</error><error>Phone work can't be blank</error><error>Phone is not valid</error></errors>), 422, {'Content-Type' => 'application/xml; charset=utf-8'}
+      mock.post "/people.json", {}, %q({"errors":{"age":["can't be blank"],"known_attribute":["can't be blank"],"name":["can't be blank", "must start with a letter"],"person":["quota full for today."],"phone_work":["can't be blank"],"phone":["is not valid"]}}), 422, {'Content-Type' => 'application/json; charset=utf-8'}
     end
   end
 
@@ -21,7 +21,7 @@ class BaseErrorsTest < ActiveSupport::TestCase
     [ :json, :xml ].each do |format|
       invalid_user_using_format(format) do
         assert_kind_of ActiveResource::Errors, @person.errors
-        assert_equal 6, @person.errors.size
+        assert_equal 7, @person.errors.size
       end
     end
   end
@@ -46,6 +46,14 @@ class BaseErrorsTest < ActiveSupport::TestCase
         assert_equal ["can't be blank"], @person.errors[:phone_work]
         assert_equal ["is not valid"], @person.errors[:phone]
         assert_equal ["Person quota full for today."], @person.errors[:base]
+      end
+    end
+  end
+
+  def test_should_parse_errors_to_known_attributes
+    [ :json, :xml ].each do |format|
+      invalid_user_using_format(format) do
+        assert_equal ["can't be blank"], @person.errors[:known_attribute]
       end
     end
   end
@@ -135,6 +143,7 @@ class BaseErrorsTest < ActiveSupport::TestCase
   def invalid_user_using_format(mime_type_reference)
     previous_format = Person.format
     Person.format = mime_type_reference
+    Person.schema = { 'known_attribute' => 'string' }
     @person = Person.new(:name => '', :age => '', :phone => '', :phone_work => '')
     assert_equal false, @person.save
 
