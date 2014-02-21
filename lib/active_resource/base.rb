@@ -18,6 +18,7 @@ require 'active_resource/schema'
 require 'active_resource/log_subscriber'
 require 'active_resource/associations'
 require 'active_resource/reflection'
+require 'active_resource/threadsafe_attributes'
 
 module ActiveResource
   # ActiveResource::Base is the main class for mapping RESTful resources as models in a Rails application.
@@ -294,7 +295,11 @@ module ActiveResource
     class_attribute :include_format_in_path
     self.include_format_in_path = true
 
+
     class << self
+      include ThreadsafeAttributes
+      threadsafe_attribute :_headers, :_connection, :_user, :_password, :_site
+
       # Creates a schema for this resource - setting the attributes that are
       # known prior to fetching an instance from the remote system.
       #
@@ -431,8 +436,8 @@ module ActiveResource
         #   Subclass.site # => 'https://anonymous@test.com'
         #   Subclass.site.user = 'david' # => TypeError: can't modify frozen object
         #
-        if defined?(@site)
-          @site
+        if _site_defined?
+          _site
         elsif superclass != Object && superclass.site
           superclass.site.dup.freeze
         end
@@ -441,13 +446,13 @@ module ActiveResource
       # Sets the URI of the REST resources to map for this class to the value in the +site+ argument.
       # The site variable is required for Active Resource's mapping to work.
       def site=(site)
-        @connection = nil
+        self._connection = nil
         if site.nil?
-          @site = nil
+          self._site = nil
         else
-          @site = create_site_uri_from(site)
-          @user = URI.parser.unescape(@site.user) if @site.user
-          @password = URI.parser.unescape(@site.password) if @site.password
+          self._site = create_site_uri_from(site)
+          self._user = URI.parser.unescape(_site.user) if _site.user
+          self._password = URI.parser.unescape(_site.password) if _site.password
         end
       end
 
@@ -463,15 +468,15 @@ module ActiveResource
 
       # Sets the URI of the http proxy to the value in the +proxy+ argument.
       def proxy=(proxy)
-        @connection = nil
+        self._connection = nil
         @proxy = proxy.nil? ? nil : create_proxy_uri_from(proxy)
       end
 
       # Gets the \user for REST HTTP authentication.
       def user
         # Not using superclass_delegating_reader. See +site+ for explanation
-        if defined?(@user)
-          @user
+        if _user_defined?
+          _user
         elsif superclass != Object && superclass.user
           superclass.user.dup.freeze
         end
@@ -479,15 +484,15 @@ module ActiveResource
 
       # Sets the \user for REST HTTP authentication.
       def user=(user)
-        @connection = nil
-        @user = user
+        self._connection = nil
+        self._user = user
       end
 
       # Gets the \password for REST HTTP authentication.
       def password
         # Not using superclass_delegating_reader. See +site+ for explanation
-        if defined?(@password)
-          @password
+        if _password_defined?
+          _password
         elsif superclass != Object && superclass.password
           superclass.password.dup.freeze
         end
@@ -495,8 +500,8 @@ module ActiveResource
 
       # Sets the \password for REST HTTP authentication.
       def password=(password)
-        @connection = nil
-        @password = password
+        self._connection = nil
+        self._password = password
       end
 
       def auth_type
@@ -506,7 +511,7 @@ module ActiveResource
       end
 
       def auth_type=(auth_type)
-        @connection = nil
+        self._connection = nil
         @auth_type = auth_type
       end
 
@@ -544,7 +549,7 @@ module ActiveResource
 
       # Sets the number of seconds after which requests to the REST API should time out.
       def timeout=(timeout)
-        @connection = nil
+        self._connection = nil
         @timeout = timeout
       end
 
@@ -569,7 +574,7 @@ module ActiveResource
       # * <tt>:cert_store</tt> - OpenSSL::X509::Store to verify peer certificate.
       # * <tt>:ssl_timeout</tt> -The SSL timeout in seconds.
       def ssl_options=(options)
-        @connection   = nil
+        self._connection = nil
         @ssl_options  = options
       end
 
@@ -586,27 +591,26 @@ module ActiveResource
       # The +refresh+ parameter toggles whether or not the \connection is refreshed at every request
       # or not (defaults to <tt>false</tt>).
       def connection(refresh = false)
-        if defined?(@connection) || superclass == Object
-          @connection = Connection.new(site, format) if refresh || @connection.nil?
-          @connection.proxy = proxy if proxy
-          @connection.user = user if user
-          @connection.password = password if password
-          @connection.auth_type = auth_type if auth_type
-          @connection.timeout = timeout if timeout
-          @connection.ssl_options = ssl_options if ssl_options
-          @connection
+        if _connection_defined? || superclass == Object
+          self._connection = Connection.new(site, format) if refresh || _connection.nil?
+          _connection.proxy = proxy if proxy
+          _connection.user = user if user
+          _connection.password = password if password
+          _connection.auth_type = auth_type if auth_type
+          _connection.timeout = timeout if timeout
+          _connection.ssl_options = ssl_options if ssl_options
+          _connection
         else
           superclass.connection
         end
       end
 
       def headers
-        Thread.current["active.resource.headers.#{self.object_id}"] ||= {}         
-        
+        self._headers ||= {}
         if superclass != Object && superclass.headers
-          Thread.current["active.resource.headers.#{self.object_id}"] = superclass.headers.merge(Thread.current["active.resource.headers.#{self.object_id}"])
+          self._headers = superclass.headers.merge(_headers)
         else
-          Thread.current["active.resource.headers.#{self.object_id}"]
+          _headers
         end
       end
 
