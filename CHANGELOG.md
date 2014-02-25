@@ -9,6 +9,8 @@
 *   Railtie enables configuration and dev reloading of observers just like
     ActiveRecord when using ARes with Rails. ARes also now runs ActiveSupport
     load hooks for `:active_resource`. ([#109], [Ches Martin])
+*   Integrates ActiveModel::Dirty so that only changed attributes are persisted
+    on saves.
 
 ### Fixes ###
 
