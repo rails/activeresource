@@ -1426,8 +1426,10 @@ module ActiveResource
       # Update the resource on the remote service.
       def update
         run_callbacks :update do
-          connection.put(element_path(prefix_options), encode, self.class.headers).tap do |response|
-            load_attributes_from_response(response)
+          if changed_attributes.present?
+            connection.put(element_path(prefix_options), encode(only: changed_attributes.keys), self.class.headers).tap do |response|
+              load_attributes_from_response(response)
+            end
           end
         end
       end

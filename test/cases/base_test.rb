@@ -907,9 +907,26 @@ class BaseTest < ActiveSupport::TestCase
       mock.get "/people/2.json", {}, @david
       mock.put "/people/2.json", @default_request_headers, nil, 409
     end
-    assert_raise(ActiveResource::ResourceConflict) { Person.find(2).save }
+    assert_raise(ActiveResource::ResourceConflict) do
+      person = Person.find(2)
+      person.name = 'new name'
+      person.save
+    end
   end
 
+  def test_update_with_no_changes_does_nothing
+    matz = Person.find(:first)
+    matz.class.connection.expects(:put).never
+    matz.save
+  end
+
+  def test_update_with_changes_only_puts_changed_attributes
+    matz = Person.find(:first)
+    matz.name = 'Rick'
+    resp = ActiveResource::Response.new(@matz, 200)
+    matz.class.connection.expects(:put).with("/people/#{matz.id}.json", matz.encode(:only => :name), {}).returns(resp)
+    matz.save
+  end
 
   ######
   # update_attribute(s)(!)
