@@ -1221,7 +1221,10 @@ module ActiveResource
     #   my_company.save # sends PUT /companies/1 (update)
     def save
       run_callbacks :save do
-        new? ? create : update
+        (new? ? create : update).tap do |result|
+          @previously_changed = changes
+          @changed_attributes.clear
+        end
       end
     end
 
@@ -1537,7 +1540,12 @@ module ActiveResource
         if method_name =~ /(=|\?)$/
           case $1
           when "="
-            attributes[$`] = arguments.first
+            field = $`
+            value = arguments.first
+
+            self.class.define_attribute_methods field
+            send("#{field}_will_change!") unless attributes[field] == value
+            attributes[field] = value
           when "?"
             attributes[$`]
           end
@@ -1546,6 +1554,18 @@ module ActiveResource
           # not set right now but we know about it
           return nil if known_attributes.include?(method_name)
           super
+        end
+      end
+
+      # ActiveModel::Dirty expects an attribute method that returns the value of a named attribute.
+      # Raise NoMethodError if the named attribute does not exist in order to preserve behavior expected by #clone.
+      def attribute(name)
+        key = name.to_s
+
+        if attributes.has_key?(key)
+          attributes[key]
+        else
+          raise NoMethodError
         end
       end
   end
@@ -1559,6 +1579,7 @@ module ActiveResource
     include ActiveModel::Serializers::JSON
     include ActiveModel::Serializers::Xml
     include ActiveResource::Reflection
+    include ActiveModel::Dirty
   end
 
   ActiveSupport.run_load_hooks(:active_resource, Base)
