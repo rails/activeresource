@@ -966,9 +966,9 @@ module ActiveResource
               instantiate_collection( (format.decode(connection.get(path, headers).body) || []), query_options, prefix_options )
             end
           rescue ActiveResource::ResourceNotFound
-            # Swallowing ResourceNotFound exceptions and return nil - as per
+            # Swallowing ResourceNotFound exceptions and return [] - as per
             # ActiveRecord.
-            nil
+            []
           end
         end
 
