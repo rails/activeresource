@@ -131,29 +131,29 @@ module ActiveResource
       def handle_response(response)
         case response.code.to_i
           when 301, 302, 303, 307
-            raise(Redirection.new(response))
+            raise(Redirection.new(response, response.body))
           when 200...400
             response
           when 400
-            raise(BadRequest.new(response))
+            raise(BadRequest.new(response, response.body))
           when 401
-            raise(UnauthorizedAccess.new(response))
+            raise(UnauthorizedAccess.new(response, response.body))
           when 403
-            raise(ForbiddenAccess.new(response))
+            raise(ForbiddenAccess.new(response, response.body))
           when 404
-            raise(ResourceNotFound.new(response))
+            raise(ResourceNotFound.new(response, response.body))
           when 405
-            raise(MethodNotAllowed.new(response))
+            raise(MethodNotAllowed.new(response, response.body))
           when 409
-            raise(ResourceConflict.new(response))
+            raise(ResourceConflict.new(response, response.body))
           when 410
-            raise(ResourceGone.new(response))
+            raise(ResourceGone.new(response, response.body))
           when 422
-            raise(ResourceInvalid.new(response))
+            raise(ResourceInvalid.new(response, response.body))
           when 401...500
-            raise(ClientError.new(response))
+            raise(ClientError.new(response, response.body))
           when 500...600
-            raise(ServerError.new(response))
+            raise(ServerError.new(response, response.body))
           else
             raise(ConnectionError.new(response, "Unknown response code: #{response.code}"))
         end
