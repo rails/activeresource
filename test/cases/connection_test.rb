@@ -1,8 +1,8 @@
 require 'abstract_unit'
 
 class ConnectionTest < ActiveSupport::TestCase
-  ResponseCodeStub = Struct.new(:code)
-  RedirectResponseStub = Struct.new(:code, :Location)
+  ResponseCodeStub = Struct.new(:code, :body)
+  RedirectResponseStub = Struct.new(:code, :Location, :body)
 
   def setup
     @conn = ActiveResource::Connection.new('http://localhost')
@@ -91,7 +91,7 @@ class ConnectionTest < ActiveSupport::TestCase
     end
   end
 
-  ResponseHeaderStub = Struct.new(:code, :message, 'Allow')
+  ResponseHeaderStub = Struct.new(:code, :message, 'Allow', :body)
   def test_should_return_allowed_methods_for_method_no_allowed_exception
     begin
       handle_response ResponseHeaderStub.new(405, "HTTP Failed...", "GET, POST")
