@@ -33,7 +33,7 @@ module ActiveResource
     # attribute to the URI for the remote resource service.
     def initialize(site, format = ActiveResource::Formats::JsonFormat)
       raise ArgumentError, 'Missing site URI' unless site
-      @user = @password = nil
+      @proxy = @user = @password = nil
       self.site = site
       self.format = format
     end
