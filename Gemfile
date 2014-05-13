@@ -9,5 +9,3 @@ platform :mri do
     gem 'ruby-prof'
   end
 end
-
-gem 'rubysl', '~> 2.0', :platform => :rbx
