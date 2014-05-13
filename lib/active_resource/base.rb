@@ -449,6 +449,7 @@ module ActiveResource
           @user = URI.parser.unescape(@site.user) if @site.user
           @password = URI.parser.unescape(@site.password) if @site.password
         end
+        reset_prefix_cache
       end
 
       # Gets the \proxy variable if a proxy is required
@@ -636,45 +637,23 @@ module ActiveResource
         end
       end
 
-      # Gets the \prefix for a resource's nested URL (e.g., <tt>prefix/collectionname/1.json</tt>)
-      # This method is regenerated at runtime based on what the \prefix is set to.
-      def prefix(options={})
-        default = site.path
-        default << '/' unless default[-1..-1] == '/'
-        # generate the actual method based on the current site path
-        self.prefix = default
-        prefix(options)
+      attr_reader :prefix_source
+
+      # set the path prefix to use
+      def prefix_source=(value)
+        @prefix_source = value
+        reset_prefix_cache
       end
 
-      # An attribute reader for the source string for the resource path \prefix. This
-      # method is regenerated at runtime based on what the \prefix is set to.
-      def prefix_source
-        prefix # generate #prefix and #prefix_source methods first
-        prefix_source
+      def prefix(options = {})
+        define_interpolate_prefix_method
+
+        interpolate_prefix options
       end
 
-      # Sets the \prefix for a resource's nested URL (e.g., <tt>prefix/collectionname/1.json</tt>).
-      # Default value is <tt>site.path</tt>.
-      def prefix=(value = '/')
-        # Replace :placeholders with '#{embedded options[:lookups]}'
-        prefix_call = value.gsub(/:\w+/) { |key| "\#{URI.parser.escape options[#{key}].to_s}" }
-
-        # Clear prefix parameters in case they have been cached
-        @prefix_parameters = nil
-
-        silence_warnings do
-          # Redefine the new methods.
-          instance_eval <<-RUBY_EVAL, __FILE__, __LINE__ + 1
-            def prefix_source() "#{value}" end
-            def prefix(options={}) "#{prefix_call}" end
-          RUBY_EVAL
-        end
-      rescue Exception => e
-        logger.error "Couldn't set prefix: #{e}\n  #{code}" if logger
-        raise
-      end
-
-      alias_method :set_prefix, :prefix=  #:nodoc:
+      alias_method :prefix=, :prefix_source=  #:nodoc:
+      alias_method :set_prefix, :prefix_source=  #:nodoc:
+      alias_method :set_prefix_source, :prefix_source=  #:nodoc:
 
       alias_method :set_element_name, :element_name=  #:nodoc:
       alias_method :set_collection_name, :collection_name=  #:nodoc:
@@ -951,6 +930,57 @@ module ActiveResource
           end
         end
 
+        def reset_prefix_cache
+          @prefix_parameters = nil
+          @prefix_method_cached = false
+        end
+
+        # get the raw prefix string by concatening the relevent sources
+        def raw_prefix
+          data = []
+
+          data << sanitize_prefix_segment(site.path)
+          data << sanitize_prefix_segment(prefix_source)
+          str = data.compact.join("/")
+
+          if str.empty?
+            "/"
+          else
+            "/" +  str + "/"
+          end
+        end
+
+        # clean up a prefix segment so it can concatenate with other parts cleanly
+        def sanitize_prefix_segment(segment)
+          return nil if segment.blank?
+
+          # remove any initial "/"
+          segment = segment[1..-1] if segment[0] == "/"
+
+          # remove any trailing "/"
+          segment = segment[0..-2] if segment[-1] == "/"
+
+          segment
+        end
+
+        # this method will be overridden at run-time by #define_interpolate_prefix_method
+        def interpolate_prefix(options={})
+        end
+
+        # define a method that will use ruby's string interpolation to calculate the prefix
+        #
+        # By defining a method, we get a modest performance increase over run-time interpolation.
+        def define_interpolate_prefix_method
+          return if @prefix_method_cached
+          prefix_call = raw_prefix.gsub(/:\w+/) { |key| "\#{URI.parser.escape options[#{key}].to_s}" }
+          silence_warnings do
+            instance_eval <<-RUBY_EVAL, __FILE__, __LINE__ + 1
+              def interpolate_prefix(options={}) "#{prefix_call}" end
+            RUBY_EVAL
+          end
+          @prefix_method_cached = true
+        end
+
         # Find every resource
         def find_every(options)
           begin
@@ -1016,7 +1046,7 @@ module ActiveResource
 
         # contains a set of the current prefix parameters.
         def prefix_parameters
-          @prefix_parameters ||= prefix_source.scan(/:\w+/).map { |key| key[1..-1].to_sym }.to_set
+          @prefix_parameters ||= raw_prefix.scan(/:\w+/).map { |key| key[1..-1].to_sym }.to_set
         end
 
         # Builds the query string for the request.
@@ -1586,4 +1616,3 @@ module ActiveResource
 
   ActiveSupport.run_load_hooks(:active_resource, Base)
 end
-
