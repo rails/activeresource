@@ -9,6 +9,8 @@ require "fixtures/address"
 require "fixtures/subscription_plan"
 require "fixtures/post"
 require "fixtures/comment"
+require "fixtures/product"
+require "fixtures/inventory"
 require 'active_support/json'
 require 'active_support/core_ext/hash/conversions'
 require 'mocha/setup'
