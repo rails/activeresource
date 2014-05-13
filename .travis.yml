@@ -1,11 +1,15 @@
 before_install:
-  - gem install bundler
+  - gem update bundler
+  - bundle --version
+  - gem update --system 2.1.11
+  - gem --version
 
 rvm:
   - 1.9.3
   - 2.0.0
+  - 2.1.2
   - jruby-19mode
-  - rbx
+  - rbx-2
 
 gemfile:
   - gemfiles/Gemfile-rails-master
