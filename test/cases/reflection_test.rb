@@ -15,8 +15,8 @@ class ReflectionTest < ActiveSupport::TestCase
   end
 
   def test_correct_class_name_matching_without_class_name
-    object = ActiveResource::Reflection::AssociationReflection.new(:test, :people, {})
-    assert_equal Person, object.klass
+    object = ActiveResource::Reflection::AssociationReflection.new(:test, :customer, {})
+    assert_equal Customer, object.klass
   end
 
   def test_correct_class_name_matching_as_string
@@ -25,7 +25,7 @@ class ReflectionTest < ActiveSupport::TestCase
   end
 
   def test_correct_class_name_matching_as_symbol
-    object = ActiveResource::Reflection::AssociationReflection.new(:test, :people, {:class_name => :person})
+    object = ActiveResource::Reflection::AssociationReflection.new(:test, :people, {:class_name => :Person})
     assert_equal Person, object.klass
   end
 
@@ -35,7 +35,7 @@ class ReflectionTest < ActiveSupport::TestCase
   end
 
   def test_correct_class_name_matching_as_string_with_namespace
-    object = ActiveResource::Reflection::AssociationReflection.new(:test, :people, {:class_name => 'external/person'})
+    object = ActiveResource::Reflection::AssociationReflection.new(:test, :people, {:class_name => 'External::Person'})
     assert_equal External::Person, object.klass
   end
 
@@ -49,9 +49,19 @@ class ReflectionTest < ActiveSupport::TestCase
     assert_equal 'client_id', object.foreign_key
   end
 
+  def test_correct_class_name_for_collection_matching_without_class_name
+    object = ActiveResource::Reflection::AssociationReflection.new(:has_many, :people, {})
+    assert_equal Person, object.klass
+  end
+
+  def test_correct_class_name_for_collection_matching_with_class_name
+    object = ActiveResource::Reflection::AssociationReflection.new(:has_many, :people, {:class_name => 'External::Person'})
+    assert_equal External::Person, object.klass
+  end
+
   def test_creation_of_reflection
     Person.reflections = {}
-    object = Person.create_reflection(:test, :people, {})
+    object = Person.create_reflection(:has_many, :people, {})
     assert_equal ActiveResource::Reflection::AssociationReflection, object.class
     assert_equal 1, Person.reflections.count
     assert_equal Person, Person.reflections[:people].klass
