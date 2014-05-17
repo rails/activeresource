@@ -189,8 +189,6 @@ module ActiveResource
           if defined? @ssl_options
             http.use_ssl = true
 
-            http.verify_mode = OpenSSL::SSL::VERIFY_PEER
-
             # All the SSL options have corresponding http settings.
             @ssl_options.each { |key, value| http.send "#{key}=", value }
           end
