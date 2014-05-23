@@ -1437,7 +1437,7 @@ module ActiveResource
       # Create (i.e., \save to the remote service) the \new resource.
       def create
         run_callbacks :create do
-          connection.post(collection_path, encode, self.class.headers).tap do |response|
+          connection.post(collection_path(prefix_options), encode, self.class.headers).tap do |response|
             self.id = id_from_response(response)
             load_attributes_from_response(response)
           end
