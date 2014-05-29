@@ -28,7 +28,7 @@ The latest version of Active Resource can be installed with RubyGems:
 
 Or added to a Gemfile:
 
-  gem 'activeresource'
+  gem 'activeresource', :require => 'active_resource'
 
 Source code can be downloaded on GitHub
 
