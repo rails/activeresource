@@ -43,7 +43,6 @@ class ObservingTest < ActiveSupport::TestCase
 
   def test_update_fires_save_and_update_notifications
     person = Person.find(1)
-    person.name = 'new name'
     person.save
     assert_equal [:before_save, :before_update, :after_update, :after_save], self.history
   end
