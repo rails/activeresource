@@ -71,7 +71,7 @@ module ActiveResource
 
         path = singleton_path(prefix_options, query_options)
         resp = self.format.decode(self.connection.get(path, self.headers).body)
-        instantiate_record(resp, {})
+        instantiate_record(resp, prefix_options)
       end
 
     end

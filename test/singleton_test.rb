@@ -83,6 +83,7 @@ class SingletonTest < ActiveSupport::TestCase
     assert_equal 'Sold Out', inventory.status
     assert_equal 10, inventory.used
     assert_equal 10, inventory.total
+    assert_equal({:product_id => 5}, inventory.prefix_options)
   end
 
   def test_find_with_query_options
