@@ -3,7 +3,7 @@ require 'active_resource/version'
 
 Gem::Specification.new do |s|
   s.platform    = Gem::Platform::RUBY
-  s.name        = 'activeresource'
+  s.name        = 'activeresource-threadsafe'
   s.version     = ActiveResource::VERSION::STRING
   s.summary     = 'REST modeling framework (part of Rails).'
   s.description = 'REST on Rails. Wrap your RESTful web app with Ruby classes and work with them like Active Record models.'
