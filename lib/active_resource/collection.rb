@@ -81,5 +81,11 @@ module ActiveResource # :nodoc:
     rescue NoMethodError
       raise "Cannot build resource from resource type: #{resource_class.inspect}"
     end
+
+    def where(clauses = {})
+      raise ArgumentError, "expected a clauses Hash, got #{clauses.inspect}" unless clauses.is_a? Hash
+      new_clauses = original_params.merge(clauses)
+      resource_class.where(new_clauses)
+    end
   end
 end
