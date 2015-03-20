@@ -80,6 +80,9 @@ class CustomMethodsTest < ActiveSupport::TestCase
   end
 
   def test_custom_new_element_method
+    original_include_root_in_json = ActiveResource::Base.include_root_in_json
+    ActiveResource::Base.include_root_in_json = true
+
     # Test POST against a new element URL
     ryan = Person.new(:name => 'Ryan')
     assert_equal ActiveResource::Response.new(@ryan, 201, { 'Location' => '/people/5.json' }), ryan.post(:register)
@@ -94,6 +97,8 @@ class CustomMethodsTest < ActiveSupport::TestCase
 
     matz = Person.find(1)
     assert_equal ActiveResource::Response.new(@matz, 201), matz.post(:register)
+  ensure
+    ActiveResource::Base.include_root_in_json = original_include_root_in_json
   end
 
   def test_find_custom_resources
