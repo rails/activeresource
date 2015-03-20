@@ -19,11 +19,13 @@ class BaseTest < ActiveSupport::TestCase
   def setup
     ActiveResource::Base.include_root_in_json = true
     setup_response # find me in abstract_unit
-    @original_person_site = Person.site
+    @original_person_site  = Person.site
+    @original_person_proxy = Person.proxy
   end
 
   def teardown
-    Person.site = @original_person_site
+    Person.site  = @original_person_site
+    Person.proxy = @original_person_proxy
   end
 
   ########################################################################
@@ -205,6 +207,8 @@ class BaseTest < ActiveSupport::TestCase
   end
 
   def test_proxy_reader_uses_superclass_site_until_written
+    Person.proxy = 'http://localhost'
+
     # Superclass is Object so returns nil.
     assert_nil ActiveResource::Base.proxy
     assert_nil Class.new(ActiveResource::Base).proxy
