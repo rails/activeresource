@@ -100,7 +100,8 @@ module ActiveResource
     include ActiveModel::Validations
 
     included do
-      alias_method_chain :save, :validation
+      alias_method :save_without_validation, :save
+      alias_method :save, :save_with_validation
     end
 
     # Validate a resource and save (POST) it to the remote web service.
