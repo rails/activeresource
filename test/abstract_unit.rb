@@ -13,6 +13,7 @@ require 'active_support/logger'
 
 ActiveSupport::TestCase.test_order = :random if ActiveSupport::TestCase.respond_to?(:test_order=)
 ActiveResource::Base.logger = ActiveSupport::Logger.new("#{File.dirname(__FILE__)}/debug.log")
+ActiveResource::Base.include_root_in_json = true
 
 def setup_response
   matz_hash = { 'person' => { :id => 1, :name => 'Matz' } }
