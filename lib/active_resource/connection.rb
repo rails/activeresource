@@ -5,6 +5,7 @@ require 'net/https'
 require 'date'
 require 'time'
 require 'uri'
+require 'base64'
 
 module ActiveResource
   # Class to handle connections to remote web services.
@@ -212,7 +213,7 @@ module ActiveResource
         retried ||= false
         yield
       rescue UnauthorizedAccess => e
-        raise if retried || auth_type != :digest
+        raise if retried || !auth_type.in?([:digest, :mac])
         @response_auth_header = e.response['WWW-Authenticate']
         retried = true
         retry
@@ -222,6 +223,8 @@ module ActiveResource
         if @user || @password
           if auth_type == :digest
             { 'Authorization' => digest_auth_header(http_method, uri) }
+          elsif auth_type == :mac
+            { 'Authorization' => mac_auth_header(http_method, uri) }
           else
             { 'Authorization' => 'Basic ' + ["#{@user}:#{@password}"].pack('m').delete("\r\n") }
           end
@@ -242,6 +245,29 @@ module ActiveResource
         params.merge!('cnonce' => client_nonce)
         request_digest = Digest::MD5.hexdigest([ha1, params['nonce'], "0", params['cnonce'], params['qop'], ha2].join(":"))
         "Digest #{auth_attributes_for(uri, request_digest, params)}"
+      end
+
+      def mac_auth_header(http_method, uri)
+        ts = Time.now.utc.to_i
+        nonce = client_nonce
+        algorithm = 'sha256'
+
+        mac = Base64.encode64(OpenSSL::HMAC.digest(
+          algorithm,
+          @password,
+          "#{ts}\n" +
+          "#{nonce}\n" +
+          "#{http_method.upcase}\n" +
+          "#{uri.request_uri}\n" +
+          "#{uri.host}\n" +
+          "#{uri.port}\n" +
+          "\n"
+        )).strip
+
+        "MAC id=\"#{@user}\",\n" +
+        "    ts=\"#{ts}\",\n" +
+        "    nonce=\"#{nonce}\",\n" +
+        "    mac=\"#{mac}\""
       end
 
       def client_nonce
@@ -276,7 +302,7 @@ module ActiveResource
       def legitimize_auth_type(auth_type)
         return :basic if auth_type.nil?
         auth_type = auth_type.to_sym
-        auth_type.in?([:basic, :digest]) ? auth_type : :basic
+        auth_type.in?([:basic, :digest, :mac]) ? auth_type : :basic
       end
   end
 end
