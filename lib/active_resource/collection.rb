@@ -53,8 +53,10 @@ module ActiveResource # :nodoc:
     #
     # The initialize method will receive the ActiveResource::Formats parsed result
     # and should set @elements.
-    def initialize(elements = [])
+    def initialize(elements = [], resource_class = nil, original_params = {})
       @elements = elements
+      @resource_class = resource_class
+      @original_params = original_params
     end
     
     def to_a
