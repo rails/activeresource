@@ -46,6 +46,33 @@ class FinderTest < ActiveSupport::TestCase
     assert_kind_of StreetAddress, all.first
   end
 
+  def test_where
+    people = Person.where
+    assert_equal 2, people.size
+    assert_kind_of Person, people.first
+    assert_equal 'Matz', people.first.name
+    assert_equal 'David', people.last.name
+  end
+
+  def test_where_with_clauses
+    addresses = StreetAddress.where(:person_id => 1)
+    assert_equal 1, addresses.size
+    assert_kind_of StreetAddress, addresses.first
+  end
+
+  def test_where_with_clause_in
+    ActiveResource::HttpMock.respond_to { |m| m.get "/people.json?id%5B%5D=2", {}, @people_david }
+    people = Person.where(:id => [2])
+    assert_equal 1, people.size
+    assert_kind_of Person, people.first
+    assert_equal 'David', people.first.name
+  end
+
+  def test_where_with_invalid_clauses
+    error = assert_raise(ArgumentError) { Person.where(nil) }
+    assert_equal 'expected a clauses Hash, got nil', error.message
+  end
+
   def test_find_first
     matz = Person.find(:first)
     assert_kind_of Person, matz
