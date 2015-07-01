@@ -8,16 +8,32 @@ rvm:
   - 1.9.3
   - 2.0.0
   - 2.1.2
+  - 2.2.2
   - jruby-19mode
   - rbx-2
 
 gemfile:
+  - gemfiles/Gemfile-rails-4-0-stable
   - gemfiles/Gemfile-rails-master
   - Gemfile
 
 matrix:
+  exclude:
+    - rvm: 1.9.3
+      gemfile: Gemfile
+    - rvm: 1.9.3
+      gemfile: gemfiles/Gemfile-rails-master
+    - rvm: jruby-19mode
+      gemfile: Gemfile
+    - rvm: jruby-19mode
+      gemfile: gemfiles/Gemfile-rails-master
+    - rvm: 2.0.0
+      gemfile: Gemfile
+    - rvm: 2.0.0
+      gemfile: gemfiles/Gemfile-rails-master
   allow_failures:
     - gemfile: gemfiles/Gemfile-rails-master
+  fast_finish: true
 
 notifications:
   email: false
