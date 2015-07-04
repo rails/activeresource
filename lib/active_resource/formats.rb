@@ -11,9 +11,15 @@ module ActiveResource
       ActiveResource::Formats.const_get(ActiveSupport::Inflector.camelize(mime_type_reference.to_s) + "Format")
     end
 
-    def self.remove_root(data)
-      if data.is_a?(Hash) && data.keys.size == 1
-        data.values.first
+    def self.remove_root(data, klass=nil)
+      if data.is_a?(Hash)
+        if data.keys.size == 1
+          data.values.first
+        elsif klass && klass.remove_root
+          data[klass.element_name.to_sym]
+        else
+          data
+        end
       else
         data
       end
