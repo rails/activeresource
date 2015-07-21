@@ -60,6 +60,16 @@ class AssociationTest < ActiveSupport::TestCase
     assert_equal person.posts, [post]
   end
 
+  def test_defines_has_many_finder_method_with_persisted_record
+    Person.defines_has_many_finder_method(:posts, Post)
+    person = Person.new
+    person.id = 123
+    person.stubs(:new_record?).returns(false)
+    post = Post.new
+    Post.expects(:find).with(:all, :from => '/people/123/posts.json').once().returns([post])
+    assert_equal person.posts, [post]
+  end
+
   def test_defines_has_many_finder_method
     Person.defines_has_many_finder_method(:posts, Post)
     person = Person.new
