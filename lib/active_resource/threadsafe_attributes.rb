@@ -27,9 +27,10 @@ module ThreadsafeAttributes
     if threadsafe_attribute_defined_by_thread?(name, Thread.current)
       get_threadsafe_attribute_by_thread(name, Thread.current)
     elsif threadsafe_attribute_defined_by_thread?(name, Thread.main)
-      get_threadsafe_attribute_by_thread(name, Thread.main).dup.tap do |value|
-        set_threadsafe_attribute_by_thread(name, value, Thread.current)
-      end
+      value = get_threadsafe_attribute_by_thread(name, Thread.main)
+      value = value.dup if value
+      set_threadsafe_attribute_by_thread(name, value, Thread.current)
+      value
     end
   end
 
