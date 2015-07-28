@@ -35,4 +35,12 @@ class ThreadsafeAttributesTest < ActiveSupport::TestCase
     assert_equal "a value", @tester.safeattr
   end
 
+  test "#threadsafe attributes inherit the value of the main thread when value is nil/false" do
+    @tester.safeattr = false
+    Thread.new do
+      assert @tester.safeattr_defined?
+      assert_equal false, @tester.safeattr
+    end.join
+    assert_equal false, @tester.safeattr
+  end
 end
