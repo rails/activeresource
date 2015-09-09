@@ -20,6 +20,8 @@ require 'active_resource/associations'
 require 'active_resource/reflection'
 require 'active_resource/threadsafe_attributes'
 
+require 'active_model/serializers/xml'
+
 module ActiveResource
   # ActiveResource::Base is the main class for mapping RESTful resources as models in a Rails application.
   #
