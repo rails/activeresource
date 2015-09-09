@@ -1,4 +1,4 @@
-= Active Resource {<img src="https://secure.travis-ci.org/rails/activeresource.png" />}[http://travis-ci.org/rails/activeresource]
+= Active Resource
 
 Active Resource (ARes) connects business objects and Representational State Transfer (REST)
 web services.  It implements object-relational mapping for REST web services to provide transparent
@@ -206,6 +206,13 @@ The server-side model can be adjusted as follows to include comments in the resp
 Active Resource is released under the MIT license:
 
 * http://www.opensource.org/licenses/MIT
+
+== Contributing to Active Resource
+
+Active Resource is work of many contributors. You're encouraged to submit pull requests, propose
+features and discuss issues.
+
+See {CONTRIBUTING}[https://github.com/rails/activeresoure/blob/master/CONTRIBUTING.md].
 
 == Support
 
