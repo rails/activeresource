@@ -1,7 +1,9 @@
 source 'https://rubygems.org'
 
 # Specify your gem's dependencies in protected_attributes.gemspec
-gem 'rails', github: 'rails/rails', branch: 'master'
+gem 'activesupport', github: 'rails/rails', branch: 'master'
+gem 'activemodel', github: 'rails/rails', branch: 'master'
 gem 'arel', github: 'rails/arel', branch: 'master'
+gem 'activemodel-serializers-xml', github: 'rails/activemodel-serializers-xml'
 
 gemspec :path => '..'
