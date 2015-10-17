@@ -212,7 +212,7 @@ Active Resource is released under the MIT license:
 Active Resource is work of many contributors. You're encouraged to submit pull requests, propose
 features and discuss issues.
 
-See {CONTRIBUTING}[https://github.com/rails/activeresoure/blob/master/CONTRIBUTING.md].
+See {CONTRIBUTING}[https://github.com/rails/activeresource/blob/master/CONTRIBUTING.md].
 
 == Support
 
