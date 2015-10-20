@@ -296,6 +296,35 @@ module ActiveResource
   #     self.open_timeout = 2
   #     self.read_timeout = 10
   #   end
+  #
+  # === Parameter Filtering
+  #
+  # You can filter which parameters you dont want to send on +PUT+ requests.
+  #
+  #   class Person < ActiveResource::Base
+  #     self.site = "https://api.people.com"
+  #     update_except :created_at, :updated_at
+  #   end
+  #
+  # In the example above, if you try to save a person that you received from the
+  # server, it'll not send the +created_at+ and +updated_at+ params. This is
+  # useful for when you receive some attributes that are just informative, but
+  # you can update.
+  #
+  # Your API may not accept the +id+ parameter on the request body when updating
+  # your object (because it's already on the URL). If that's the case, you can
+  # set your model to not send the primary key.
+  #
+  #   class Person < ActiveResource::Base
+  #     except_primary_key = true
+  #   end
+  #
+  # If you want to disable the primary key from all your models, you can call
+  # also +except_primary_key+ from a initializer.
+  #
+  #   # config/initializers/active_resource.rb
+  #   ActiveResource::Base.except_primary_key = true
+  #
   class Base
     ##
     # :singleton-method:
@@ -681,6 +710,25 @@ module ActiveResource
           primary_key.dup.freeze
         else
           'id'
+        end
+      end
+
+      def update_except(*attributes)
+        @update_except ||= []
+        @update_except << attributes.map(&:to_s)
+      end
+
+      attr_writer :except_primary_key
+      attr_reader :except_primary_key
+
+      def update_exceptions
+        if !defined?(@update_except) && superclass != Object && superclass.update_exceptions
+          superclass.update_exceptions.dup.freeze
+        else
+          except = []
+          except += @update_except if defined?(@update_except)
+          except << primary_key if except_primary_key
+          except
         end
       end
 
@@ -1471,7 +1519,8 @@ module ActiveResource
       # Update the resource on the remote service.
       def update
         run_callbacks :update do
-          connection.put(element_path(prefix_options), encode, self.class.headers).tap do |response|
+          options = { except: self.class.update_exceptions }
+          connection.put(element_path(prefix_options), encode(options), self.class.headers).tap do |response|
             load_attributes_from_response(response)
           end
         end
