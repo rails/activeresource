@@ -119,9 +119,11 @@ a 'Location' header in the response with the RESTful URL location of the newly c
 id of the newly created resource is parsed out of the Location response header and automatically set
 as the id of the ARes object.
 
-  # {"person":{"first":"Tyler","last":"Durden"}}
+  # {"first":"Tyler","last":"Durden"}
   #
   # is submitted as the body on
+  #
+  # if include_root_in_json is set to true => {"person":{"first":"Tyler"}}
   #
   # POST http://api.people.com:3000/people.json
   #
@@ -142,9 +144,11 @@ as the id of the ARes object.
 with the exception that no response headers are needed -- just an empty response when the update on the
 server side was successful.
 
-  # {"person":{"first":"Tyler"}}
+  # {"first":"Tyler"}
   #
   # is submitted as the body on
+  #
+  # if include_root_in_json is set to true => {"person":{"first":"Tyler"}}
   #
   # PUT http://api.people.com:3000/people/1.json
   #
