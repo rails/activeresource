@@ -12,6 +12,11 @@ module Highrise
     self.site = "http://37s.sunrise.i:3000"
   end
 
+  class User < ActiveResource::Base
+    self.site = "http://37s.sunrise.i:3000"
+    self.remove_root = true
+  end
+
   module Deeply
     module Nested
       class Note < ActiveResource::Base
@@ -201,5 +206,17 @@ class BaseLoadTest < ActiveSupport::TestCase
   def test_nested_collections_in_different_levels_of_namespaces
     n = Highrise::Deeply::Nested::TestDifferentLevels::Note.new(:comments => [{ :name => "1" }])
     assert_kind_of Highrise::Deeply::Nested::Comment, n.comments.first
+  end
+
+  def test_multiple_root_keys_and_removing_root_by_default
+    user = Highrise::User.new
+    user.load(:user => {:name => "dbar"}, :other => {:data => 123})
+    assert_equal user.name, "dbar"
+  end
+
+  def test_multiple_root_keys_first_key_not_resource_root_and_removing_root_by_default
+    user = Highrise::User.new
+    user.load(:other => {:data => 123}, :user => {:name => "dbar"})
+    assert_equal user.name, "dbar"
   end
 end
