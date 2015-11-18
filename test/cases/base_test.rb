@@ -1227,13 +1227,13 @@ class BaseTest < ActiveSupport::TestCase
   end
 
   def test_parse_resource_with_given_has_one_resources
-    Customer.send(:has_one, :mother, :class_name => "external/person")
+    Customer.send(:has_one, :mother, :class_name => "External::Person")
     luis = Customer.find(1)
     assert_kind_of External::Person, luis.mother
   end
 
   def test_parse_resources_with_given_has_many_resources
-    Customer.send(:has_many, :enemies, :class_name => "external/person")
+    Customer.send(:has_many, :enemies, :class_name => "External::Person")
     luis = Customer.find(1)
     luis.enemies.each do |enemy|
       assert_kind_of External::Person, enemy

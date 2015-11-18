@@ -27,7 +27,10 @@ module ActiveResource
     class AssociationReflection
 
       def initialize(macro, name, options)
-        @macro, @name, @options = macro, name, options
+        @macro = macro
+        @name = name
+        @options =  options
+        @collection = :has_many == macro
       end
 
       # Returns the name of the macro.
@@ -56,7 +59,7 @@ module ActiveResource
       #
       # <tt>has_many :clients</tt> returns <tt>'Client'</tt>
       def class_name
-        @class_name ||= derive_class_name
+        @class_name ||= (options[:class_name] || derive_class_name).to_s
       end
 
       # Returns the foreign_key for the macro.
@@ -64,9 +67,18 @@ module ActiveResource
         @foreign_key ||= self.options[:foreign_key] || "#{self.name.to_s.downcase}_id"
       end
 
+      # Returns whether or not this association reflection is for a collection
+      # association. Returns +true+ if the +macro+ is
+      # either +has_many+, +false+ otherwise.
+      def collection?
+        @collection
+      end
+
       private
       def derive_class_name
-        return (options[:class_name] ? options[:class_name].to_s : name.to_s).classify
+        class_name = name.to_s
+        class_name = class_name.singularize if collection?
+        class_name.camelize
       end
 
       def derive_foreign_key
