@@ -1211,8 +1211,6 @@ class BaseTest < ActiveSupport::TestCase
     assert Person.exists?(1)
   end
 
-
-
   def test_to_xml
     Person.format = :xml
     matz = Person.find(1)
