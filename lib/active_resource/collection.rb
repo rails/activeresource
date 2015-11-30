@@ -3,8 +3,9 @@ require 'active_support/inflector'
 
 module ActiveResource # :nodoc:
   class Collection # :nodoc:
+    SELF_DEFINE_METHODS = [:to_a, :collect!, :map!]
     include Enumerable
-    delegate :to_yaml, :all?, *Array.instance_methods(false), :to => :to_a
+    delegate :to_yaml, :all?, *(Array.instance_methods(false) - SELF_DEFINE_METHODS), :to => :to_a
 
     # The array of actual elements returned by index actions
     attr_accessor :elements, :resource_class, :original_params
