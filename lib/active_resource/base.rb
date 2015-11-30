@@ -284,6 +284,16 @@ module ActiveResource
   # Internally, Active Resource relies on Ruby's Net::HTTP library to make HTTP requests. Setting +timeout+
   # sets the <tt>read_timeout</tt> of the internal Net::HTTP instance to the same value. The default
   # <tt>read_timeout</tt> is 60 seconds on most Ruby implementations.
+  #
+  # Active Resource also supports distinct +open_timeout+ (time to connect) and +read_timeout+ (how long to
+  # wait for an upstream response). This is inline with supported +Net::HTTP+ timeout configuration and allows
+  # for finer control of client timeouts depending on context.
+  #
+  #   class Person < ActiveResource::Base
+  #     self.site = "https://api.people.com"
+  #     self.open_timeout = 2
+  #     self.read_timeout = 10
+  #   end
   class Base
     ##
     # :singleton-method:
@@ -553,12 +563,42 @@ module ActiveResource
         @timeout = timeout
       end
 
+      # Sets the number of seconds after which connection attempts to the REST API should time out.
+      def open_timeout=(timeout)
+        self._connection = nil
+        @open_timeout = timeout
+      end
+
+      # Sets the number of seconds after which reads to the REST API should time out.
+      def read_timeout=(timeout)
+        self._connection = nil
+        @read_timeout = timeout
+      end
+
       # Gets the number of seconds after which requests to the REST API should time out.
       def timeout
         if defined?(@timeout)
           @timeout
         elsif superclass != Object && superclass.timeout
           superclass.timeout
+        end
+      end
+
+      # Gets the number of seconds after which connection attempts to the REST API should time out.
+      def open_timeout
+        if defined?(@open_timeout)
+          @open_timeout
+        elsif superclass != Object && superclass.open_timeout
+          superclass.open_timeout
+        end
+      end
+
+      # Gets the number of seconds after which reads to the REST API should time out.
+      def read_timeout
+        if defined?(@read_timeout)
+          @read_timeout
+        elsif superclass != Object && superclass.read_timeout
+          superclass.read_timeout
         end
       end
 
@@ -598,6 +638,8 @@ module ActiveResource
           _connection.password = password if password
           _connection.auth_type = auth_type if auth_type
           _connection.timeout = timeout if timeout
+          _connection.open_timeout = open_timeout if open_timeout
+          _connection.read_timeout = read_timeout if read_timeout
           _connection.ssl_options = ssl_options if ssl_options
           _connection
         else
