@@ -822,6 +822,16 @@ class BaseTest < ActiveSupport::TestCase
     assert_nothing_raised { StreetAddress.build(person_id: 1) }
   end
 
+  def test_build_with_non_prefix_attributes
+    ActiveResource::HttpMock.respond_to do |mock|
+      mock.get "/people/1/addresses/new.json", {}, StreetAddress.new.to_json
+    end
+    assert_nothing_raised do
+      address = StreetAddress.build(person_id: 1, city: "Toronto")
+      assert_equal "Toronto", address.city
+    end
+  end
+
   def test_save
     rick = Person.new
     assert rick.save
