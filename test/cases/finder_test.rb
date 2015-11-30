@@ -127,6 +127,13 @@ class FinderTest < ActiveSupport::TestCase
     assert_equal "David", people.first.name
   end
 
+  def test_find_first_or_last_not_found
+    ActiveResource::HttpMock.respond_to { |m| m.get "/people.json", {}, "", 404 }
+
+    assert_nothing_raised { Person.find(:first) }
+    assert_nothing_raised { Person.find(:last)  }
+  end
+
   def test_find_single_by_from
     ActiveResource::HttpMock.respond_to { |m| m.get "/companies/1/manager.json", {}, @david }
 
