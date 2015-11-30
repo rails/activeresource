@@ -14,6 +14,7 @@ gemfile:
 matrix:
   allow_failures:
     - gemfile: gemfiles/Gemfile-rails-master
+    - rvm: jruby-9000
 
 notifications:
   email: false
