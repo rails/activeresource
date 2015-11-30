@@ -11,7 +11,7 @@ class CustomMethodsTest < ActiveSupport::TestCase
     @ryan  = { :person => { :name => 'Ryan' } }.to_json
     @addy  = { :address => { :id => 1, :street => '12345 Street' } }.to_json
     @addy_deep  = { :address => { :id => 1, :street => '12345 Street', :zip => "27519" } }.to_json
-    @active = [{ id: 1, name: "Matz", id: 5, name: "Bob" }].to_json
+    @active = [{ id: 5, name: "Bob" }].to_json
 
     ActiveResource::HttpMock.respond_to do |mock|
       mock.get    "/people/1.json",        {}, @matz
