@@ -4,7 +4,7 @@ cache: bundler
 
 rvm:
   - 2.2 # tests on latest 2.2.x
-  - jruby
+  - jruby-9000
   - rbx-2
 
 gemfile:
