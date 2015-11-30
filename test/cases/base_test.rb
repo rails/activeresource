@@ -1203,6 +1203,16 @@ class BaseTest < ActiveSupport::TestCase
     assert !Person.exists?(1)
   end
 
+  def test_exists_with_204_no_content
+    ActiveResource::HttpMock.respond_to do |mock|
+      mock.head "/people/1.json", {}, nil, 204
+    end
+
+    assert Person.exists?(1)
+  end
+
+
+
   def test_to_xml
     Person.format = :xml
     matz = Person.find(1)
