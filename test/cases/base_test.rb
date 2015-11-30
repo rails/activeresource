@@ -1232,7 +1232,6 @@ class BaseTest < ActiveSupport::TestCase
     Person.element_name = 'ruby_creator'
     encode = matz.encode
     xml = matz.to_xml
-
     assert_equal encode, xml
     assert xml.include?('<?xml version="1.0" encoding="UTF-8"?>')
     assert xml.include?('<ruby-creator>')
@@ -1262,6 +1261,7 @@ class BaseTest < ActiveSupport::TestCase
   end
 
   def test_to_json
+    
     joe = Person.find(6)
     encode = joe.encode
     json = joe.to_json
@@ -1288,6 +1288,7 @@ class BaseTest < ActiveSupport::TestCase
   end
 
   def test_to_json_with_element_name
+    Person.include_root_in_json = true
     old_elem_name = Person.element_name
     joe = Person.find(6)
     Person.element_name = 'ruby_creator'
@@ -1301,6 +1302,7 @@ class BaseTest < ActiveSupport::TestCase
     assert_match %r{\}\}$}, json
   ensure
     Person.element_name = old_elem_name
+    Person.include_root_in_json = false
   end
 
   def test_to_param_quacks_like_active_record

@@ -5,13 +5,14 @@ require 'active_support/core_ext/hash/conversions'
 
 class CustomMethodsTest < ActiveSupport::TestCase
   def setup
-    @matz  = { :person => { :id => 1, :name => 'Matz' } }.to_json
-    @matz_deep  = { :person => { :id => 1, :name => 'Matz', :other => 'other' } }.to_json
-    @matz_array = { :people => [{ :person => { :id => 1, :name => 'Matz' } }] }.to_json
-    @ryan  = { :person => { :name => 'Ryan' } }.to_json
-    @addy  = { :address => { :id => 1, :street => '12345 Street' } }.to_json
-    @addy_deep  = { :address => { :id => 1, :street => '12345 Street', :zip => "27519" } }.to_json
-    @active = [{ id: 1, name: "Matz", id: 5, name: "Bob" }].to_json
+    Person.include_root_in_json = false
+    @matz  =  Person.new({ :id => 1, :name => 'Matz' }).to_json
+    @matz_deep  = Person.new({ :id => 1, :name => 'Matz', :other => 'other' }).to_json
+    @matz_array = { :people => [ Person.new({ :id => 1, :name => 'Matz' }) ] }.to_json
+    @ryan  = Person.new({ :name => 'Ryan' }).to_json    
+    @addy  = StreetAddress.new({ :id => 1, :street => '12345 Street' }).to_json
+    @addy_deep  =  StreetAddress.new({ :id => 1, :street => '12345 Street', :zip => "27519" }).to_json
+    @active = [Person.new({ id: 1, name: "Matz", id: 5, name: "Bob" })].to_json
 
     ActiveResource::HttpMock.respond_to do |mock|
       mock.get    "/people/1.json",        {}, @matz
@@ -80,12 +81,14 @@ class CustomMethodsTest < ActiveSupport::TestCase
   end
 
   def test_custom_new_element_method
+    
     # Test POST against a new element URL
+
     ryan = Person.new(:name => 'Ryan')
     assert_equal ActiveResource::Response.new(@ryan, 201, { 'Location' => '/people/5.json' }), ryan.post(:register)
-    expected_request = ActiveResource::Request.new(:post, '/people/new/register.json', @ryan)
-    assert_equal expected_request.body, ActiveResource::HttpMock.requests.first.body
+    expected_request = ActiveResource::Request.new(:post, '/people/new/register.json', @ryan)   
 
+    assert_equal expected_request.body, ActiveResource::HttpMock.requests.first.body
     # Test POST against a nested collection URL
     addy = StreetAddress.new(:street => '123 Test Dr.', :person_id => 1)
     assert_equal ActiveResource::Response.new({ :address => { :street => '12345 Street' } }.to_json,
@@ -94,6 +97,7 @@ class CustomMethodsTest < ActiveSupport::TestCase
 
     matz = Person.find(1)
     assert_equal ActiveResource::Response.new(@matz, 201), matz.post(:register)
+
   end
 
   def test_find_custom_resources
