@@ -6,5 +6,9 @@ module External
   class Person < ActiveResource::Base
     self.site = "http://atq.caffeine.intoxication.it"
   end
+
+  class ProfileData < ActiveResource::Base
+    self.site = "http://external.profile.data.nl"
+  end
 end
 

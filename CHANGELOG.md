@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 ## Active Resource 4.0.1 (unreleased) ##
 
 ### Enhancements ###
@@ -9,6 +10,16 @@
 *   Railtie enables configuration and dev reloading of observers just like
     ActiveRecord when using ARes with Rails. ARes also now runs ActiveSupport
     load hooks for `:active_resource`. ([#109], [Ches Martin])
+*   Fix `options[:class_name]` to keep the given class name, and not transform it to singular.
+    Example:
+
+    ```ruby
+    has_one :profile_data, class_name: 'profile_data' #will correctly use ProfileData, and not ProfileDatum
+    ```
+    Fixed and pull request available: https://github.com/rails/activeresource/pull/80
+
+    *Lucian Cancescu*
+
 
 ### Fixes ###
 
