@@ -699,6 +699,10 @@ class BaseTest < ActiveSupport::TestCase
     assert_equal '/sounds/1.json', Asset::Sound.element_path(1)
   end
 
+  def test_module_element_path
+    assert_equal 'http://37s.sunrise.i:3000/sounds/1.json', Asset::Sound.element_url(1)
+  end
+
   def test_custom_element_path_with_redefined_to_param
     Person.module_eval do
       alias_method :original_to_param_element_path, :to_param

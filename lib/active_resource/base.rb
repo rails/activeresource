@@ -773,6 +773,10 @@ module ActiveResource
         "#{prefix(prefix_options)}#{collection_name}/#{URI.parser.escape id.to_s}#{format_extension}#{query_string(query_options)}"
       end
 
+      def element_url(id, prefix_options = {}, query_options = nil)
+        "#{site}#{element_path(id, prefix_options, query_options)}"
+      end
+
       # Gets the new element path for REST resources.
       #
       # ==== Options
@@ -1542,6 +1546,10 @@ module ActiveResource
 
       def element_path(options = nil)
         self.class.element_path(to_param, options || prefix_options)
+      end
+
+      def element_url(options = nil)
+        self.class.element_url(to_param, options || prefix_options)
       end
 
       def new_element_path
