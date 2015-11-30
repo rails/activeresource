@@ -53,6 +53,16 @@ life cycle methods that operate against a persistent store.
 As you can see, the methods are quite similar to Active Record's methods for dealing with database
 records.  But rather than dealing directly with a database record, you're dealing with HTTP resources (which may or may not be database records).
 
+==== Authentication
+
+Active Resource supports the token based authentication provided by Rails through the <tt>ActionController::HttpAuthentication::Token</tt> class using custom headers.
+
+   class Person < ActiveResource::Base
+     self.headers['Authorization'] = 'Token token="abcd"'
+   end
+   
+You can also set any specific HTTP header using the same way.
+
 ==== Protocol
 
 Active Resource is built on a standard JSON or XML format for requesting and submitting resources over HTTP.  It mirrors the RESTful routing
