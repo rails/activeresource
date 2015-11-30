@@ -17,14 +17,14 @@ module ActiveResource # :nodoc:
     #
     # GET /posts.json delivers following response body:
     #   {
-    #     posts: [
+    #     "posts": [
     #       {
     #         title: "ActiveResource now has associations",
     #         body: "Lorem Ipsum"
-    #       }
+    #       },
     #       {...}
-    #     ]
-    #     next_page: "/posts.json?page=2"
+    #     ],
+    #     "next_page": "/posts.json?page=2"
     #   }
     # 
     # A Post class can be setup to handle it with:
