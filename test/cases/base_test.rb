@@ -573,7 +573,7 @@ class BaseTest < ActiveSupport::TestCase
     assert_equal '/sounds/1.json', Asset::Sound.element_path(1)
   end
 
-  def test_module_element_path
+  def test_module_element_url
     assert_equal 'http://37s.sunrise.i:3000/sounds/1.json', Asset::Sound.element_url(1)
   end
 
