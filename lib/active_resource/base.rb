@@ -773,6 +773,32 @@ module ActiveResource
         "#{prefix(prefix_options)}#{collection_name}/#{URI.parser.escape id.to_s}#{format_extension}#{query_string(query_options)}"
       end
 
+      # Gets the element url for the given ID in +id+. If the +query_options+ parameter is omitted, Rails
+      # will split from the \prefix options.
+      #
+      # ==== Options
+      # +prefix_options+ - A \hash to add a \prefix to the request for nested URLs (e.g., <tt>:account_id => 19</tt>
+      # would yield a URL like <tt>https://37s.sunrise.com/accounts/19/purchases.json</tt>).
+      #
+      # +query_options+ - A \hash to add items to the query string for the request.
+      #
+      # ==== Examples
+      #   Post.element_url(1)
+      #   # => https://37s.sunrise.com/posts/1.json
+      #
+      #   class Comment < ActiveResource::Base
+      #     self.site = "https://37s.sunrise.com/posts/:post_id"
+      #   end
+      #
+      #   Comment.element_url(1, :post_id => 5)
+      #   # => https://37s.sunrise.com/posts/5/comments/1.json
+      #
+      #   Comment.element_url(1, :post_id => 5, :active => 1)
+      #   # => https://37s.sunrise.com/posts/5/comments/1.json?active=1
+      #
+      #   Comment.element_url(1, {:post_id => 5}, {:active => 1})
+      #   # => https://37s.sunrise.com/posts/5/comments/1.json?active=1
+      #
       def element_url(id, prefix_options = {}, query_options = nil)
         "#{site}#{element_path(id, prefix_options, query_options)}"
       end
