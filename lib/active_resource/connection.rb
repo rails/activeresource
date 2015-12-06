@@ -20,7 +20,7 @@ module ActiveResource
       :head => 'Accept'
     }
 
-    attr_reader :site, :user, :password, :auth_type, :timeout, :proxy, :ssl_options
+    attr_reader :site, :user, :password, :auth_type, :timeout, :open_timeout, :read_timeout, :proxy, :ssl_options
     attr_accessor :format
 
     class << self
@@ -69,6 +69,16 @@ module ActiveResource
     # Sets the number of seconds after which HTTP requests to the remote service should time out.
     def timeout=(timeout)
       @timeout = timeout
+    end
+
+    # Sets the number of seconds after which HTTP connects to the remote service should time out.
+    def open_timeout=(timeout)
+      @open_timeout = timeout
+    end
+
+    # Sets the number of seconds after which HTTP read requests to the remote service should time out.
+    def read_timeout=(timeout)
+      @read_timeout = timeout
     end
 
     # Hash of options applied to Net::HTTP instance when +site+ protocol is 'https'.
@@ -180,6 +190,8 @@ module ActiveResource
             https.open_timeout = @timeout
             https.read_timeout = @timeout
           end
+          https.open_timeout = @open_timeout if defined?(@open_timeout)
+          https.read_timeout = @read_timeout if defined?(@read_timeout)
         end
       end
 
@@ -257,16 +269,19 @@ module ActiveResource
       end
 
       def auth_attributes_for(uri, request_digest, params)
-        [
-          %Q(username="#{@user}"),
-          %Q(realm="#{params['realm']}"),
-          %Q(qop="#{params['qop']}"),
-          %Q(uri="#{uri.path}"),
-          %Q(nonce="#{params['nonce']}"),
-          %Q(nc="0"),
-          %Q(cnonce="#{params['cnonce']}"),
-          %Q(opaque="#{params['opaque']}"),
-          %Q(response="#{request_digest}")].join(", ")
+        auth_attrs = 
+          [
+            %Q(username="#{@user}"),
+            %Q(realm="#{params['realm']}"),
+            %Q(qop="#{params['qop']}"),
+            %Q(uri="#{uri.path}"),
+            %Q(nonce="#{params['nonce']}"),
+            %Q(nc="0"),
+            %Q(cnonce="#{params['cnonce']}"),
+            %Q(response="#{request_digest}")]
+
+        auth_attrs << %Q(opaque="#{params['opaque']}") unless params['opaque'].blank?
+        auth_attrs.join(", ")
       end
 
       def http_format_header(http_method)

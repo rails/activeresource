@@ -17,13 +17,14 @@ require 'mocha/setup'
 
 class BaseTest < ActiveSupport::TestCase
   def setup
-    ActiveResource::Base.include_root_in_json = true
     setup_response # find me in abstract_unit
     @original_person_site = Person.site
+    @original_person_proxy = Person.proxy
   end
 
   def teardown
     Person.site = @original_person_site
+    Person.proxy = @original_person_proxy
   end
 
   ########################################################################
@@ -99,6 +100,18 @@ class BaseTest < ActiveSupport::TestCase
     assert_equal(5, Forum.connection.timeout)
   end
 
+  def test_should_accept_setting_open_timeout
+    Forum.open_timeout = 5
+    assert_equal(5, Forum.open_timeout)
+    assert_equal(5, Forum.connection.open_timeout)
+  end
+
+  def test_should_accept_setting_read_timeout
+    Forum.read_timeout = 5
+    assert_equal(5, Forum.read_timeout)
+    assert_equal(5, Forum.connection.read_timeout)
+  end
+
   def test_should_accept_setting_ssl_options
     expected = {:verify => 1}
     Forum.ssl_options= expected
@@ -134,6 +147,26 @@ class BaseTest < ActiveSupport::TestCase
     actor.timeout = nil
     assert_nil actor.timeout
     assert_nil actor.connection.timeout
+  end
+
+  def test_open_timeout_variable_can_be_reset
+    actor = Class.new(ActiveResource::Base)
+    actor.site = 'http://cinema'
+    assert_nil actor.open_timeout
+    actor.open_timeout = 5
+    actor.open_timeout = nil
+    assert_nil actor.open_timeout
+    assert_nil actor.connection.open_timeout
+  end
+
+  def test_read_timeout_variable_can_be_reset
+    actor = Class.new(ActiveResource::Base)
+    actor.site = 'http://cinema'
+    assert_nil actor.read_timeout
+    actor.read_timeout = 5
+    actor.read_timeout = nil
+    assert_nil actor.read_timeout
+    assert_nil actor.connection.read_timeout
   end
 
   def test_ssl_options_hash_can_be_reset
@@ -208,6 +241,8 @@ class BaseTest < ActiveSupport::TestCase
     # Superclass is Object so returns nil.
     assert_nil ActiveResource::Base.proxy
     assert_nil Class.new(ActiveResource::Base).proxy
+
+    Person.proxy = 'http://proxy.local'
 
     # Subclass uses superclass proxy.
     actor = Class.new(Person)
@@ -355,6 +390,54 @@ class BaseTest < ActiveSupport::TestCase
     assert_equal fruit.timeout, apple.timeout, 'subclass did not adopt changes from parent class'
   end
 
+  def test_open_and_read_timeout_readers_uses_superclass_timeout_until_written
+    # Superclass is Object so returns nil.
+    assert_nil ActiveResource::Base.open_timeout
+    assert_nil Class.new(ActiveResource::Base).open_timeout
+    assert_nil ActiveResource::Base.read_timeout
+    assert_nil Class.new(ActiveResource::Base).read_timeout
+    Person.open_timeout = 5
+    Person.read_timeout = 5
+
+    # Subclass uses superclass open and read timeouts.
+    actor = Class.new(Person)
+    assert_equal Person.open_timeout, actor.open_timeout
+    assert_equal Person.read_timeout, actor.read_timeout
+
+    # Changing subclass open and read timeouts doesn't change superclass timeouts.
+    actor.open_timeout = 10
+    actor.read_timeout = 10
+    assert_not_equal Person.open_timeout, actor.open_timeout
+    assert_not_equal Person.read_timeout, actor.read_timeout
+
+    # Changing superclass open and read timeouts doesn't overwrite subclass timeouts.
+    Person.open_timeout = 15
+    Person.read_timeout = 15
+    assert_not_equal Person.open_timeout, actor.open_timeout
+    assert_not_equal Person.read_timeout, actor.read_timeout
+
+    # Changing superclass open and read timeouts after subclassing changes subclass timeouts.
+    jester = Class.new(actor)
+    actor.open_timeout = 20
+    actor.read_timeout = 20
+    assert_equal actor.open_timeout, jester.open_timeout
+    assert_equal actor.read_timeout, jester.read_timeout
+
+    # Subclasses are always equal to superclass open and read timeouts when not overridden.
+    fruit = Class.new(ActiveResource::Base)
+    apple = Class.new(fruit)
+
+    fruit.open_timeout = 25
+    fruit.read_timeout = 25
+    assert_equal fruit.open_timeout, apple.open_timeout, 'subclass did not adopt changes from parent class'
+    assert_equal fruit.read_timeout, apple.read_timeout, 'subclass did not adopt changes from parent class'
+
+    fruit.open_timeout = 30
+    fruit.read_timeout = 30
+    assert_equal fruit.open_timeout, apple.open_timeout, 'subclass did not adopt changes from parent class'
+    assert_equal fruit.read_timeout, apple.read_timeout, 'subclass did not adopt changes from parent class'
+  end
+
   def test_primary_key_uses_superclass_primary_key_until_written
     # Superclass is Object so defaults to 'id'
     assert_equal 'id', ActiveResource::Base.primary_key
@@ -485,6 +568,26 @@ class BaseTest < ActiveSupport::TestCase
 
     fruit.timeout = 10
     assert_equal fruit.connection.timeout, apple.connection.timeout
+    second_connection = apple.connection.object_id
+    assert_not_equal(first_connection, second_connection, 'Connection should be re-created')
+  end
+
+  def test_updating_baseclass_read_and_open_timeouts_wipes_descendent_cached_connection_objects
+    # Subclasses are always equal to superclass timeout when not overridden
+    fruit = Class.new(ActiveResource::Base)
+    apple = Class.new(fruit)
+    fruit.site = 'http://market'
+
+    fruit.open_timeout = 1
+    fruit.read_timeout = 5
+    assert_equal fruit.connection.open_timeout, apple.connection.open_timeout
+    assert_equal fruit.connection.read_timeout, apple.connection.read_timeout
+    first_connection = apple.connection.object_id
+
+    fruit.open_timeout = 2
+    fruit.read_timeout = 10
+    assert_equal fruit.connection.open_timeout, apple.connection.open_timeout
+    assert_equal fruit.connection.read_timeout, apple.connection.read_timeout
     second_connection = apple.connection.object_id
     assert_not_equal(first_connection, second_connection, 'Connection should be re-created')
   end
@@ -717,6 +820,16 @@ class BaseTest < ActiveSupport::TestCase
       mock.get "/people/1/addresses/new.json", {}, StreetAddress.new.to_json
     end
     assert_nothing_raised { StreetAddress.build(person_id: 1) }
+  end
+
+  def test_build_with_non_prefix_attributes
+    ActiveResource::HttpMock.respond_to do |mock|
+      mock.get "/people/1/addresses/new.json", {}, StreetAddress.new.to_json
+    end
+    assert_nothing_raised do
+      address = StreetAddress.build(person_id: 1, city: "Toronto")
+      assert_equal "Toronto", address.city
+    end
   end
 
   def test_save
@@ -1088,6 +1201,14 @@ class BaseTest < ActiveSupport::TestCase
     end
 
     assert !Person.exists?(1)
+  end
+
+  def test_exists_with_204_no_content
+    ActiveResource::HttpMock.respond_to do |mock|
+      mock.head "/people/1.json", {}, nil, 204
+    end
+
+    assert Person.exists?(1)
   end
 
   def test_to_xml

@@ -258,6 +258,44 @@ class ConnectionTest < ActiveSupport::TestCase
     assert_equal(:basic, @conn.auth_type)
   end
 
+  def test_disable_net_connection_by_default_when_http_mock_is_available
+    assert_equal(ActiveResource::HttpMock, @conn.send(:http).class)
+  end
+
+  def test_enable_net_connection
+    @conn.send(:http)
+    keep_net_connection_status do
+      ActiveResource::HttpMock.enable_net_connection!
+      assert @conn.send(:http).kind_of?(Net::HTTP)
+    end
+  end
+
+  def test_disable_net_connection
+    keep_net_connection_status do
+      ActiveResource::HttpMock.enable_net_connection!
+      @conn.send(:http)
+      ActiveResource::HttpMock.disable_net_connection!
+      assert @conn.send(:http).kind_of?(ActiveResource::HttpMock)
+    end
+  end
+
+  def keep_net_connection_status
+    old = ActiveResource::HttpMock.net_connection_enabled?
+    begin
+      yield
+    ensure
+      if old
+        ActiveResource::HttpMock.enable_net_connection!
+      else
+        ActiveResource::HttpMock.disable_net_connection!
+      end
+    end
+  end
+
+  def new_connection
+    ActiveResource::Connection.new('http://localhost')
+  end
+
   protected
     def assert_response_raises(klass, code)
       assert_raise(klass, "Expected response code #{code} to raise #{klass}") do

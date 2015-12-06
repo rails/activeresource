@@ -142,6 +142,8 @@ class BaseErrorsTest < ActiveSupport::TestCase
   private
   def invalid_user_using_format(mime_type_reference)
     previous_format = Person.format
+    previous_schema = Person.schema
+
     Person.format = mime_type_reference
     Person.schema = { 'known_attribute' => 'string' }
     @person = Person.new(:name => '', :age => '', :phone => '', :phone_work => '')
@@ -150,5 +152,6 @@ class BaseErrorsTest < ActiveSupport::TestCase
     yield
   ensure
     Person.format = previous_format
+    Person.schema = previous_schema
   end
 end

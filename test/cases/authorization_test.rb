@@ -238,11 +238,11 @@ class DigestAuthorizationTest < AuthorizationTest
 
   private
     def blank_digest_auth_header(uri, response)
-      %Q(Digest username="david", realm="", qop="", uri="#{uri}", nonce="", nc="0", cnonce="i-am-a-client-nonce", opaque="", response="#{response}")
+      %Q(Digest username="david", realm="", qop="", uri="#{uri}", nonce="", nc="0", cnonce="i-am-a-client-nonce", response="#{response}")
     end
 
     def request_digest_auth_header(uri, response)
-      %Q(Digest username="david", realm="RailsTestApp", qop="auth", uri="#{uri}", nonce="#{@nonce}", nc="0", cnonce="i-am-a-client-nonce", opaque="ef6dfb078ba22298d366f99567814ffb", response="#{response}")
+      %Q(Digest username="david", realm="RailsTestApp", qop="auth", uri="#{uri}", nonce="#{@nonce}", nc="0", cnonce="i-am-a-client-nonce", response="#{response}", opaque="ef6dfb078ba22298d366f99567814ffb")
     end
 
     def response_digest_auth_header

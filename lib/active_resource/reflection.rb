@@ -66,7 +66,7 @@ module ActiveResource
 
       private
       def derive_class_name
-        return (options[:class_name] ? options[:class_name].to_s : name.to_s).classify
+        return (options[:class_name] ? options[:class_name].to_s.camelize : name.to_s.classify)
       end
 
       def derive_foreign_key

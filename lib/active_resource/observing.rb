@@ -14,7 +14,8 @@ module ActiveResource
         #   end
         #   result
         # end
-        # alias_method_chain(create, :notifications)
+        # alias_method :create_without_notifications, :create
+        # alias_method :create, :create_with_notifications
         class_eval(<<-EOS, __FILE__, __LINE__ + 1)
           def #{method}_with_notifications(*args, &block)
             notify_observers(:before_#{method})
@@ -24,7 +25,9 @@ module ActiveResource
             result
           end
         EOS
-        alias_method_chain(method, :notifications)
+
+        alias_method :"#{method}_without_notifications", :"#{method}"
+        alias_method :"#{method}", :"#{method}_with_notifications"
       end
     end
   end

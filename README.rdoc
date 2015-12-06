@@ -1,4 +1,4 @@
-= Active Resource {<img src="https://secure.travis-ci.org/rails/activeresource.png" />}[http://travis-ci.org/rails/activeresource]
+= Active Resource
 
 Active Resource (ARes) connects business objects and Representational State Transfer (REST)
 web services.  It implements object-relational mapping for REST web services to provide transparent
@@ -52,6 +52,16 @@ life cycle methods that operate against a persistent store.
 
 As you can see, the methods are quite similar to Active Record's methods for dealing with database
 records.  But rather than dealing directly with a database record, you're dealing with HTTP resources (which may or may not be database records).
+
+==== Authentication
+
+Active Resource supports the token based authentication provided by Rails through the <tt>ActionController::HttpAuthentication::Token</tt> class using custom headers.
+
+   class Person < ActiveResource::Base
+     self.headers['Authorization'] = 'Token token="abcd"'
+   end
+   
+You can also set any specific HTTP header using the same way.
 
 ==== Protocol
 
@@ -119,9 +129,11 @@ a 'Location' header in the response with the RESTful URL location of the newly c
 id of the newly created resource is parsed out of the Location response header and automatically set
 as the id of the ARes object.
 
-  # {"person":{"first":"Tyler","last":"Durden"}}
+  # {"first":"Tyler","last":"Durden"}
   #
   # is submitted as the body on
+  #
+  # if include_root_in_json is set to true => {"person":{"first":"Tyler"}}
   #
   # POST http://api.people.com:3000/people.json
   #
@@ -142,9 +154,11 @@ as the id of the ARes object.
 with the exception that no response headers are needed -- just an empty response when the update on the
 server side was successful.
 
-  # {"person":{"first":"Tyler"}}
+  # {"first":"Tyler"}
   #
   # is submitted as the body on
+  #
+  # if include_root_in_json is set to true => {"person":{"first":"Tyler"}}
   #
   # PUT http://api.people.com:3000/people/1.json
   #
@@ -206,6 +220,13 @@ The server-side model can be adjusted as follows to include comments in the resp
 Active Resource is released under the MIT license:
 
 * http://www.opensource.org/licenses/MIT
+
+== Contributing to Active Resource
+
+Active Resource is work of many contributors. You're encouraged to submit pull requests, propose
+features and discuss issues.
+
+See {CONTRIBUTING}[https://github.com/rails/activeresource/blob/master/CONTRIBUTING.md].
 
 == Support
 
