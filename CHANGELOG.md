@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 ## Active Resource 4.0.1 (unreleased) ##
 
 ### Enhancements ###
