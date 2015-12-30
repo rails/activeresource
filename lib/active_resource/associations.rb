@@ -65,7 +65,7 @@ module ActiveResource::Associations
   # Would resolve this author into the <tt>Myblog::Author</tt> class.
   #
   # If the response body does not contain an attribute matching the association name
-  # a request is sent to a singelton path under the current resource.
+  # a request is sent to a singleton path under the current resource.
   # For example, if a Product class <tt>has_one :inventory</tt> calling <tt>Product#inventory</tt>
   # will generate a request on /products/:product_id/inventory.json.
   #
@@ -89,15 +89,15 @@ module ActiveResource::Associations
   #
   # === Example
   #
-  # A Comment class declaress <tt>belongs_to :post</tt>, which will add:
+  # A Comment class declares <tt>belongs_to :post</tt>, which will add:
   # * <tt>Comment#post</tt> (similar to <tt>Post.find(post_id)</tt>)
   # The declaration can also include an options hash to specialize the behavior of the association.
   #
   # === Options
   # [:class_name]
-  #   Specify the class name for the association. Use it only if that name canÄt be inferred from association name.
+  #   Specify the class name for the association. Use it only if that name can't be inferred from association name.
   #   So <tt>belongs_to :post</tt> will by default be linked to the Post class, but if the real class name is Article,
-  #   you'll have to specify it with whis option.
+  #   you'll have to specify it with this option.
   # [:foreign_key]
   #   Specify the foreign key used for the association. By default this is guessed to be the name
   #   of the association with an "_id" suffix. So a class that defines a <tt>belongs_to :post</tt>
