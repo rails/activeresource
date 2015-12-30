@@ -381,7 +381,7 @@ module ActiveResource
             @known_attributes << k
           end
 
-          schema
+          @schema
         else
           @schema ||= nil
         end
@@ -1611,4 +1611,3 @@ module ActiveResource
 
   ActiveSupport.run_load_hooks(:active_resource, Base)
 end
-
