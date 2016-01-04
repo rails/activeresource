@@ -36,6 +36,9 @@ module ThreadsafeAttributes
 
   def set_threadsafe_attribute(name, value)
     set_threadsafe_attribute_by_thread(name, value, Thread.current)
+    unless threadsafe_attribute_defined_by_thread?(name, Thread.main)
+      set_threadsafe_attribute_by_thread(name, value, Thread.main)
+    end
   end
 
   def threadsafe_attribute_defined?(name)
