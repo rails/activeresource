@@ -43,4 +43,15 @@ class ThreadsafeAttributesTest < ActiveSupport::TestCase
     end.join
     assert_equal false, @tester.safeattr
   end
+
+  test "#changing a threadsafe attribute in a thread sets an equal value for the main thread, if no value has been set" do
+    refute @tester.safeattr_defined?
+    assert_nil @tester.safeattr
+    Thread.new do
+      @tester.safeattr = "value from child"
+      assert_equal "value from child", @tester.safeattr
+    end.join
+    assert @tester.safeattr_defined?
+    assert_equal "value from child", @tester.safeattr
+  end
 end
