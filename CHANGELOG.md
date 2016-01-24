@@ -17,7 +17,6 @@
     association instead of making a bogus remote call. ([#68], [Javier Saldana])
 *   A `has_many` association does not trigger a remote call if parent is a new
     record. ([#97], [Sasha Shamne])
-*   `find_every` returns `[]`, not `nil`, when no records are found. ([#123])
 
 ## Active Resource 4.0.0 ##
 
