@@ -106,23 +106,6 @@ class FormatTest < ActiveSupport::TestCase
     end
   end
 
-  def test_removing_root
-    matz = { :name => 'Matz' }
-    matz_with_root = { :person => matz }
-
-    # On Array
-    people = [ matz ]
-    assert_equal ActiveResource::Formats.remove_root(people), [ matz ]
-
-    # On Hash with no root
-    person = matz
-    assert_equal ActiveResource::Formats.remove_root(person), matz
-
-    # On Hash with root
-    person = matz_with_root
-    assert_equal ActiveResource::Formats.remove_root(person), matz
-  end
-
   private
     def using_format(klass, mime_type_reference)
       previous_format = klass.format
