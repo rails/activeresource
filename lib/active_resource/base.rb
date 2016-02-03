@@ -784,6 +784,25 @@ module ActiveResource
         "#{prefix(prefix_options)}#{collection_name}/new#{format_extension}"
       end
 
+      # Gets the new element path including a query string of initial values for REST resources.
+      # 
+      # ==== Options
+      # * +attributes+ - A hash of modal attributes to send to the server as
+      # part of the query string. this khash is also passed to the
+      # new_element_path method to extract the prefix params for building the
+      # path (see new_element_path)
+      #
+      # ==== Examples
+      #   Post.new_element_path_and_query_string("name" => "David")
+      #   # => /posts/new.json?post%5Bname%5D=David
+      #
+      #   class Comment < ActiveResource::Base
+      #     self.site = "https://37s.sunrise.com/posts/:post_id"
+      #   end
+      def new_element_path_and_query_string(attributes = {})
+        "#{new_element_path(attributes)}#{query_string(element_name => attributes)}"
+      end
+
       # Gets the collection path for the REST resources. If the +query_options+ parameter is omitted, Rails
       # will split from the +prefix_options+.
       #
@@ -817,12 +836,12 @@ module ActiveResource
       # that it can be used with RESTful forms.
       #
       # ==== Options
-      # * +attributes+ - A hash that overrides the default values from the server.
+      # * +attributes+ - A hash of prefix_params and initial values that is sent to the server.
       #
       # Returns the new resource instance.
       #
       def build(attributes = {})
-        attrs = self.format.decode(connection.get("#{new_element_path(attributes)}", headers).body).merge(attributes)
+        attrs = self.format.decode(connection.get("#{new_element_path_and_query_string attributes}", headers).body)
         self.new(attrs)
       end
 
