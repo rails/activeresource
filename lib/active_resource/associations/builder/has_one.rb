@@ -5,7 +5,7 @@ module ActiveResource::Associations::Builder
     def build
       validate_options
       model.create_reflection(self.class.macro, name, options).tap do |reflection|
-        model.defines_has_one_finder_method(reflection.name, reflection.klass)
+        model.defines_has_one_finder_method(reflection)
       end
     end
   end
