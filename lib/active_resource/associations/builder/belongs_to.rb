@@ -7,7 +7,7 @@ module ActiveResource::Associations::Builder
     def build
       validate_options
       reflection = model.create_reflection(self.class.macro, name, options)
-      model.defines_belongs_to_finder_method(reflection.name, reflection.klass, reflection.foreign_key)
+      model.defines_belongs_to_finder_method(reflection)
       return reflection
     end
   end

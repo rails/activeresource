@@ -8,6 +8,7 @@ require 'fixtures/customer'
 class AssociationTest < ActiveSupport::TestCase
   def setup
     @klass = ActiveResource::Associations::Builder::Association
+    @reflection = ActiveResource::Reflection::AssociationReflection.new :belongs_to, :customer, {}
   end
 
 
@@ -55,7 +56,7 @@ class AssociationTest < ActiveSupport::TestCase
   end
 
   def test_defines_belongs_to_finder_method_with_instance_variable_cache
-    Person.defines_belongs_to_finder_method(:customer, Customer, 'customer_id')
+    Person.defines_belongs_to_finder_method(@reflection)
 
     person = Person.new
     assert !person.instance_variable_defined?(:@customer)
@@ -66,7 +67,7 @@ class AssociationTest < ActiveSupport::TestCase
   end
 
   def test_belongs_to_with_finder_key
-    Person.defines_belongs_to_finder_method(:customer, Customer, 'customer_id')
+    Person.defines_belongs_to_finder_method(@reflection)
 
     person = Person.new
     person.stubs(:customer_id).returns(1)
@@ -75,11 +76,27 @@ class AssociationTest < ActiveSupport::TestCase
   end
 
   def test_belongs_to_with_nil_finder_key
-    Person.defines_belongs_to_finder_method(:customer, Customer, 'customer_id')
+    Person.defines_belongs_to_finder_method(@reflection)
 
     person = Person.new
     person.stubs(:customer_id).returns(nil)
     Customer.expects(:find).with(nil).never()
     person.customer
+  end
+
+  def test_inverse_associations_do_not_create_circular_dependencies
+    code = <<-CODE
+      class Park < ActiveResource::Base
+        has_many :trails
+      end
+
+      class Trail < ActiveResource::Base
+        belongs_to :park
+      end
+    CODE
+
+    assert_nothing_raised do
+      eval code
+    end
   end
 end
