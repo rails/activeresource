@@ -24,7 +24,7 @@ Gem::Specification.new do |s|
   s.add_dependency('activesupport', '~> 5.x')
   s.add_dependency('activemodel',   '~> 5.x')
   s.add_dependency('rails-observers', '~> 0.1.2')
-  s.add_dependency('activemodel-serializers-xml', '~> 0.1')
+  s.add_dependency('activemodel-serializers-xml', '~> 1.0')
 
   s.add_development_dependency('rake')
   s.add_development_dependency('mocha', '>= 0.13.0')
