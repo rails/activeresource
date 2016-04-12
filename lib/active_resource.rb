@@ -42,5 +42,4 @@ module ActiveResource
   autoload :Collection
 end
 
-require 'active_resource/railtie' if defined?(Rails) && defined?(Rails.application)
-
+require 'active_resource/railtie' if defined?(Rails.application)
