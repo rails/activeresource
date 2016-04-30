@@ -133,6 +133,7 @@ as the id of the ARes object.
   #
   # is submitted as the body on
   #
+  # if include_root_in_json is not set or set to false => {"first":"Tyler"}
   # if include_root_in_json is set to true => {"person":{"first":"Tyler"}}
   #
   # POST http://api.people.com:3000/people.json
@@ -158,6 +159,7 @@ server side was successful.
   #
   # is submitted as the body on
   #
+  # if include_root_in_json is not set or set to false => {"first":"Tyler"}
   # if include_root_in_json is set to true => {"person":{"first":"Tyler"}}
   #
   # PUT http://api.people.com:3000/people/1.json
