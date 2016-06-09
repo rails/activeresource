@@ -1,24 +1,22 @@
-before_install:
-  - gem update bundler
-  - bundle --version
-  - gem update --system 2.1.11
-  - gem --version
+sudo: false
+language: ruby
+
+cache:
+  bundler: true
 
 rvm:
   - 1.9.3
   - 2.0.0
   - 2.1 # tests on latest 2.1.x
-  - 2.2 # tests on latest 2.2.x
+  - 2.2.5 # tests on latest 2.2.x
+  - 2.3.1
   - jruby-19mode
   - rbx-2
 
 gemfile:
-  - gemfiles/Gemfile-rails-master
+  - gemfiles/Gemfile-rails-4.0
+  - gemfiles/Gemfile-rails-4.1
   - Gemfile
-
-matrix:
-  allow_failures:
-    - gemfile: gemfiles/Gemfile-rails-master
 
 notifications:
   email: false
