@@ -2,7 +2,6 @@ source 'https://rubygems.org'
 
 gem 'activesupport', github: 'rails/rails'
 gem 'activemodel', github: 'rails/rails'
-gem 'arel', github: 'rails/arel'
 gem 'rails-observers', github: 'rails/rails-observers'
 
 gemspec

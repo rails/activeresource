@@ -4,12 +4,14 @@ cache: bundler
 
 rvm:
   - 2.3.0
-  - 2.2 # tests on latest 2.2.x
+  - 2.2.5
   - jruby-9000
   - rbx-2
 
 gemfile:
-  - gemfiles/Gemfile-rails-master
+  - gemfiles/Gemfile-rails-4.0
+  - gemfiles/Gemfile-rails-4.1
+  - gemfiles/Gemfile-rails-4.2
   - Gemfile
 
 matrix:
