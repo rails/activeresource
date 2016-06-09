@@ -10,7 +10,7 @@ rvm:
   - 2.1 # tests on latest 2.1.x
   - 2.2.5 # tests on latest 2.2.x
   - 2.3.1
-  - jruby-19mode
+  - jruby
   - rbx-2
 
 gemfile:
