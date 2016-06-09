@@ -272,7 +272,7 @@ module ActiveResource
       end
 
       def auth_attributes_for(uri, request_digest, params)
-        auth_attrs = 
+        auth_attrs =
           [
             %Q(username="#{@user}"),
             %Q(realm="#{params['realm']}"),

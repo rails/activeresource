@@ -218,7 +218,7 @@ module ActiveResource
       # Enables all ActiveResource::Connection instances to use real
       # Net::HTTP instance instead of a mock.
       def enable_net_connection!
-	@@net_connection_enabled = true
+        @@net_connection_enabled = true
       end
 
       # Sets all ActiveResource::Connection to use HttpMock instances.
@@ -228,10 +228,10 @@ module ActiveResource
 
       # Checks if real requests can be used instead of the default mock used in tests.
       def net_connection_enabled?
-	if defined?(@@net_connection_enabled)
-	  @@net_connection_enabled
+        if defined?(@@net_connection_enabled)
+          @@net_connection_enabled
         else
-	  @@net_connection_enabled = false
+          @@net_connection_enabled = false
         end
       end
 
@@ -363,12 +363,12 @@ module ActiveResource
         end
 
         def unstub_http?
-	  HttpMock.net_connection_enabled? && defined?(@http) && @http.kind_of?(HttpMock)
+          HttpMock.net_connection_enabled? && defined?(@http) && @http.kind_of?(HttpMock)
         end
 
         def stub_http?
-	  HttpMock.net_connection_disabled? && defined?(@http) && @http.kind_of?(Net::HTTP)
-	end
+          HttpMock.net_connection_disabled? && defined?(@http) && @http.kind_of?(Net::HTTP)
+        end
 
       end
   end

@@ -10,7 +10,7 @@ class SingletonTest < ActiveSupport::TestCase
       mock.get    '/weather.json?degrees=fahrenheit', {}, weather.merge(:temperature => 100).to_json
       mock.post   '/weather.json', {}, weather.to_json, 201, 'Location' => '/weather.json'
       mock.delete '/weather.json', {}, nil
-      mock.put    '/weather.json', {}, nil, 204   
+      mock.put    '/weather.json', {}, nil, 204
     end
   end
 
