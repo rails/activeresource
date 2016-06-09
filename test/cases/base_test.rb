@@ -17,6 +17,7 @@ require 'mocha/setup'
 
 class BaseTest < ActiveSupport::TestCase
   def setup
+    @original_include_root_in_json = ActiveResource::Base.include_root_in_json
     ActiveResource::Base.include_root_in_json = true
     setup_response # find me in abstract_unit
     @original_person_site = Person.site
@@ -24,6 +25,7 @@ class BaseTest < ActiveSupport::TestCase
 
   def teardown
     Person.site = @original_person_site
+    ActiveResource::Base.include_root_in_json = @original_include_root_in_json
   end
 
   ########################################################################
