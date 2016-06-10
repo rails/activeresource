@@ -58,7 +58,7 @@ tag = "v#{spec.version}"
 desc "Release to rubygems.org"
 task :release => [:ensure_clean_state, :tag, :push]
 
-task(:tag) { sh "git tag #{tag} && git push --tags" }
+task(:tag) { sh "git tag -s #{tag} && git push --tags" }
 
 task(:push => :repackage) { sh "gem push #{gem}" }
 task(:install => :repackage) { sh "gem install #{gem}" }
