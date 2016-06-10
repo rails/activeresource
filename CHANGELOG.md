@@ -1,4 +1,4 @@
-## Active Resource 4.0.1 (unreleased) ##
+## Active Resource 4.1.0 (June 10, 2016) ##
 
 ### Enhancements ###
 
