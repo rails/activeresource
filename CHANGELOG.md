@@ -1,5 +1,5 @@
 
-*   Support Rails 5.
+*   Remove support to Rails 4.
 
 *   Remove support to Ruby 1.9, 2.0 and 2.1.
 
