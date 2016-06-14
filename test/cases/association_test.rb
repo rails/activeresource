@@ -1,15 +1,15 @@
 require 'abstract_unit'
 
 require 'fixtures/person'
+require 'fixtures/post'
+require 'fixtures/post_collection'
 require 'fixtures/beast'
 require 'fixtures/customer'
-
 
 class AssociationTest < ActiveSupport::TestCase
   def setup
     @klass = ActiveResource::Associations::Builder::Association
   end
-
 
   def test_validations_for_instance
     object = @klass.new(Person, :customers, {})
@@ -42,6 +42,39 @@ class AssociationTest < ActiveSupport::TestCase
     Post.send(:has_many, :topics)
     Topic.stubs(:find).returns([:unexpected_response])
     assert_equal [], Post.new.topics.to_a
+  end
+
+  def test_defines_has_many_finder_method_with_instance_variable_cache
+    Person.defines_has_many_finder_method(:posts, Post)
+    person = Person.new
+    post = Post.new
+    person.instance_variable_set(:@posts, [post])
+    assert_equal person.posts, [post]
+  end
+
+  def test_defines_has_many_finder_method_with_existing_attribute
+    Person.defines_has_many_finder_method(:posts, Post)
+    person = Person.new
+    post = Post.new
+    person.attributes['posts'] = [post]
+    assert_equal person.posts, [post]
+  end
+
+  def test_defines_has_many_finder_method_with_persisted_record
+    Person.defines_has_many_finder_method(:posts, Post)
+    person = Person.new
+    person.id = 123
+    person.stubs(:new_record?).returns(false)
+    post = Post.new
+    Post.expects(:find).with(:all, :from => '/people/123/posts.json').once().returns([post])
+    assert_equal person.posts, [post]
+  end
+
+  def test_defines_has_many_finder_method
+    Person.defines_has_many_finder_method(:posts, Post)
+    person = Person.new
+    Post.collection_parser = PostCollection
+    assert_kind_of PostCollection, person.posts
   end
 
   def test_has_one

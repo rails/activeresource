@@ -145,9 +145,9 @@ module ActiveResource::Associations
       elsif attributes.include?(method_name)
         attributes[method_name]
       elsif !new_record?
-        instance_variable_set(ivar_name, association_model.find(:all, :params => {:"#{self.class.element_name}_id" => self.id}))
+        instance_variable_set(ivar_name, association_model.find(:all, :from => "#{self.class.prefix}#{self.class.collection_name}/#{self.id}/#{association_model.collection_name}#{self.class.format_extension}"))
       else
-        instance_variable_set(ivar_name, self.class.collection_parser.new)
+        instance_variable_set(ivar_name, association_model.collection_parser.new)
       end
     end
   end
