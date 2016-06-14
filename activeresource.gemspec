@@ -21,8 +21,8 @@ Gem::Specification.new do |s|
 
   s.required_ruby_version = '>= 2.2.2'
 
-  s.add_dependency('activesupport', '~> 5.x')
-  s.add_dependency('activemodel',   '~> 5.x')
+  s.add_dependency('activesupport', '< 5.1')
+  s.add_dependency('activemodel',   '< 5.1')
   s.add_dependency('rails-observers', '~> 0.1.2')
   s.add_dependency('activemodel-serializers-xml', '~> 1.0')
 
