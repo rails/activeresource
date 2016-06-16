@@ -15,6 +15,12 @@ module ActiveResource::Associations
   # [:class_name]
   #   Specify the class name of the association. This class name would
   #   be used for resolving the association class.
+  # [:foreign_key]
+  #   Specify the foreign key used for the association. By default this is guessed to be the name
+  #   of the association with an "_id" suffix. So a class that defines a <tt>has_many :posts</tt>
+  #   association will use "post_id" as the default <tt>:foreign_key</tt>. Similarly,
+  #   <tt>has_many :articles, :class_name => "Post"</tt> will use a foreign key
+  #   of "article_id".
   #
   # ==== Example for [:class_name] - option
   # GET /posts/123.json delivers following response body:
@@ -136,7 +142,7 @@ module ActiveResource::Associations
     end
   end
 
-  def defines_has_many_finder_method(method_name, association_model)
+  def defines_has_many_finder_method(method_name, association_model, finder_key)
     ivar_name = :"@#{method_name}"
 
     define_method(method_name) do
@@ -145,7 +151,11 @@ module ActiveResource::Associations
       elsif attributes.include?(method_name)
         attributes[method_name]
       elsif !new_record?
-        instance_variable_set(ivar_name, association_model.find(:all, :params => {:"#{self.class.element_name}_id" => self.id}))
+        if finder_key.nil?
+          instance_variable_set(ivar_name, association_model.find(:all, :params => {:"#{self.class.element_name}_id" => self.id}))
+        else
+          instance_variable_set(ivar_name, association_model.find(:all, :params => {:"#{finder_key}" => self.id}))
+        end
       else
         instance_variable_set(ivar_name, self.class.collection_parser.new)
       end
