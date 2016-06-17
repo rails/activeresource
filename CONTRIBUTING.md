@@ -2,6 +2,7 @@ Contributing to Active Resource
 =====================
 
 [![Build Status](https://travis-ci.org/rails/activeresource.svg?branch=master)](https://travis-ci.org/rails/activeresource)
+[![Documentation Status](http://inch-ci.org/github/rails/activeresource.svg?branch=master)](http://inch-ci.org/github/rails/activeresource)
 
 Active Resource is work of [many contributors](https://github.com/rails/activeresource/graphs/contributors). You're encouraged to submit [pull requests](https://github.com/rails/activeresource/pulls), [propose features and discuss issues](https://github.com/rails/activeresource/issues).
 
