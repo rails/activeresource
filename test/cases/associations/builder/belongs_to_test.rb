@@ -19,8 +19,14 @@ class ActiveResource::Associations::Builder::BelongsToTest < ActiveSupport::Test
 
   def test_instance_build
     object = @klass.new(Person, :customer, {})
-    Person.expects(:defines_belongs_to_finder_method).with(:customer, Customer, 'customer_id')
-    assert_kind_of ActiveResource::Reflection::AssociationReflection, object.build
+    Person.expects(:defines_belongs_to_finder_method).with(kind_of(ActiveResource::Reflection::AssociationReflection))
+
+    reflection = object.build
+
+    assert_kind_of ActiveResource::Reflection::AssociationReflection, reflection
+    assert_equal :customer, reflection.name
+    assert_equal Customer, reflection.klass
+    assert_equal 'customer_id', reflection.foreign_key
   end
 
 
