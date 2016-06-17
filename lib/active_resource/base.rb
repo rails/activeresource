@@ -1602,11 +1602,13 @@ module ActiveResource
     extend ActiveModel::Naming
     extend ActiveResource::Associations
 
-    include Callbacks, CustomMethods, Observing, Validations
+    include Callbacks, CustomMethods, Validations
     include ActiveModel::Conversion
     include ActiveModel::Serializers::JSON
     include ActiveModel::Serializers::Xml
     include ActiveResource::Reflection
+
+    prepend Observing
   end
 
   ActiveSupport.run_load_hooks(:active_resource, Base)
