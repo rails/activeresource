@@ -15,9 +15,13 @@ class ActiveResource::Associations::Builder::HasOneTest < ActiveSupport::TestCas
 
   def test_instance_build
     object = @klass.new(Product, :inventory, {})
+    Product.expects(:defines_has_one_finder_method).with(kind_of(ActiveResource::Reflection::AssociationReflection))
 
-    Product.expects(:defines_has_one_finder_method).with(:inventory, Inventory)
-    assert_kind_of ActiveResource::Reflection::AssociationReflection, object.build
+    reflection = object.build
+
+    assert_kind_of ActiveResource::Reflection::AssociationReflection, reflection
+    assert_equal :inventory, reflection.name
+    assert_equal Inventory, reflection.klass
   end
 
 end

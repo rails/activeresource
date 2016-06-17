@@ -15,8 +15,13 @@ class ActiveResource::Associations::Builder::HasManyTest < ActiveSupport::TestCa
 
   def test_instance_build
     object = @klass.new(Person, :street_address, {})
-    Person.expects(:defines_has_many_finder_method).with(:street_address, StreetAddress)
-    assert_kind_of ActiveResource::Reflection::AssociationReflection, object.build
+    Person.expects(:defines_has_many_finder_method).with(kind_of(ActiveResource::Reflection::AssociationReflection))
+
+    reflection = object.build
+
+    assert_kind_of ActiveResource::Reflection::AssociationReflection, reflection
+    assert_equal :street_address, reflection.name
+    assert_equal StreetAddress, reflection.klass
   end
 
 end
