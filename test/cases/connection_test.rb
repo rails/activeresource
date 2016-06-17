@@ -217,7 +217,7 @@ class ConnectionTest < ActiveSupport::TestCase
     @conn.expects(:http).returns(@http)
     path = '/people/1.xml'
     @http.expects(:get).with(path, { 'Accept' => 'application/xhtml+xml' }).returns(ActiveResource::Response.new(@matz, 200, { 'Content-Type' => 'text/xhtml' }))
-    assert_nothing_raised(Mocha::ExpectationError) { @conn.get(path, { 'Accept' => 'application/xhtml+xml' }) }
+    assert_nothing_raised { @conn.get(path, { 'Accept' => 'application/xhtml+xml' }) }
   end
 
   def test_ssl_options_get_applied_to_http

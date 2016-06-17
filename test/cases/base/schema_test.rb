@@ -57,7 +57,7 @@ class SchemaTest < ActiveModel::TestCase
 
   test "schema should accept all known attribute types as values" do
     ActiveResource::Schema::KNOWN_ATTRIBUTE_TYPES.each do |the_type|
-      assert_nothing_raised("should have accepted #{the_type.inspect}"){ Person.schema = {'my_key' => the_type }}
+      assert_nothing_raised { Person.schema = {'my_key' => the_type } }
     end
   end
 
@@ -166,7 +166,7 @@ class SchemaTest < ActiveModel::TestCase
   test "should be able to use schema" do
     assert_respond_to Person, :schema, "should at least respond to the schema method"
 
-    assert_nothing_raised("Should allow the schema to take a block") do
+    assert_nothing_raised do
       Person.schema { }
     end
   end
