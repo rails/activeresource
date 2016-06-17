@@ -21,6 +21,8 @@ matrix:
     - gemfile: gemfiles/Gemfile-rails-4.1
     - gemfile: gemfiles/Gemfile-rails-4.2
     - gemfile: gemfiles/Gemfile-rails-master
+    - gemfile: Gemfile
+      rvm: jruby-9000
 
 notifications:
   email: false
