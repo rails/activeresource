@@ -1607,8 +1607,6 @@ module ActiveResource
     include ActiveModel::Serializers::JSON
     include ActiveModel::Serializers::Xml
     include ActiveResource::Reflection
-
-    prepend Observing
   end
 
   ActiveSupport.run_load_hooks(:active_resource, Base)

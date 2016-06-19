@@ -23,7 +23,6 @@ Gem::Specification.new do |s|
 
   s.add_dependency('activesupport', '> 4.2', '< 6')
   s.add_dependency('activemodel', '> 4.2', '< 6')
-  s.add_dependency('rails-observers', '~> 0.1.2')
   s.add_dependency('activemodel-serializers-xml', '~> 1.0')
 
   s.add_development_dependency('rake')
