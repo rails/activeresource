@@ -307,6 +307,9 @@ module ActiveResource
     class_attribute :include_format_in_path
     self.include_format_in_path = true
 
+    class_attribute :connection_klass
+    self.connection_klass = Connection
+
 
     class << self
       include ThreadsafeAttributes
@@ -634,7 +637,7 @@ module ActiveResource
       # or not (defaults to <tt>false</tt>).
       def connection(refresh = false)
         if _connection_defined? || superclass == Object
-          self._connection = Connection.new(site, format) if refresh || _connection.nil?
+          self._connection = connection_klass.new(site, format) if refresh || _connection.nil?
           _connection.proxy = proxy if proxy
           _connection.user = user if user
           _connection.password = password if password
