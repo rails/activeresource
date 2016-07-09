@@ -628,6 +628,17 @@ class BaseTest < ActiveSupport::TestCase
     assert_equal nil, fruit.headers['key2']
   end
 
+  def test_connection_should_use_connection_klass
+    apple = Class.new(ActiveResource::Base)
+    orange = Class.new(ActiveResource::Base)
+    telephone = Class.new(ActiveResource::Connection)
+    orange.connection_klass = telephone
+    apple.site = orange.site = "https://some-site.com/api"
+
+    assert_equal ActiveResource::Connection, apple.connection.class
+    assert_equal telephone, orange.connection.class
+  end
+
   ########################################################################
   # Tests for setting up remote URLs for a given model (including adding
   # parameters appropriately)
