@@ -114,10 +114,6 @@ class FinderTest < ActiveSupport::TestCase
     assert_raise(ActiveResource::ResourceNotFound) { StreetAddress.find(99, :params => {:person_id => 1}) }
   end
 
-  def test_find_with_params_not_found
-    assert_equal [], Person.find(:all, :params => {:id => 99})
-  end
-
   def test_find_all_sub_objects
     all = StreetAddress.find(:all, :params => { :person_id => 1 })
     assert_equal 1, all.size
