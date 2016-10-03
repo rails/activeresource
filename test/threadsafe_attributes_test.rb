@@ -54,4 +54,21 @@ class ThreadsafeAttributesTest < ActiveSupport::TestCase
     assert @tester.safeattr_defined?
     assert_equal "value from child", @tester.safeattr
   end
+
+  unless RUBY_PLATFORM == 'java'
+    test "threadsafe attributes can be accessed after forking within a thread" do
+      reader, writer = IO.pipe
+      @tester.safeattr = "a value"
+      Thread.new do
+        fork do
+          reader.close
+          writer.print(@tester.safeattr)
+          writer.close
+        end
+      end.join
+      writer.close
+      assert_equal "a value", reader.read
+      reader.close
+    end
+  end
 end
