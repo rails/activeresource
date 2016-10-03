@@ -105,7 +105,6 @@ def setup_response
     mock.delete "/people/1.json",               {}, nil, 200
     mock.delete "/people/2.xml",                {}, nil, 400
     mock.get    "/people/99.json",              {}, nil, 404
-    mock.get    "/people.json?id=99",           {}, nil, 404
     mock.post   "/people.json",                 {}, @rick, 201, 'Location' => '/people/5.xml'
     mock.get    "/people.json",                 {}, @people
     mock.get    "/people/1/addresses.json",     {}, @addresses
