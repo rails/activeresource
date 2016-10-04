@@ -127,6 +127,24 @@ class ConnectionTest < ActiveSupport::TestCase
     assert_equal proxy, @conn.proxy
   end
 
+  def test_proxy_accessor_accepts_uri_or_string_argument_with_spectials_characters
+    user = "proxy_;{(,!$%_user"
+    password = "proxy_;:{(,!$%_password"
+
+    encoded_user = URI.encode(user) # "proxy_;%7B(,!$%25_user"
+    encoded_password = URI.encode(password) # "proxy_;:%7B(,!$%25_password"
+
+    proxy = URI.parse("http://#{encoded_user}:#{encoded_password}@proxy.local:4242")
+
+    assert_nothing_raised { @conn.proxy = "http://#{encoded_user}:#{encoded_password}@proxy.local:4242" }
+    assert_equal user, @conn.send(:new_http).proxy_user
+    assert_equal password, @conn.send(:new_http).proxy_pass
+
+    assert_nothing_raised { @conn.proxy = proxy }
+    assert_equal user, @conn.send(:new_http).proxy_user
+    assert_equal password, @conn.send(:new_http).proxy_pass
+  end
+
   def test_timeout_accessor
     @conn.timeout = 5
     assert_equal 5, @conn.timeout
