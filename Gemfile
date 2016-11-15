@@ -1,7 +1,7 @@
 source 'https://rubygems.org'
 
-gem 'activesupport', branch: '5-0-0', github: 'rails/rails'
-gem 'activemodel', branch: '5-0-0', github: 'rails/rails'
+gem 'activesupport', github: 'rails/rails'
+gem 'activemodel', github: 'rails/rails'
 
 gemspec
 
