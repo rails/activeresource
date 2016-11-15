@@ -177,7 +177,9 @@ module ActiveResource
 
       def new_http
         if @proxy
-          Net::HTTP.new(@site.host, @site.port, @proxy.host, @proxy.port, @proxy.user, @proxy.password)
+          user = URI.parser.unescape(@proxy.user) if @proxy.user
+          password = URI.parser.unescape(@proxy.password) if @proxy.password
+          Net::HTTP.new(@site.host, @site.port, @proxy.host, @proxy.port, user, password)
         else
           Net::HTTP.new(@site.host, @site.port)
         end
