@@ -969,6 +969,19 @@ class BaseTest < ActiveSupport::TestCase
     assert_nil person.id
   end
 
+  def test_create!
+    rick = Person.create(:name => 'Rick')
+    rick_bang = Person.create!(:name => 'Rick')
+
+    assert_equal rick.id, rick_bang.id
+    assert_equal rick.age, rick_bang.age
+
+    ActiveResource::HttpMock.respond_to do |mock|
+      mock.post   "/people.json", {}, nil, 422
+    end
+    assert_raise(ActiveResource::ResourceInvalid) { Person.create!(:name => 'Rick') }
+  end
+
   def test_clone
     matz = Person.find(1)
     matz_c = matz.clone
