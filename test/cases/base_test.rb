@@ -628,6 +628,21 @@ class BaseTest < ActiveSupport::TestCase
     assert_equal nil, fruit.headers['key2']
   end
 
+  def test_header_should_be_copied_to_main_thread_if_not_defined
+    fruit = Class.new(ActiveResource::Base)
+
+    Thread.new do
+      fruit.site = 'http://market'
+      assert_equal 'http://market', fruit.site.to_s
+
+      fruit.headers['key'] = 'value'
+      assert_equal 'value', fruit.headers['key']
+    end.join
+
+    assert_equal 'http://market', fruit.site.to_s
+    assert_equal 'value', fruit.headers['key']
+  end
+
   def test_connection_should_use_connection_class
     apple = Class.new(ActiveResource::Base)
     orange = Class.new(ActiveResource::Base)
