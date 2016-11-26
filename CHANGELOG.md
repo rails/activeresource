@@ -1,3 +1,5 @@
+*   Add `ActiveResource::Base#create!`.
+
 *   Move observers support to rails-observers gem.
 
 *   Remove support to Rails 4.
