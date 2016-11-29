@@ -856,6 +856,17 @@ module ActiveResource
         self.new(attributes).tap { |resource| resource.save }
       end
 
+      # Creates a new resource (just like <tt>create</tt>) and makes a request to the
+      # remote service that it be saved, but runs validations and raises
+      # <tt>ActiveResource::ResourceInvalid</tt>, making it equivalent to the following
+      # simultaneous calls:
+      #
+      #   ryan = Person.new(:first => 'ryan')
+      #   ryan.save!
+      def create!(attributes = {})
+        self.new(attributes).tap { |resource| resource.save! }
+      end
+
       # Core method for finding resources. Used similarly to Active Record's +find+ method.
       #
       # ==== Arguments
