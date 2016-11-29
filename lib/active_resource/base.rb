@@ -648,11 +648,11 @@ module ActiveResource
       end
 
       def headers
-        self._headers ||= {}
-        if superclass != Object && superclass.headers
-          self._headers = superclass.headers.merge(_headers)
+        headers_state = self._headers || {}
+        if superclass != Object
+          self._headers = superclass.headers.merge(headers_state)
         else
-          _headers
+          headers_state
         end
       end
 
