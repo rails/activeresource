@@ -272,7 +272,7 @@ class SchemaTest < ActiveModel::TestCase
   # What a schema does for us
   ####
 
-  # respond_to?
+  # respond_to_missing?
 
   test "should respond positively to attributes that are only in the schema" do
     new_attr_name = :my_new_schema_attribute
@@ -307,6 +307,23 @@ class SchemaTest < ActiveModel::TestCase
 
     assert_respond_to Person.new, new_attr_name, "should respond to the attribute in a passed-in schema, but failed on: #{new_attr_name}"
     assert_respond_to Person.new, new_attr_name_two, "should respond to the attribute from the schema, but failed on: #{new_attr_name_two}"
+  end
+
+  test 'should retrieve the `Method` object' do
+    new_attr_name = :my_new_schema_attribute
+    new_attr_name_two = :another_new_schema_attribute
+    assert Person.schema.blank?, "sanity check - should have a blank class schema"
+
+    assert !Person.new.respond_to?(new_attr_name), "sanity check - should not respond to the brand-new attribute yet"
+    assert !Person.new.respond_to?(new_attr_name_two), "sanity check - should not respond to the brand-new attribute yet"
+
+    assert_nothing_raised do
+      Person.schema = {new_attr_name.to_s => 'string'}
+      Person.schema { string new_attr_name_two }
+    end
+
+    assert_instance_of Method, Person.new.method(new_attr_name)
+    assert_instance_of Method, Person.new.method(new_attr_name_two)
   end
 
   # method_missing effects
@@ -402,7 +419,7 @@ class SchemaTest < ActiveModel::TestCase
       assert known_attrs.include?(the_attr), "should have found schema attr: #{the_attr} in known attributes, but only had: #{known_attrs.inspect}"
     end
   end
-  
+
   test 'known attributes should be unique' do
     new_schema = {'age' => 'integer', 'name' => 'string'}
     Person.schema = new_schema
