@@ -55,6 +55,13 @@ class ThreadsafeAttributesTest < ActiveSupport::TestCase
     assert_equal "value from child", @tester.safeattr
   end
 
+  test "#threadsafe attributes can retrieve non-duplicable from main thread" do
+    @tester.safeattr = :symbol_1
+    Thread.new do
+      assert_equal :symbol_1, @tester.safeattr
+    end.join
+  end
+
   unless RUBY_PLATFORM == 'java'
     test "threadsafe attributes can be accessed after forking within a thread" do
       reader, writer = IO.pipe

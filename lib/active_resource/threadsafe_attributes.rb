@@ -1,3 +1,5 @@
+require 'active_support/core_ext/object/duplicable'
+
 module ThreadsafeAttributes
   def self.included(klass)
     klass.extend(ClassMethods)
@@ -30,7 +32,7 @@ module ThreadsafeAttributes
       get_threadsafe_attribute_by_thread(name, Thread.current)
     elsif threadsafe_attribute_defined_by_thread?(name, main_thread)
       value = get_threadsafe_attribute_by_thread(name, main_thread)
-      value = value.dup if value
+      value = value.dup if value.duplicable?
       set_threadsafe_attribute_by_thread(name, value, Thread.current)
       value
     end
