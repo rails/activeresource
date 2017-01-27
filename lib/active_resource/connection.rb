@@ -128,6 +128,7 @@ module ActiveResource
         result = ActiveSupport::Notifications.instrument("request.active_resource") do |payload|
           payload[:method]      = method
           payload[:request_uri] = "#{site.scheme}://#{site.host}:#{site.port}#{path}"
+          payload[:params]      = JSON.parse(arguments[0]) if arguments[0].is_a? String
           payload[:result]      = http.send(method, path, *arguments)
         end
         handle_response(result)
