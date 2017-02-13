@@ -41,6 +41,11 @@ class BasicCollectionTest < CollectionTest
     results = @collection.collect! { |i| i + "!" }
     assert_kind_of ActiveResource::Collection, results
   end
+
+  def respond_to_where
+    assert @collection.respond_to?(:where)
+  end
+
 end
 
 class PaginatedCollection < ActiveResource::Collection
@@ -76,6 +81,7 @@ class CollectionInheretanceTest < ActiveSupport::TestCase
       mock.get    '/paginated_posts/new.json', {}, @new_post
       mock.get    '/paginated_posts.json?page=2', {}, @posts
       mock.get    '/paginated_posts.json?title=test', {}, @empty_posts
+      mock.get    '/paginated_posts.json?page=2&title=Awesome', {}, @posts
       mock.post   '/paginated_posts.json', {}, nil
     end
   end
@@ -105,4 +111,11 @@ class CollectionInheretanceTest < ActiveSupport::TestCase
     post = PaginatedPost.where(:title => 'test').first_or_initialize
     assert post.valid?
   end
+
+  def test_where
+    posts = PaginatedPost.where(:page => 2)
+    next_posts = posts.where(:title => 'Awesome')
+    assert_kind_of PaginatedCollection, next_posts
+  end
+
 end
