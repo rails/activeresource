@@ -1345,7 +1345,7 @@ module ActiveResource
     # serialization format specified in ActiveResource::Base.format. The options
     # applicable depend on the configured encoding format.
     def encode(options={})
-      send("to_#{self.class.format.extension}", options)
+      self.class.format.encode(self, options)
     end
 
     # A method to \reload the attributes of this object from the remote web service.
