@@ -32,7 +32,9 @@ class Developer < ActiveResource::Base
   ActiveResource::Callbacks::CALLBACKS.each do |callback_method|
     next if callback_method.to_s =~ /^around_/
     define_callback_method(callback_method)
-    send(callback_method, callback_string(callback_method))
+    unless ActiveResource::Test.rails_5_1?
+      send(callback_method, callback_string(callback_method))
+    end
     send(callback_method, callback_proc(callback_method))
     send(callback_method, callback_object(callback_method))
     send(callback_method) { |model| model.history << [callback_method, :block] }
@@ -58,108 +60,192 @@ class CallbacksTest < ActiveSupport::TestCase
   def test_valid?
     developer = Developer.new
     developer.valid?
-    assert_equal [
-      [ :before_validation,           :method ],
-      [ :before_validation,           :string ],
-      [ :before_validation,           :proc   ],
-      [ :before_validation,           :object ],
-      [ :before_validation,           :block  ],
-      [ :after_validation,            :method ],
-      [ :after_validation,            :string ],
-      [ :after_validation,            :proc   ],
-      [ :after_validation,            :object ],
-      [ :after_validation,            :block  ],
-    ], developer.history
+    if ActiveResource::Test.rails_5_1?
+      assert_equal [
+        [ :before_validation,           :method ],
+        [ :before_validation,           :proc   ],
+        [ :before_validation,           :object ],
+        [ :before_validation,           :block  ],
+        [ :after_validation,            :method ],
+        [ :after_validation,            :proc   ],
+        [ :after_validation,            :object ],
+        [ :after_validation,            :block  ],
+      ], developer.history
+    else
+      assert_equal [
+        [ :before_validation,           :method ],
+        [ :before_validation,           :string ],
+        [ :before_validation,           :proc   ],
+        [ :before_validation,           :object ],
+        [ :before_validation,           :block  ],
+        [ :after_validation,            :method ],
+        [ :after_validation,            :string ],
+        [ :after_validation,            :proc   ],
+        [ :after_validation,            :object ],
+        [ :after_validation,            :block  ],
+      ], developer.history
+    end
   end
 
   def test_create
     developer = Developer.create(@developer_attrs)
-    assert_equal [
-      [ :before_validation,           :method ],
-      [ :before_validation,           :string ],
-      [ :before_validation,           :proc   ],
-      [ :before_validation,           :object ],
-      [ :before_validation,           :block  ],
-      [ :after_validation,            :method ],
-      [ :after_validation,            :string ],
-      [ :after_validation,            :proc   ],
-      [ :after_validation,            :object ],
-      [ :after_validation,            :block  ],
-      [ :before_save,                 :method ],
-      [ :before_save,                 :string ],
-      [ :before_save,                 :proc   ],
-      [ :before_save,                 :object ],
-      [ :before_save,                 :block  ],
-      [ :before_create,               :method ],
-      [ :before_create,               :string ],
-      [ :before_create,               :proc   ],
-      [ :before_create,               :object ],
-      [ :before_create,               :block  ],
-      [ :after_create,                :method ],
-      [ :after_create,                :string ],
-      [ :after_create,                :proc   ],
-      [ :after_create,                :object ],
-      [ :after_create,                :block  ],
-      [ :after_save,                  :method ],
-      [ :after_save,                  :string ],
-      [ :after_save,                  :proc   ],
-      [ :after_save,                  :object ],
-      [ :after_save,                  :block  ]
-    ], developer.history
+    if ActiveResource::Test.rails_5_1?
+      assert_equal [
+        [ :before_validation,           :method ],
+        [ :before_validation,           :proc   ],
+        [ :before_validation,           :object ],
+        [ :before_validation,           :block  ],
+        [ :after_validation,            :method ],
+        [ :after_validation,            :proc   ],
+        [ :after_validation,            :object ],
+        [ :after_validation,            :block  ],
+        [ :before_save,                 :method ],
+        [ :before_save,                 :proc   ],
+        [ :before_save,                 :object ],
+        [ :before_save,                 :block  ],
+        [ :before_create,               :method ],
+        [ :before_create,               :proc   ],
+        [ :before_create,               :object ],
+        [ :before_create,               :block  ],
+        [ :after_create,                :method ],
+        [ :after_create,                :proc   ],
+        [ :after_create,                :object ],
+        [ :after_create,                :block  ],
+        [ :after_save,                  :method ],
+        [ :after_save,                  :proc   ],
+        [ :after_save,                  :object ],
+        [ :after_save,                  :block  ]
+      ], developer.history
+    else
+      assert_equal [
+        [ :before_validation,           :method ],
+        [ :before_validation,           :string ],
+        [ :before_validation,           :proc   ],
+        [ :before_validation,           :object ],
+        [ :before_validation,           :block  ],
+        [ :after_validation,            :method ],
+        [ :after_validation,            :string ],
+        [ :after_validation,            :proc   ],
+        [ :after_validation,            :object ],
+        [ :after_validation,            :block  ],
+        [ :before_save,                 :method ],
+        [ :before_save,                 :string ],
+        [ :before_save,                 :proc   ],
+        [ :before_save,                 :object ],
+        [ :before_save,                 :block  ],
+        [ :before_create,               :method ],
+        [ :before_create,               :string ],
+        [ :before_create,               :proc   ],
+        [ :before_create,               :object ],
+        [ :before_create,               :block  ],
+        [ :after_create,                :method ],
+        [ :after_create,                :string ],
+        [ :after_create,                :proc   ],
+        [ :after_create,                :object ],
+        [ :after_create,                :block  ],
+        [ :after_save,                  :method ],
+        [ :after_save,                  :string ],
+        [ :after_save,                  :proc   ],
+        [ :after_save,                  :object ],
+        [ :after_save,                  :block  ]
+      ], developer.history
+    end
   end
 
   def test_update
     developer = Developer.find(1)
     developer.save
-    assert_equal [
-      [ :before_validation,           :method ],
-      [ :before_validation,           :string ],
-      [ :before_validation,           :proc   ],
-      [ :before_validation,           :object ],
-      [ :before_validation,           :block  ],
-      [ :after_validation,            :method ],
-      [ :after_validation,            :string ],
-      [ :after_validation,            :proc   ],
-      [ :after_validation,            :object ],
-      [ :after_validation,            :block  ],
-      [ :before_save,                 :method ],
-      [ :before_save,                 :string ],
-      [ :before_save,                 :proc   ],
-      [ :before_save,                 :object ],
-      [ :before_save,                 :block  ],
-      [ :before_update,               :method ],
-      [ :before_update,               :string ],
-      [ :before_update,               :proc   ],
-      [ :before_update,               :object ],
-      [ :before_update,               :block  ],
-      [ :after_update,                :method ],
-      [ :after_update,                :string ],
-      [ :after_update,                :proc   ],
-      [ :after_update,                :object ],
-      [ :after_update,                :block  ],
-      [ :after_save,                  :method ],
-      [ :after_save,                  :string ],
-      [ :after_save,                  :proc   ],
-      [ :after_save,                  :object ],
-      [ :after_save,                  :block  ]
-    ], developer.history
+    if ActiveResource::Test.rails_5_1?
+      assert_equal [
+        [ :before_validation,           :method ],
+        [ :before_validation,           :proc   ],
+        [ :before_validation,           :object ],
+        [ :before_validation,           :block  ],
+        [ :after_validation,            :method ],
+        [ :after_validation,            :proc   ],
+        [ :after_validation,            :object ],
+        [ :after_validation,            :block  ],
+        [ :before_save,                 :method ],
+        [ :before_save,                 :proc   ],
+        [ :before_save,                 :object ],
+        [ :before_save,                 :block  ],
+        [ :before_update,               :method ],
+        [ :before_update,               :proc   ],
+        [ :before_update,               :object ],
+        [ :before_update,               :block  ],
+        [ :after_update,                :method ],
+        [ :after_update,                :proc   ],
+        [ :after_update,                :object ],
+        [ :after_update,                :block  ],
+        [ :after_save,                  :method ],
+        [ :after_save,                  :proc   ],
+        [ :after_save,                  :object ],
+        [ :after_save,                  :block  ]
+      ], developer.history
+    else
+      assert_equal [
+        [ :before_validation,           :method ],
+        [ :before_validation,           :string ],
+        [ :before_validation,           :proc   ],
+        [ :before_validation,           :object ],
+        [ :before_validation,           :block  ],
+        [ :after_validation,            :method ],
+        [ :after_validation,            :string ],
+        [ :after_validation,            :proc   ],
+        [ :after_validation,            :object ],
+        [ :after_validation,            :block  ],
+        [ :before_save,                 :method ],
+        [ :before_save,                 :string ],
+        [ :before_save,                 :proc   ],
+        [ :before_save,                 :object ],
+        [ :before_save,                 :block  ],
+        [ :before_update,               :method ],
+        [ :before_update,               :string ],
+        [ :before_update,               :proc   ],
+        [ :before_update,               :object ],
+        [ :before_update,               :block  ],
+        [ :after_update,                :method ],
+        [ :after_update,                :string ],
+        [ :after_update,                :proc   ],
+        [ :after_update,                :object ],
+        [ :after_update,                :block  ],
+        [ :after_save,                  :method ],
+        [ :after_save,                  :string ],
+        [ :after_save,                  :proc   ],
+        [ :after_save,                  :object ],
+        [ :after_save,                  :block  ]
+      ], developer.history
+    end
   end
 
   def test_destroy
     developer = Developer.find(1)
     developer.destroy
-    assert_equal [
-      [ :before_destroy,              :method ],
-      [ :before_destroy,              :string ],
-      [ :before_destroy,              :proc   ],
-      [ :before_destroy,              :object ],
-      [ :before_destroy,              :block  ],
-      [ :after_destroy,               :method ],
-      [ :after_destroy,               :string ],
-      [ :after_destroy,               :proc   ],
-      [ :after_destroy,               :object ],
-      [ :after_destroy,               :block  ]
-    ], developer.history
+    if ActiveResource::Test.rails_5_1?
+      assert_equal [
+        [ :before_destroy,              :method ],
+        [ :before_destroy,              :proc   ],
+        [ :before_destroy,              :object ],
+        [ :before_destroy,              :block  ],
+        [ :after_destroy,               :method ],
+        [ :after_destroy,               :proc   ],
+        [ :after_destroy,               :object ],
+        [ :after_destroy,               :block  ]
+      ], developer.history
+    else
+      assert_equal [
+        [ :before_destroy,              :method ],
+        [ :before_destroy,              :string ],
+        [ :before_destroy,              :proc   ],
+        [ :before_destroy,              :object ],
+        [ :before_destroy,              :block  ],
+        [ :after_destroy,               :method ],
+        [ :after_destroy,               :string ],
+        [ :after_destroy,               :proc   ],
+        [ :after_destroy,               :object ],
+        [ :after_destroy,               :block  ]
+      ], developer.history
+    end
   end
 
   def test_delete
