@@ -6,7 +6,7 @@ require "fixtures/street_address"
 ########################################################################
 # Testing the schema of your Active Resource models
 ########################################################################
-class SchemaTest < ActiveModel::TestCase
+class SchemaTest < ActiveSupport::TestCase
   def setup
     setup_response # find me in abstract_unit
   end

@@ -43,7 +43,7 @@ class Developer < ActiveResource::Base
   end
 end
 
-class CallbacksTest < ActiveModel::TestCase
+class CallbacksTest < ActiveSupport::TestCase
   def setup
     @developer_attrs = {:id => 1, :name => "Guillermo", :salary => 100_000}
     @developer = {"developer" => @developer_attrs}.to_json

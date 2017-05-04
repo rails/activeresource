@@ -5,7 +5,7 @@ require 'active_support/core_ext/hash/conversions'
 # The validations are tested thoroughly under ActiveModel::Validations
 # This test case simply makes sure that they are all accessible by
 # Active Resource objects.
-class ValidationsTest < ActiveModel::TestCase
+class ValidationsTest < ActiveSupport::TestCase
   VALID_PROJECT_HASH = { :name => "My Project", :description => "A project" }
   def setup
     @my_proj = { "person" => VALID_PROJECT_HASH }.to_json
