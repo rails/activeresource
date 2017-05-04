@@ -13,6 +13,7 @@ gemfile:
   - gemfiles/Gemfile-rails-4.1
   - gemfiles/Gemfile-rails-4.2
   - gemfiles/Gemfile-rails-5.0
+  - gemfiles/Gemfile-rails-5.1
   - gemfiles/Gemfile-rails-master
   - Gemfile
 
@@ -21,7 +22,6 @@ matrix:
     - gemfile: gemfiles/Gemfile-rails-4.0
     - gemfile: gemfiles/Gemfile-rails-4.1
     - gemfile: gemfiles/Gemfile-rails-4.2
-    - gemfile: gemfiles/Gemfile-rails-5.0
     - gemfile: gemfiles/Gemfile-rails-master
     - gemfile: Gemfile
       rvm: jruby-9.1.5.0
