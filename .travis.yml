@@ -3,27 +3,20 @@ sudo: false
 cache: bundler
 
 rvm:
-  - 2.3.1
-  - 2.2.5
-  - jruby-9000
+  - 2.4.1
+  - 2.3.4
+  - 2.2.7
+  - jruby-9.1.5.0
 
 gemfile:
-  - gemfiles/Gemfile-rails-4.0
-  - gemfiles/Gemfile-rails-4.1
-  - gemfiles/Gemfile-rails-4.2
   - gemfiles/Gemfile-rails-5.0
+  - gemfiles/Gemfile-rails-5.1
   - gemfiles/Gemfile-rails-master
   - Gemfile
 
 matrix:
   allow_failures:
-    - gemfile: gemfiles/Gemfile-rails-4.0
-    - gemfile: gemfiles/Gemfile-rails-4.1
-    - gemfile: gemfiles/Gemfile-rails-4.2
-    - gemfile: gemfiles/Gemfile-rails-5.0
     - gemfile: gemfiles/Gemfile-rails-master
-    - gemfile: Gemfile
-      rvm: jruby-9000
 
 notifications:
   email: false
