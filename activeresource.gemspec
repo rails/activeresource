@@ -21,8 +21,8 @@ Gem::Specification.new do |s|
 
   s.required_ruby_version = '>= 2.2.2'
 
-  s.add_dependency('activesupport', '> 4.2', '< 6')
-  s.add_dependency('activemodel', '> 4.2', '< 6')
+  s.add_dependency('activesupport', '>= 5.0', '< 6')
+  s.add_dependency('activemodel', '>= 5.0', '< 6')
   s.add_dependency('activemodel-serializers-xml', '~> 1.0')
 
   s.add_development_dependency('rake')
