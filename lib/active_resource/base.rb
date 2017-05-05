@@ -919,9 +919,11 @@ module ActiveResource
         when :all
           find_every(options)
         when :first
-          find_every(options).to_a.first
+          collection = find_every(options)
+          collection && collection.first
         when :last
-          find_every(options).to_a.last
+          collection = find_every(options)
+          collection && collection.last
         when :one
           find_one(options)
         else
