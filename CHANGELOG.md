@@ -1,3 +1,7 @@
+## Active Resource 5.0.0 (May 4, 2017) ##
+
+### Enhancements ###
+
 *   Add `ActiveResource::Base.create!`.
 
 *   Move observers support to rails-observers gem.
