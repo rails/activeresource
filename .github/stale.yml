@@ -1,0 +1,27 @@
+# Number of days of inactivity before an issue becomes stale
+daysUntilStale: 90
+# Number of days of inactivity before a stale issue is closed
+daysUntilClose: 7
+# Issues with these labels will never be considered stale
+exemptLabels:
+  - pinned
+  - security
+  - With reproduction steps
+  - attached PR
+  - regression
+  - release blocker
+# Label to use when marking an issue as stale
+staleLabel: stale
+# Comment to post when marking an issue as stale. Set to `false` to disable
+markComment: |
+  This issue has been automatically marked as stale because it has not been commented on for at least three months.
+  The resources of the Rails team are limited, and so we are asking for your help.
+
+  If it is an issue and you can still reproduce this error on the `master` branch,
+  please reply with all of the information you have about it in order to keep the issue open.
+
+  If it is a pull request and you are still interested on having it merged please make sure it can be merged clearly.
+
+  Thank you for all your contributions.
+# Comment to post when closing a stale issue. Set to `false` to disable
+closeComment: false
