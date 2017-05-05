@@ -33,6 +33,16 @@ end
 
 
 class BaseLoadTest < ActiveSupport::TestCase
+  class FakeParameters
+    def initialize(attributes)
+      @attributes = attributes
+    end
+
+    def to_hash
+      @attributes
+    end
+  end
+
   def setup
     @matz  = { :id => 1, :name => 'Matz' }
 
@@ -81,6 +91,10 @@ class BaseLoadTest < ActiveSupport::TestCase
   def test_load_simple_hash
     assert_equal Hash.new, @person.attributes
     assert_equal @matz.stringify_keys, @person.load(@matz).attributes
+  end
+
+  def test_load_object_with_implict_conversion_to_hash
+    assert_equal @matz.stringify_keys, @person.load(FakeParameters.new(@matz)).attributes
   end
 
   def test_after_load_attributes_are_accessible

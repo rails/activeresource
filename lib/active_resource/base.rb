@@ -1385,7 +1385,11 @@ module ActiveResource
     #   your_supplier.load(my_attrs)
     #   your_supplier.save
     def load(attributes, remove_root = false, persisted = false)
-      raise ArgumentError, "expected an attributes Hash, got #{attributes.inspect}" unless attributes.is_a?(Hash)
+      unless attributes.respond_to?(:to_hash)
+        raise ArgumentError, "expected attributes to be able to convert to Hash, got #{attributes.inspect}"
+      end
+
+      attributes = attributes.to_hash
       @prefix_options, attributes = split_options(attributes)
 
       if attributes.keys.size == 1
