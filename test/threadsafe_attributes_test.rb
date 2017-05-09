@@ -62,6 +62,13 @@ class ThreadsafeAttributesTest < ActiveSupport::TestCase
     end.join
   end
 
+  test "#threadsafe attributes work in fibers" do
+    @tester.safeattr = :symbol_1
+    Fiber.new do
+      assert_equal :symbol_1, @tester.safeattr
+    end.resume
+  end
+
   unless RUBY_PLATFORM == 'java'
     test "threadsafe attributes can be accessed after forking within a thread" do
       reader, writer = IO.pipe
