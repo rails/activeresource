@@ -50,16 +50,15 @@ module ThreadsafeAttributes
   end
 
   def get_threadsafe_attribute_by_thread(name, thread)
-    thread["active.resource.#{name}.#{self.object_id}"]
+    thread.thread_variable_get "active.resource.#{name}.#{self.object_id}"
   end
 
   def set_threadsafe_attribute_by_thread(name, value, thread)
-    thread["active.resource.#{name}.#{self.object_id}.defined"] = true
-    thread["active.resource.#{name}.#{self.object_id}"] = value
+    thread.thread_variable_set "active.resource.#{name}.#{self.object_id}.defined", true
+    thread.thread_variable_set "active.resource.#{name}.#{self.object_id}", value
   end
 
   def threadsafe_attribute_defined_by_thread?(name, thread)
-    thread["active.resource.#{name}.#{self.object_id}.defined"]
+    thread.thread_variable_get "active.resource.#{name}.#{self.object_id}.defined"
   end
-
 end
