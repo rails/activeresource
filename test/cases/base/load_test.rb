@@ -44,6 +44,7 @@ class BaseLoadTest < ActiveSupport::TestCase
   end
 
   def setup
+    Person.__send__(:remove_const, :Address) if Person.const_defined?(:Address)
     @matz  = { :id => 1, :name => 'Matz' }
 
     @first_address = { :address => { :id => 1, :street => '12345 Street' } }
@@ -117,7 +118,6 @@ class BaseLoadTest < ActiveSupport::TestCase
   end
 
   def test_load_one_with_unknown_resource
-    Person.__send__(:remove_const, :Address) if Person.const_defined?(:Address)
     assert !Person.const_defined?(:Address), "Address shouldn't exist until autocreated"
     address = silence_warnings { @person.load(@first_address).address }
     assert_kind_of Person::Address, address
@@ -138,7 +138,6 @@ class BaseLoadTest < ActiveSupport::TestCase
   end
 
   def test_load_collection_with_unknown_resource
-    Person.__send__(:remove_const, :Address) if Person.const_defined?(:Address)
     assert !Person.const_defined?(:Address), "Address shouldn't exist until autocreated"
     addresses = silence_warnings { @person.load(:addresses => @addresses).addresses }
     assert Person.const_defined?(:Address), "Address should have been autocreated"
@@ -154,7 +153,6 @@ class BaseLoadTest < ActiveSupport::TestCase
   end
 
   def test_load_collection_with_single_unknown_resource
-    Person.__send__(:remove_const, :Address) if Person.const_defined?(:Address)
     assert !Person.const_defined?(:Address), "Address shouldn't exist until autocreated"
     addresses = silence_warnings { @person.load(:addresses => [ @first_address ]).addresses }
     assert Person.const_defined?(:Address), "Address should have been autocreated"
