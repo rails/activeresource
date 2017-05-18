@@ -117,6 +117,8 @@ class BaseLoadTest < ActiveSupport::TestCase
   end
 
   def test_load_one_with_unknown_resource
+    Person.__send__(:remove_const, :Address) if Person.const_defined?(:Address)
+    assert !Person.const_defined?(:Address), "Address shouldn't exist until autocreated"
     address = silence_warnings { @person.load(@first_address).address }
     assert_kind_of Person::Address, address
     assert_equal @first_address.values.first.stringify_keys, address.attributes
