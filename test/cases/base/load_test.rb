@@ -44,7 +44,8 @@ class BaseLoadTest < ActiveSupport::TestCase
   end
 
   def setup
-    Person.__send__(:remove_const, :Address) if Person.const_defined?(:Address)
+    Person.__send__(:remove_const, :Address) if Person.const_defined?(:Address, false)
+    Object.__send__(:remove_const, :Address) if Object.const_defined?(:Address, false)
     @matz  = { :id => 1, :name => 'Matz' }
 
     @first_address = { :address => { :id => 1, :street => '12345 Street' } }
@@ -128,6 +129,14 @@ class BaseLoadTest < ActiveSupport::TestCase
     subclass = Class.new(Person).tap { |c| c.element_name = 'person' }
     address = silence_warnings { subclass.new.load(@first_address).address }
     assert_kind_of subclass::Address, address
+  end
+
+  def test_load_one_with_invalid_existing_resource_class
+    assert !Person.const_defined?(:Address), "Address shouldn't exist until autocreated"
+    Object.const_set :Address, Class.new
+    address = silence_warnings { @person.load(@first_address).address }
+    assert_kind_of Person::Address, address
+    assert_equal @first_address.values.first.stringify_keys, address.attributes
   end
 
   def test_load_collection_with_existing_resource

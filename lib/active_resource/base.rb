@@ -1583,10 +1583,10 @@ module ActiveResource
             find_or_create_resource_in_modules(resource_name, ancestors)
           else
             if Object.const_defined?(*const_args)
-              Object.const_get(*const_args)
-            else
-              create_resource_for(resource_name)
+              klass = Object.const_get(*const_args)
+              return klass if klass.kind_of? ActiveResource::Base
             end
+            create_resource_for(resource_name)
           end
         end
       end
