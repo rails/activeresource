@@ -30,10 +30,6 @@ Or added to a Gemfile:
 
   gem 'activeresource'
 
-For compatibility with Rails 5, use:
-
-  gem 'activeresource', github: 'rails/activeresource', branch: 'master'
-
 Source code can be downloaded on GitHub
 
 * https://github.com/rails/activeresource/tree/master/activeresource
