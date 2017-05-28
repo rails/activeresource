@@ -618,6 +618,14 @@ module ActiveResource
       # * <tt>:cert_store</tt> - OpenSSL::X509::Store to verify peer certificate.
       # * <tt>:ssl_timeout</tt> -The SSL timeout in seconds.
       def ssl_options=(options)
+        if options.nil?
+          self._connection = nil
+          @ssl_options  = nil
+          return
+        end
+
+        raise ArgumentError, "Expected a hash" unless options.kind_of? Hash
+
         self._connection = nil
         @ssl_options  = options
       end

@@ -119,6 +119,21 @@ class BaseTest < ActiveSupport::TestCase
     assert_equal(expected, Forum.connection.ssl_options)
   end
 
+  def test_should_validate_ssl_options
+    ["blahblah", ['one','two'],  [:age, :name], Person.new].each do |bad_ssl_options|
+      assert_raises(ArgumentError,"should only accept a hash (or nil), but accepted: #{bad_ssl_options.inspect}") do
+        Forum.ssl_options= bad_ssl_options
+      end
+    end
+  end
+
+  def test_ssl_options_accepts_nil
+    expected = nil
+    Forum.ssl_options= nil
+    assert_equal(expected, Forum.ssl_options)
+    assert_equal(expected, Forum.connection.ssl_options)
+  end
+
   def test_user_variable_can_be_reset
     actor = Class.new(ActiveResource::Base)
     actor.site = 'http://cinema'
