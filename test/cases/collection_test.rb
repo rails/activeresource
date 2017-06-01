@@ -1,3 +1,5 @@
+require 'abstract_unit'
+
 class CollectionTest < ActiveSupport::TestCase
   def setup
     @collection = ActiveResource::Collection.new

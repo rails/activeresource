@@ -1,3 +1,5 @@
+require 'abstract_unit'
+
 class ThreadsafeAttributesTest < ActiveSupport::TestCase
 
   class TestClass
