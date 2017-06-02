@@ -1487,6 +1487,14 @@ module ActiveResource
       super({ :root => self.class.element_name }.merge(options))
     end
 
+    def read_attribute_for_serialization(n)
+      if !attributes[n].nil?
+        attributes[n]
+      elsif respond_to?(n)
+        send(n)
+      end
+    end
+
     protected
       def connection(refresh = false)
         self.class.connection(refresh)
@@ -1538,10 +1546,6 @@ module ActiveResource
       end
 
     private
-
-      def read_attribute_for_serialization(n)
-        attributes[n]
-      end
 
       # Determine whether the response is allowed to have a body per HTTP 1.1 spec section 4.4.1
       def response_code_allows_body?(c)
