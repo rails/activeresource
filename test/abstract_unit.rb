@@ -102,6 +102,7 @@ def setup_response
 
   ActiveResource::HttpMock.respond_to do |mock|
     mock.get    "/people/1.json",               {}, @matz
+    mock.get    "http://37s.sunrise.i:3000/people/1", {}, @matz
     mock.get    "/people/1.xml",                {}, @matz_xml
     mock.get    "/people/2.xml",                {}, @david
     mock.get    "/people/Greg.json",            {}, @greg
