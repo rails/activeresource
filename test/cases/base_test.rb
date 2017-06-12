@@ -1250,6 +1250,24 @@ class BaseTest < ActiveSupport::TestCase
     assert Person.exists?(1)
   end
 
+  def test_read_attribute_for_serialization
+    joe = Person.find(6)
+    joe.singleton_class.class_eval do
+      def non_attribute_field
+        'foo'
+      end
+
+      def id
+        'bar'
+      end
+    end
+
+    assert_equal joe.read_attribute_for_serialization(:id), 6
+    assert_equal joe.read_attribute_for_serialization(:name), 'Joe'
+    assert_equal joe.read_attribute_for_serialization(:likes_hats), true
+    assert_equal joe.read_attribute_for_serialization(:non_attribute_field), 'foo'
+  end
+
   def test_to_xml
     Person.format = :xml
     matz = Person.find(1)
