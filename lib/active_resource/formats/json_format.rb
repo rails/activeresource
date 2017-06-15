@@ -18,6 +18,7 @@ module ActiveResource
       end
 
       def decode(json)
+        return nil if json.nil?
         Formats.remove_root(ActiveSupport::JSON.decode(json))
       end
     end
