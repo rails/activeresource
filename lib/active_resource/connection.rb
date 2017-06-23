@@ -27,7 +27,12 @@ module ActiveResource
       def requests
         @@requests ||= []
       end
+
+      def logger
+        ActiveResource::Base.logger
+      end
     end
+    
 
     # The +site+ parameter is required and will set the +site+
     # attribute to the URI for the remote resource service.
@@ -36,6 +41,11 @@ module ActiveResource
       @proxy = @user = @password = nil
       self.site = site
       self.format = format
+    end
+
+    # defaults to ActiveResource::Base.logger
+    def logger
+      self.class.logger
     end
 
     # Set URI for remote service.

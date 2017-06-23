@@ -32,6 +32,17 @@ class ConnectionTest < ActiveSupport::TestCase
     end
   end
 
+  def test_same_logger_as_base
+    old_logger = ActiveResource::Base.logger
+    connection = new_connection
+    assert_equal connection.logger, old_logger
+
+    ActiveResource::Base.logger = Logger.new(STDOUT)
+    assert_equal new_connection.logger, ActiveResource::Base.logger
+  ensure
+    ActiveResource::Base.logger = old_logger
+  end
+
   def test_handle_response
     # 2xx and 3xx are valid responses.
     [200, 299, 300, 399].each do |code|
