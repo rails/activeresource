@@ -128,6 +128,7 @@ module ActiveResource
         result = ActiveSupport::Notifications.instrument("request.active_resource") do |payload|
           payload[:method]      = method
           payload[:request_uri] = "#{site.scheme}://#{site.host}:#{site.port}#{path}"
+          payload[:params]      = get_request_params(arguments[0]) if arguments[0].is_a? String
           payload[:result]      = http.send(method, path, *arguments)
         end
         handle_response(result)
@@ -294,6 +295,15 @@ module ActiveResource
         return :basic if auth_type.nil?
         auth_type = auth_type.to_sym
         auth_type.in?([:basic, :digest]) ? auth_type : :basic
+      end
+
+      def get_request_params(params_string)
+        case format
+          when ActiveResource::Formats::JsonFormat
+            JSON.parse(params_string)
+          when ActiveResource::Formats::XmlFormat
+            Hash.from_xml(params_string)
+        end
       end
   end
 end
