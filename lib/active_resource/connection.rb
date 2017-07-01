@@ -32,7 +32,6 @@ module ActiveResource
         ActiveResource::Base.logger
       end
     end
-    
 
     # The +site+ parameter is required and will set the +site+
     # attribute to the URI for the remote resource service.
