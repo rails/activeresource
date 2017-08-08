@@ -2,8 +2,11 @@ module ActiveResource
   class LogSubscriber < ActiveSupport::LogSubscriber
     def request(event)
       result = event.payload[:result]
-      info "#{event.payload[:method].to_s.upcase} #{event.payload[:request_uri]}"
-      info "--> %d %s %d (%.1fms)" % [result.code, result.message, result.body.to_s.length, event.duration]
+
+      log_level_method = result.code.to_i < 400 ? :info : :error
+
+      send log_level_method, "#{event.payload[:method].to_s.upcase} #{event.payload[:request_uri]}"
+      send log_level_method, "--> %d %s %d (%.1fms)" % [result.code, result.message, result.body.to_s.length, event.duration]
     end
 
     def logger

@@ -13,6 +13,8 @@ class LogSubscriberTest < ActiveSupport::TestCase
     @matz = { :person => { :id => 1, :name => 'Matz' } }.to_json
     ActiveResource::HttpMock.respond_to do |mock|
       mock.get "/people/1.json", {}, @matz
+      mock.get "/people/2.json", {}, nil, 404
+      mock.get "/people/3.json", {}, nil, 502
     end
 
     ActiveResource::LogSubscriber.attach_to :active_resource
@@ -28,5 +30,23 @@ class LogSubscriberTest < ActiveSupport::TestCase
     assert_equal 2, @logger.logged(:info).size
     assert_equal "GET http://37s.sunrise.i:3000/people/1.json", @logger.logged(:info)[0]
     assert_match(/\-\-\> 200 200 33/, @logger.logged(:info)[1])
+  end
+
+  def test_failure_error_log
+    Person.find(2)
+  rescue
+    wait
+    assert_equal 2, @logger.logged(:error).size
+    assert_equal 'GET http://37s.sunrise.i:3000/people/2.json', @logger.logged(:error)[0]
+    assert_match(/\-\-\> 404 404 0/, @logger.logged(:error)[1])
+  end
+
+  def test_server_error_log
+    Person.find(3)
+  rescue
+    wait
+    assert_equal 2, @logger.logged(:error).size
+    assert_equal 'GET http://37s.sunrise.i:3000/people/3.json', @logger.logged(:error)[0]
+    assert_match(/\-\-\> 502 502 0/, @logger.logged(:error)[1])
   end
 end
