@@ -1579,20 +1579,17 @@ module ActiveResource
         resource_name = name.to_s.camelize
 
         const_args = [resource_name, false]
-        if self.class.const_defined?(*const_args)
-          self.class.const_get(*const_args)
-        else
-          ancestors = self.class.name.to_s.split("::")
-          if ancestors.size > 1
-            find_or_create_resource_in_modules(resource_name, ancestors)
-          else
-            if Object.const_defined?(*const_args)
-              Object.const_get(*const_args)
-            else
-              create_resource_for(resource_name)
-            end
-          end
+        return self.class.const_get(*const_args) if self.class.const_defined?(*const_args)
+
+        ancestors = self.class.name.to_s.split("::")
+        return find_or_create_resource_in_modules(resource_name, ancestors) if ancestors.size > 1
+
+        if Object.const_defined?(*const_args)
+          klass = Object.const_get(*const_args)
+          return klass if klass < ActiveResource::Base
         end
+
+        create_resource_for(resource_name)
       end
 
       # Create and return a class definition for a resource inside the current resource

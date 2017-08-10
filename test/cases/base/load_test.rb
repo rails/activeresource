@@ -44,6 +44,8 @@ class BaseLoadTest < ActiveSupport::TestCase
   end
 
   def setup
+    Person.__send__(:remove_const, :Address) if Person.const_defined?(:Address, false)
+    Object.__send__(:remove_const, :Address) if Object.const_defined?(:Address, false)
     @matz  = { :id => 1, :name => 'Matz' }
 
     @first_address = { :address => { :id => 1, :street => '12345 Street' } }
@@ -117,6 +119,7 @@ class BaseLoadTest < ActiveSupport::TestCase
   end
 
   def test_load_one_with_unknown_resource
+    assert !Person.const_defined?(:Address), "Address shouldn't exist until autocreated"
     address = silence_warnings { @person.load(@first_address).address }
     assert_kind_of Person::Address, address
     assert_equal @first_address.values.first.stringify_keys, address.attributes
@@ -128,6 +131,13 @@ class BaseLoadTest < ActiveSupport::TestCase
     assert_kind_of subclass::Address, address
   end
 
+  def test_load_one_with_invalid_existing_resource_class
+    assert !Person.const_defined?(:Address), "Address shouldn't exist until autocreated"
+    Object.const_set :Address, Class.new
+    address = silence_warnings { @person.load(@first_address).address }
+    assert_kind_of Person::Address, address
+  end
+
   def test_load_collection_with_existing_resource
     addresses = @person.load(@addresses_from_json).street_addresses
     assert_kind_of Array, addresses
@@ -136,7 +146,6 @@ class BaseLoadTest < ActiveSupport::TestCase
   end
 
   def test_load_collection_with_unknown_resource
-    Person.__send__(:remove_const, :Address) if Person.const_defined?(:Address)
     assert !Person.const_defined?(:Address), "Address shouldn't exist until autocreated"
     addresses = silence_warnings { @person.load(:addresses => @addresses).addresses }
     assert Person.const_defined?(:Address), "Address should have been autocreated"
@@ -152,7 +161,6 @@ class BaseLoadTest < ActiveSupport::TestCase
   end
 
   def test_load_collection_with_single_unknown_resource
-    Person.__send__(:remove_const, :Address) if Person.const_defined?(:Address)
     assert !Person.const_defined?(:Address), "Address shouldn't exist until autocreated"
     addresses = silence_warnings { @person.load(:addresses => [ @first_address ]).addresses }
     assert Person.const_defined?(:Address), "Address should have been autocreated"
