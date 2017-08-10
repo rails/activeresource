@@ -1,12 +1,22 @@
 require 'abstract_unit'
 
 class CollectionTest < ActiveSupport::TestCase
-  def setup
-    @collection = ActiveResource::Collection.new
-  end  
+  def test_resource_class_is_present_after_initialization_if_passed
+    collection = ActiveResource::Collection.new([], String, {})
+    assert_equal String, collection.resource_class
+  end
+
+  def test_original_params_are_present_after_initialization_if_passed
+    collection = ActiveResource::Collection.new([], String, { color: :green })
+    assert_equal({ color: :green }, collection.original_params)
+  end
 end
 
-class BasicCollectionTest < CollectionTest
+class BasicCollectionTest < ActiveSupport::TestCase
+  def setup
+    @collection = ActiveResource::Collection.new
+  end
+
   def test_collection_respond_to_collect!
     assert @collection.respond_to?(:collect!)
   end
@@ -52,7 +62,8 @@ end
 
 class PaginatedCollection < ActiveResource::Collection
   attr_accessor :next_page
-  def initialize(parsed = {})
+  def initialize(parsed = {}, resource_class = nil, original_params = {})
+    super
     @elements = parsed['results']
     @next_page = parsed['next_page']
   end
