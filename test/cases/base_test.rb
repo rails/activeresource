@@ -826,8 +826,8 @@ class BaseTest < ActiveSupport::TestCase
   def test_build_with_custom_header
     Person.headers['key'] = 'value'
     ActiveResource::HttpMock.respond_to do |mock|
-      mock.get "/people/new.json", {}, Person.new.to_json
-      mock.get "/people/new.json", { 'key' => 'value' }, Person.new.to_json, 404
+      mock.get "/people/new.json?", {}, Person.new.to_json
+      mock.get "/people/new.json?", { 'key' => 'value' }, Person.new.to_json, 404
     end
     assert_raise(ActiveResource::ResourceNotFound) { Person.build }
   ensure
@@ -843,14 +843,14 @@ class BaseTest < ActiveSupport::TestCase
 
   def test_build_with_attributes_for_prefix_call
     ActiveResource::HttpMock.respond_to do |mock|
-      mock.get "/people/1/addresses/new.json", {}, StreetAddress.new.to_json
+      mock.get "/people/1/addresses/new.json?address%5Bperson_id%5D=1", {}, StreetAddress.new.to_json
     end
     assert_nothing_raised { StreetAddress.build(person_id: 1) }
   end
 
   def test_build_with_non_prefix_attributes
     ActiveResource::HttpMock.respond_to do |mock|
-      mock.get "/people/1/addresses/new.json", {}, StreetAddress.new.to_json
+      mock.get "/people/1/addresses/new.json?address%5Bcity%5D=Toronto&address%5Bperson_id%5D=1", {}, StreetAddress.new(city: "Toronto").to_json
     end
     assert_nothing_raised do
       address = StreetAddress.build(person_id: 1, city: "Toronto")
@@ -1497,6 +1497,7 @@ class BaseTest < ActiveSupport::TestCase
     assert_equal "/customers.json",      Customer.collection_path
     assert_equal "/customers/1.json",    Customer.element_path(1)
     assert_equal "/customers/new.json",  Customer.new_element_path
+    assert_equal "/customers/new.json?customer%5Bname%5D=David",  Customer.new_element_path_and_query_string(name: "David")
   end
 
   def test_paths_without_format
@@ -1504,6 +1505,7 @@ class BaseTest < ActiveSupport::TestCase
     assert_equal "/customers",      Customer.collection_path
     assert_equal "/customers/1",    Customer.element_path(1)
     assert_equal "/customers/new",  Customer.new_element_path
+    assert_equal "/customers/new?customer%5Bname%5D=David",  Customer.new_element_path_and_query_string(name: "David")
 
   ensure
     ActiveResource::Base.include_format_in_path = true
