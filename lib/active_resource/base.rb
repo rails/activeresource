@@ -1587,10 +1587,16 @@ module ActiveResource
             find_or_create_resource_in_modules(resource_name, ancestors)
           else
             if Object.const_defined?(*const_args)
-              Object.const_get(*const_args)
-            else
-              create_resource_for(resource_name)
+              obj = Object.const_get(*const_args)
+              
+              # check if the object we found is one we created
+              if obj.ancestors.include? ActiveResource::Base
+                return obj
+              end
             end
+            
+            # fallthrough assumes no object found
+            create_resource_for(resource_name)
           end
         end
       end
