@@ -16,7 +16,7 @@ class SetterTrap < ActiveSupport::ProxyObject
   end
 
   def method_missing(method, *args, &proc)
-    @cache[method] ||= @obj.send($`) if method.to_s =~ /=$/
+    @cache[method] ||= @obj.send($`) if method.to_s =~ /=$/ and !@cache.has_key?(method)
     @obj.send method, *args, &proc
   end
 

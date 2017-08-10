@@ -766,34 +766,50 @@ class BaseTest < ActiveSupport::TestCase
     assert_equal Set.new, Person.__send__(:prefix_parameters)
   end
 
+  def test_site_path_parameters
+    SetterTrap.rollback_sets(Person) do |person_class|
+      person_class.site = "http://localhost/:the_param"
+      assert_equal Set.new([:the_param]), Person.__send__(:prefix_parameters)
+      assert_equal "/the_param_value/", person_class.prefix(:the_param => "the_param_value")
+    end
+  end
+
   def test_set_prefix
     SetterTrap.rollback_sets(Person) do |person_class|
-      person_class.prefix = "the_prefix"
-      assert_equal "the_prefix", person_class.prefix
+      person_class.prefix_source = "the_prefix"
+      assert_equal "/the_prefix/", person_class.prefix
+    end
+  end
+
+  def test_set_prefix_with_site_path
+    SetterTrap.rollback_sets(Person) do |person_class|
+      person_class.site = "http://localhost/xyz"
+      person_class.prefix_source = "the_prefix"
+      assert_equal "/xyz/the_prefix/", person_class.prefix
     end
   end
 
   def test_set_prefix_with_inline_keys
     SetterTrap.rollback_sets(Person) do |person_class|
-      person_class.prefix = "the_prefix:the_param"
-      assert_equal "the_prefixthe_param_value", person_class.prefix(:the_param => "the_param_value")
+      person_class.prefix_source = "the_prefix:the_param"
+      assert_equal "/the_prefixthe_param_value/", person_class.prefix(:the_param => "the_param_value")
     end
   end
 
   def test_set_prefix_twice_should_clear_params
     SetterTrap.rollback_sets(Person) do |person_class|
-      person_class.prefix = "the_prefix/:the_param1"
+      person_class.prefix_source = "the_prefix/:the_param1"
       assert_equal Set.new([:the_param1]), person_class.prefix_parameters
-      person_class.prefix = "the_prefix/:the_param2"
+      person_class.prefix_source = "the_prefix/:the_param2"
       assert_equal Set.new([:the_param2]), person_class.prefix_parameters
-      person_class.prefix = "the_prefix/:the_param1/other_prefix/:the_param2"
+      person_class.prefix_source = "the_prefix/:the_param1/other_prefix/:the_param2"
       assert_equal Set.new([:the_param2, :the_param1]), person_class.prefix_parameters
     end
   end
 
   def test_set_prefix_with_default_value
     SetterTrap.rollback_sets(Person) do |person_class|
-      person_class.set_prefix
+      person_class.prefix_source = ""
       assert_equal "/", person_class.prefix
     end
   end
