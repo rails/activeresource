@@ -146,6 +146,7 @@ def setup_response
     # products
     mock.get '/products/1.json', {}, @product
     mock.get '/products/1/inventory.json', {}, @inventory
+
   end
 
   Person.user = nil

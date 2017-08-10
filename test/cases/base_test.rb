@@ -11,6 +11,7 @@ require "fixtures/post"
 require "fixtures/comment"
 require "fixtures/product"
 require "fixtures/inventory"
+require "fixtures/device"
 require 'active_support/json'
 require 'active_support/core_ext/hash/conversions'
 require 'mocha/setup'
@@ -1486,6 +1487,29 @@ class BaseTest < ActiveSupport::TestCase
     plan.price = 10.00
     plan.save!
     assert_equal 10.00, plan.price
+  end
+
+  def test_update_ignoring_params
+    device_body = { :device => { :id => 1, :code => "XYZ1234", :name => 'My Phone' } }.to_json
+
+    ActiveResource::HttpMock.respond_to do |mock|
+      mock.get "/devices/1.json", {}, device_body
+      mock.put "/devices/1.json", {}, nil, 204
+    end
+
+    device = Device.find(1)
+    assert !device.new?
+    assert_equal 'XYZ1234', device.code
+    assert_equal 1, device.id
+
+    # update name
+    device.name = 'My Phone 1'
+    device.save!
+    assert_equal 'My Phone 1', device.name
+
+    device_request = { :device => { :name => 'My Phone 1' } }.to_json
+    expected_request = ActiveResource::Request.new(:put, "/devices/1.json", device_request, { "Content-Type" => "application/json" })
+    assert_includes ActiveResource::HttpMock.requests, expected_request
   end
 
   def test_namespacing
