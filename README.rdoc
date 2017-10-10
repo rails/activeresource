@@ -60,7 +60,7 @@ Active Resource supports the token based authentication provided by Rails throug
    class Person < ActiveResource::Base
      self.headers['Authorization'] = 'Token token="abcd"'
    end
-   
+
 You can also set any specific HTTP header using the same way.
 
 ==== Protocol
@@ -111,7 +111,7 @@ Collections can also be requested in a similar fashion
 
    # Expects a response of
    #
-   # [ 
+   # [
    #   {"id":1,"first":"Tyler","last":"Durden"},
    #   {"id":2,"first":"Tony","last":"Stark",}
    # ]
@@ -216,6 +216,19 @@ The server-side model can be adjusted as follows to include comments in the resp
       super.merge(:include=>[:comments])
     end
   end
+
+==== Logging
+
+Active Resource instruments the event `request.active_resource` when doing a request
+to the remote service. You can subscribe to it by doing:
+
+   ActiveSupport::Notifications.subscribe('request.active_resource')  do |name, start, finish, id, payload|
+
+The `payload` is a `Hash` with the following keys:
+
+* `method` as a `Symbol`
+* `request_uri` as a `String`
+* `result` as an `Net::HTTPResponse`
 
 == License
 
