@@ -245,9 +245,9 @@ See {CONTRIBUTING}[https://github.com/rails/activeresource/blob/master/CONTRIBUT
 
 == Support
 
-API documentation is at
+Full API documentation is available at
 
-* http://rubydoc.info/gems/activeresource/4.0.0/frames
+* http://rubydoc.info/gems/activeresource
 
 Bug reports and feature requests can be filed with the rest for the Ruby on Rails project here:
 
