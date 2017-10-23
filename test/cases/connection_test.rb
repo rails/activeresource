@@ -34,13 +34,15 @@ class ConnectionTest < ActiveSupport::TestCase
 
   def test_same_logger_as_base
     old_logger = ActiveResource::Base.logger
-    connection = new_connection
-    assert_equal connection.logger, old_logger
+    old_site = ActiveResource::Base.site
+    ActiveResource::Base.site = 'http://localhost'
+    assert_equal old_logger, ActiveResource::Base.connection.logger
 
     ActiveResource::Base.logger = Logger.new(STDOUT)
-    assert_equal new_connection.logger, ActiveResource::Base.logger
+    assert_equal ActiveResource::Base.logger, ActiveResource::Base.connection.logger
   ensure
     ActiveResource::Base.logger = old_logger
+    ActiveResource::Base.site = old_site
   end
 
   def test_handle_response

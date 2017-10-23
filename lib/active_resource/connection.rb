@@ -21,30 +21,22 @@ module ActiveResource
     }
 
     attr_reader :site, :user, :password, :auth_type, :timeout, :open_timeout, :read_timeout, :proxy, :ssl_options
-    attr_accessor :format
+    attr_accessor :format, :logger
 
     class << self
       def requests
         @@requests ||= []
       end
-
-      def logger
-        ActiveResource::Base.logger
-      end
     end
 
     # The +site+ parameter is required and will set the +site+
     # attribute to the URI for the remote resource service.
-    def initialize(site, format = ActiveResource::Formats::JsonFormat)
+    def initialize(site, format: ActiveResource::Formats::JsonFormat, logger: nil)
       raise ArgumentError, 'Missing site URI' unless site
       @proxy = @user = @password = nil
       self.site = site
       self.format = format
-    end
-
-    # defaults to ActiveResource::Base.logger
-    def logger
-      self.class.logger
+      self.logger = logger
     end
 
     # Set URI for remote service.
