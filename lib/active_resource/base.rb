@@ -642,7 +642,7 @@ module ActiveResource
       def connection(refresh = false)
         if _connection_defined? || superclass == Object
           self._connection = connection_class.new(
-            site, format: format, logger: logger
+            site, format, logger: logger
           ) if refresh || _connection.nil?
           _connection.proxy = proxy if proxy
           _connection.user = user if user
