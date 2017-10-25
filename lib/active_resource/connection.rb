@@ -31,7 +31,7 @@ module ActiveResource
 
     # The +site+ parameter is required and will set the +site+
     # attribute to the URI for the remote resource service.
-    def initialize(site, format=ActiveResource::Formats::JsonFormat, logger: nil)
+    def initialize(site, format = ActiveResource::Formats::JsonFormat, logger: nil)
       raise ArgumentError, 'Missing site URI' unless site
       @proxy = @user = @password = nil
       self.site = site
