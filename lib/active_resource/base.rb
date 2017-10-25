@@ -300,7 +300,12 @@ module ActiveResource
     ##
     # :singleton-method:
     # The logger for diagnosing and tracing Active Resource calls.
-    cattr_accessor :logger
+    cattr_reader :logger
+
+    def self.logger=(logger)
+      self._connection = nil
+      @@logger = logger
+    end
 
     class_attribute :_format
     class_attribute :_collection_parser
@@ -636,7 +641,9 @@ module ActiveResource
       # or not (defaults to <tt>false</tt>).
       def connection(refresh = false)
         if _connection_defined? || superclass == Object
-          self._connection = connection_class.new(site, format) if refresh || _connection.nil?
+          self._connection = connection_class.new(
+            site, format, logger: logger
+          ) if refresh || _connection.nil?
           _connection.proxy = proxy if proxy
           _connection.user = user if user
           _connection.password = password if password
