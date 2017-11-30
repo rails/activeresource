@@ -679,6 +679,12 @@ module ActiveResource
         @collection_name ||= ActiveSupport::Inflector.pluralize(element_name)
       end
 
+      attr_writer :find_method
+
+      def find_method
+        @find_method ||= ''
+      end
+
       attr_writer :primary_key
 
       def primary_key
@@ -766,11 +772,14 @@ module ActiveResource
       #   Comment.element_path(1, {:post_id => 5}, {:active => 1})
       #   # => /posts/5/comments/1.json?active=1
       #
-      def element_path(id, prefix_options = {}, query_options = nil)
+      #   Comment.element_path(1, {:post_id => 5}, {:active => 1}, '/detail')
+      #   # => /posts/5/comments/1/detail.json?active=1
+      #
+      def element_path(id, prefix_options = {}, query_options = nil, method_name = nil)
         check_prefix_options(prefix_options)
 
         prefix_options, query_options = split_options(prefix_options) if query_options.nil?
-        "#{prefix(prefix_options)}#{collection_name}/#{URI.parser.escape id.to_s}#{format_extension}#{query_string(query_options)}"
+        "#{prefix(prefix_options)}#{collection_name}/#{URI.parser.escape id.to_s}#{method_name}#{format_extension}#{query_string(query_options)}"
       end
 
       # Gets the new element path for REST resources.
@@ -1061,7 +1070,7 @@ module ActiveResource
         # Find a single resource from the default URL
         def find_single(scope, options)
           prefix_options, query_options = split_options(options[:params])
-          path = element_path(scope, prefix_options, query_options)
+          path = element_path(scope, prefix_options, query_options, find_method)
           instantiate_record(format.decode(connection.get(path, headers).body), prefix_options)
         end
 

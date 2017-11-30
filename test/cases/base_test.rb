@@ -11,6 +11,7 @@ require "fixtures/post"
 require "fixtures/comment"
 require "fixtures/product"
 require "fixtures/inventory"
+require "fixtures/item"
 require 'active_support/json'
 require 'active_support/core_ext/hash/conversions'
 require 'mocha/setup'
@@ -733,6 +734,10 @@ class BaseTest < ActiveSupport::TestCase
     assert_equal '/people/1/addresses/1.json?type=work', StreetAddress.element_path(1, {:person_id => 1}, {:type => 'work'})
   end
 
+  def test_custom_element_path_with_method_name
+    assert_equal '/items/1/detail.json', Item.element_path(1, {}, nil, '/detail')
+  end
+
   def test_custom_collection_path_without_required_prefix_param
     assert_raise ActiveResource::MissingPrefixParam do
       StreetAddress.collection_path
@@ -804,6 +809,16 @@ class BaseTest < ActiveSupport::TestCase
     assert_equal [:person_id].to_set, StreetAddress.__send__(:prefix_parameters)
   end
 
+  def test_find_method
+    assert_equal '/detail', Item.find_method
+  end
+
+  def test_set_find_method
+    SetterTrap.rollback_sets(Item) do |item_class|
+      item_class.find_method = '/show'
+      assert_equal '/show', item_class.find_method
+    end
+  end
 
   ########################################################################
   # Tests basic CRUD functions (find/save/create etc)
@@ -1507,5 +1522,9 @@ class BaseTest < ActiveSupport::TestCase
 
   ensure
     ActiveResource::Base.include_format_in_path = true
+  end
+
+  def test_custom_find_path
+    assert_equal "/items/1/detail.json", Item.element_path(1, {}, nil, "/detail")
   end
 end
