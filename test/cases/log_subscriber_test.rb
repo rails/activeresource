@@ -49,4 +49,13 @@ class LogSubscriberTest < ActiveSupport::TestCase
     assert_equal 'GET http://37s.sunrise.i:3000/people/3.json', @logger.logged(:error)[0]
     assert_match(/\-\-\> 502 502 0/, @logger.logged(:error)[1])
   end
+
+  def test_connection_failure
+    Person.find(99)
+  rescue
+    wait
+    assert_equal 2, @logger.logged(:error).size
+    assert_equal 'GET http://37s.sunrise.i:3000/people/99.json', @logger.logged(:error)[0]
+    assert_match(/\-\-\> 523 ActiveResource connection error 0/, @logger.logged(:error)[1])
+  end
 end
