@@ -208,7 +208,7 @@ class definition below:
   end
 
   post = Post.find(1)      # issues GET http://blog.io/posts/1.json
-  comments = post.comments # issues GET http://blog.io/posts/1/comments.json
+  comments = post.comments # issues GET http://blog.io/comments.json?post_id=1
 
 
 If you control the server, you may wish to include nested resources thus avoiding a
