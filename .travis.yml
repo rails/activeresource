@@ -3,20 +3,23 @@ sudo: false
 cache: bundler
 
 rvm:
-  - 2.4.1
-  - 2.3.4
-  - 2.2.7
-  - jruby-9.1.5.0
-
-gemfile:
-  - gemfiles/Gemfile-rails-5.0
-  - gemfiles/Gemfile-rails-5.1
-  - gemfiles/Gemfile-rails-master
-  - Gemfile
+  - 2.4.3
+  - 2.5.0
+  - ruby-head
+  - jruby-head
 
 matrix:
+  fast_finish: true
   allow_failures:
-    - gemfile: gemfiles/Gemfile-rails-master
+    - rvm: ruby-head
+    - rvm: jruby-head
+  include:
+    - rvm: 2.2.9
+      env: BRANCH=5-0-stable
+    - rvm: 2.2.9
+      env: BRANCH=5-1-stable
+    - rvm: 2.2.9
+      env: BRANCH=5-2-stable
 
 notifications:
   email: false

@@ -1,7 +1,10 @@
 source 'https://rubygems.org'
 
-gem 'activesupport'
-gem 'activemodel'
+git_source(:github) { |repo| "https://github.com/#{repo}" }
+
+branch = ENV.fetch('BRANCH', 'master')
+gem 'activesupport', github: 'rails/rails', branch: branch
+gem 'activemodel', github: 'rails/rails', branch: branch
 
 gemspec
 
