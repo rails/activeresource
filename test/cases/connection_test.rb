@@ -34,9 +34,11 @@ class ConnectionTest < ActiveSupport::TestCase
 
   def test_same_logger_as_base
     old_logger = ActiveResource::Base.logger
+    ActiveResource::Base.logger = original_logger = Object.new
     old_site = ActiveResource::Base.site
+
     ActiveResource::Base.site = 'http://localhost'
-    assert_equal old_logger, ActiveResource::Base.connection.logger
+    assert_equal original_logger, ActiveResource::Base.connection.logger
 
     ActiveResource::Base.logger = Logger.new(STDOUT)
     assert_equal ActiveResource::Base.logger, ActiveResource::Base.connection.logger
@@ -144,8 +146,8 @@ class ConnectionTest < ActiveSupport::TestCase
     user = "proxy_;{(,!$%_user"
     password = "proxy_;:{(,!$%_password"
 
-    encoded_user = URI.encode(user) # "proxy_;%7B(,!$%25_user"
-    encoded_password = URI.encode(password) # "proxy_;:%7B(,!$%25_password"
+    encoded_user = URI.encode_www_form_component(user) # "proxy_;%7B(,!$%25_user"
+    encoded_password = URI.encode_www_form_component(password) # "proxy_;:%7B(,!$%25_password"
 
     proxy = URI.parse("http://#{encoded_user}:#{encoded_password}@proxy.local:4242")
 

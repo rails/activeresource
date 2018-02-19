@@ -625,7 +625,7 @@ class BaseTest < ActiveSupport::TestCase
     fruit.headers['key'] = 'value'
 
     apple.headers['key2'] = 'value2'
-    assert_equal nil, fruit.headers['key2']
+    assert_nil fruit.headers['key2']
   end
 
   def test_header_should_be_copied_to_main_thread_if_not_defined

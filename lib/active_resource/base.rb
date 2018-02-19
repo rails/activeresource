@@ -800,7 +800,7 @@ module ActiveResource
       #   # => https://37s.sunrise.com/posts/5/comments/1.json?active=1
       #
       def element_url(id, prefix_options = {}, query_options = nil)
-        "#{site}#{element_path(id, prefix_options, query_options)}"
+        URI.join(site, element_path(id, prefix_options, query_options)).to_s
       end
 
       # Gets the new element path for REST resources.

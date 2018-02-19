@@ -226,10 +226,8 @@ class SchemaTest < ActiveSupport::TestCase
     bad_values = [ :oogle, :blob, 'thing']
 
     bad_values.each do |bad_value|
-      s = nil
       assert_raises(ArgumentError,"should only accept a known attribute type, but accepted: #{bad_value.inspect}") do
         Person.schema do
-          s = self
           attribute 'key', bad_value
         end
       end
