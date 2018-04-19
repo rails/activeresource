@@ -34,7 +34,7 @@ module ActiveResource
     # attribute to the URI for the remote resource service.
     def initialize(site, format = ActiveResource::Formats::JsonFormat, logger: nil)
       raise ArgumentError, 'Missing site URI' unless site
-      @proxy = @user = @password = nil
+      @proxy = @user = @password = @response_array_key = nil
       self.site = site
       self.format = format
       self.logger = logger
@@ -151,8 +151,12 @@ module ActiveResource
             raise(Redirection.new(response))
           when 200...400
             unless @response_array_key.blank?
-              new_response_body = ActiveSupport::JSON.decode(response.body)[@response_array_key]
-              response.body = ActiveSupport::JSON.encode(new_response_body)
+              begin
+                new_response_body = ActiveSupport::JSON.decode(response.body)[@response_array_key]
+                response.body = ActiveSupport::JSON.encode(new_response_body)
+              rescue Exception => e
+                @logger.error 'Failed to parse json' if @logger
+              end
             end
             response
           when 400
