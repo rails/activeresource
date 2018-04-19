@@ -20,7 +20,8 @@ module ActiveResource
       :head => 'Accept'
     }
 
-    attr_reader :site, :user, :password, :auth_type, :timeout, :open_timeout, :read_timeout, :proxy, :ssl_options
+    attr_reader :site, :user, :password, :auth_type, :timeout, :open_timeout,
+                :read_timeout, :proxy, :ssl_options, :response_array_key
     attr_accessor :format, :logger
 
     class << self
@@ -87,6 +88,11 @@ module ActiveResource
       @ssl_options = options
     end
 
+    # Sets the response array key
+    def response_array_key=(response_array_key)
+      @response_array_key = response_array_key
+    end
+
     # Executes a GET request.
     # Used to get (find) resources.
     def get(path, headers = {})
@@ -144,6 +150,10 @@ module ActiveResource
           when 301, 302, 303, 307
             raise(Redirection.new(response))
           when 200...400
+            unless @response_array_key.blank?
+              new_response_body = ActiveSupport::JSON.decode(response.body)[@response_array_key]
+              response.body = ActiveSupport::JSON.encode(new_response_body)
+            end
             response
           when 400
             raise(BadRequest.new(response))

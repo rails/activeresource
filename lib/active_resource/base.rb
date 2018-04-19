@@ -310,6 +310,7 @@ module ActiveResource
     class_attribute :_format
     class_attribute :_collection_parser
     class_attribute :include_format_in_path
+    class_attribute :response_array_key
     self.include_format_in_path = true
 
     class_attribute :connection_class
@@ -317,7 +318,8 @@ module ActiveResource
 
     class << self
       include ThreadsafeAttributes
-      threadsafe_attribute :_headers, :_connection, :_user, :_password, :_site, :_proxy
+      threadsafe_attribute :_headers, :_connection, :_user, :_password, :_site,
+                           :_proxy, :response_array_key
 
       # Creates a schema for this resource - setting the attributes that are
       # known prior to fetching an instance from the remote system.
@@ -651,6 +653,7 @@ module ActiveResource
           _connection.timeout = timeout if timeout
           _connection.open_timeout = open_timeout if open_timeout
           _connection.read_timeout = read_timeout if read_timeout
+          _connection.response_array_key = response_array_key if response_array_key
           _connection.ssl_options = ssl_options if ssl_options
           _connection
         else
