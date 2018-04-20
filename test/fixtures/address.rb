@@ -2,7 +2,7 @@
 class AddressXMLFormatter
   include ActiveResource::Formats::XmlFormat
 
-  def decode(xml)
+  def decode(xml, response_array_key = nil)
     data = ActiveResource::Formats::XmlFormat.decode(xml)
     # process address fields
     data.each do |address|
