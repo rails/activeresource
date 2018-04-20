@@ -150,14 +150,6 @@ module ActiveResource
           when 301, 302, 303, 307
             raise(Redirection.new(response))
           when 200...400
-            unless @response_array_key.blank?
-              begin
-                new_response_body = ActiveSupport::JSON.decode(response.body)[@response_array_key]
-                response.body = ActiveSupport::JSON.encode(new_response_body)
-              rescue Exception => e
-                @logger.error 'Failed to parse json' if @logger
-              end
-            end
             response
           when 400
             raise(BadRequest.new(response))
