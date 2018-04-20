@@ -319,7 +319,7 @@ module ActiveResource
     class << self
       include ThreadsafeAttributes
       threadsafe_attribute :_headers, :_connection, :_user, :_password, :_site,
-                           :_proxy, :response_array_key
+                           :_proxy
 
       # Creates a schema for this resource - setting the attributes that are
       # known prior to fetching an instance from the remote system.
