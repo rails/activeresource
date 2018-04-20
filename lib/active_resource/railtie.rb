@@ -6,8 +6,10 @@ module ActiveResource
     config.active_resource = ActiveSupport::OrderedOptions.new
 
     initializer "active_resource.set_configs" do |app|
-      app.config.active_resource.each do |k,v|
-        ActiveResource::Base.send "#{k}=", v
+      ActiveSupport.on_load(:active_resource) do
+        app.config.active_resource.each do |k,v|
+          send "#{k}=", v
+        end
       end
     end
 
