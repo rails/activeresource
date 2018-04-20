@@ -1067,11 +1067,11 @@ module ActiveResource
               instantiate_collection(get(from, options[:params]), options[:params])
             when String
               path = "#{from}#{query_string(options[:params])}"
-              instantiate_collection(format.decode(connection.get(path, headers).body) || [], options[:params])
+              instantiate_collection(format.decode(connection.get(path, headers).body, connection.response_array_key) || [], options[:params])
             else
               prefix_options, query_options = split_options(options[:params])
               path = collection_path(prefix_options, query_options)
-              instantiate_collection( (format.decode(connection.get(path, headers).body) || []), query_options, prefix_options )
+              instantiate_collection( (format.decode(connection.get(path, headers).body, connection.response_array_key) || []), query_options, prefix_options )
             end
           rescue ActiveResource::ResourceNotFound
             # Swallowing ResourceNotFound exceptions and return nil - as per
@@ -1087,7 +1087,7 @@ module ActiveResource
             instantiate_record(get(from, options[:params]))
           when String
             path = "#{from}#{query_string(options[:params])}"
-            instantiate_record(format.decode(connection.get(path, headers).body))
+            instantiate_record(format.decode(connection.get(path, headers).body, connection.response_array_key))
           end
         end
 
@@ -1095,7 +1095,7 @@ module ActiveResource
         def find_single(scope, options)
           prefix_options, query_options = split_options(options[:params])
           path = element_path(scope, prefix_options, query_options)
-          instantiate_record(format.decode(connection.get(path, headers).body), prefix_options)
+          instantiate_record(format.decode(connection.get(path, headers).body, connection.response_array_key), prefix_options)
         end
 
         def instantiate_collection(collection, original_params = {}, prefix_options = {})
@@ -1563,7 +1563,7 @@ module ActiveResource
         if (response_code_allows_body?(response.code) &&
             (response['Content-Length'].nil? || response['Content-Length'] != "0") &&
             !response.body.nil? && response.body.strip.size > 0)
-          load(self.class.format.decode(response.body), true, true)
+          load(self.class.format.decode(response.body, connection.response_array_key), true, true)
           @persisted = true
         end
       end
