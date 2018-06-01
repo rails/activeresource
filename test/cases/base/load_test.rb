@@ -1,5 +1,6 @@
 require 'abstract_unit'
 require "fixtures/person"
+require 'fixtures/post'
 require "fixtures/street_address"
 require 'active_support/core_ext/hash/conversions'
 
@@ -72,6 +73,20 @@ class BaseLoadTest < ActiveSupport::TestCase
         {Time.at(1009839600) => "Ruby in a Nutshell"},
         {Time.at(1199142000) => "The Ruby Programming Language"}
     ]}
+
+    @complex_books = {
+      books: {
+        "Complex.String&-Character*|=_+()!~": {
+          isbn: 1009839690,
+          author: 'Frank Smith'
+        },
+        "16Candles": {
+          isbn: 1199142400,
+          author: 'John Hughes'
+        }
+      }
+    }
+
     @person = Person.new
   end
 
@@ -81,6 +96,14 @@ class BaseLoadTest < ActiveSupport::TestCase
 
   def test_load_hash_with_dates_as_keys
     assert_nothing_raised{@person.load(@books_date)}
+  end
+
+  def test_load_hash_with_unacceptable_constant_characters_creates_unknown_resource
+    Person.__send__(:remove_const, :Books) if Person.const_defined?(:Books)
+    assert !Person.const_defined?(:Books), "books shouldn't exist until autocreated"
+    assert_nothing_raised{@person.load(@complex_books)}
+    assert Person::Books.const_defined?(:UnknownResource), "UnknownResource should have been autocreated"
+    @person.books.attributes.keys.each { |key| assert_kind_of Person::Books::UnknownResource, @person.books.attributes[key] }
   end
 
   def test_load_expects_hash

@@ -1135,8 +1135,8 @@ module ActiveResource
           prefix_options, query_options = {}, {}
 
           (options || {}).each do |key, value|
-            next if key.blank? || !key.respond_to?(:to_sym)
-            (prefix_parameters.include?(key.to_sym) ? prefix_options : query_options)[key.to_sym] = value
+            next if key.blank?
+            (prefix_parameters.include?(key.to_s.to_sym) ? prefix_options : query_options)[key.to_s.to_sym] = value
           end
 
           [ prefix_options, query_options ]
@@ -1620,19 +1620,25 @@ module ActiveResource
         resource_name = name.to_s.camelize
 
         const_args = [resource_name, false]
-        if self.class.const_defined?(*const_args)
-          self.class.const_get(*const_args)
-        else
-          ancestors = self.class.name.to_s.split("::")
-          if ancestors.size > 1
-            find_or_create_resource_in_modules(resource_name, ancestors)
+
+        begin
+          if self.class.const_defined?(*const_args)
+            self.class.const_get(*const_args)
           else
-            if Object.const_defined?(*const_args)
-              Object.const_get(*const_args)
+            ancestors = self.class.name.to_s.split("::")
+            if ancestors.size > 1
+              find_or_create_resource_in_modules(resource_name, ancestors)
             else
-              create_resource_for(resource_name)
+              if Object.const_defined?(*const_args)
+                Object.const_get(*const_args)
+              else
+                create_resource_for(resource_name)
+              end
             end
           end
+        rescue NameError
+          # resource_name was not a valid ruby module name and cannot be created normally
+          find_or_create_resource_for(:UnknownResource)
         end
       end
 
