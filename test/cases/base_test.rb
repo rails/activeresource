@@ -1382,11 +1382,11 @@ class BaseTest < ActiveSupport::TestCase
     luis = Customer.find(1)
     assert_kind_of Customer, luis
     luis.friends.each do |friend|
-      assert_kind_of Customer::Friend, friend
+      assert_kind_of Customer::UnnamedResource, friend
       friend.brothers.each do |brother|
-        assert_kind_of Customer::Friend::Brother, brother
+        assert_kind_of Customer::UnnamedResource::UnnamedResource, brother
         brother.children.each do |child|
-          assert_kind_of Customer::Friend::Brother::Child, child
+          assert_kind_of Customer::UnnamedResource::UnnamedResource::UnnamedResource, child
         end
       end
     end
@@ -1494,7 +1494,7 @@ class BaseTest < ActiveSupport::TestCase
 
   def test_namespacing
     sound = Asset::Sound.find(1)
-    assert_equal "Asset::Sound::Author", sound.author.class.to_s
+    assert_equal "Asset::Sound::UnnamedResource", sound.author.class.to_s
   end
 
   def test_paths_with_format

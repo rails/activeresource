@@ -118,14 +118,14 @@ class BaseLoadTest < ActiveSupport::TestCase
 
   def test_load_one_with_unknown_resource
     address = silence_warnings { @person.load(@first_address).address }
-    assert_kind_of Person::Address, address
+    assert_kind_of Person::UnnamedResource, address
     assert_equal @first_address.values.first.stringify_keys, address.attributes
   end
 
   def test_load_one_with_unknown_resource_from_anonymous_subclass
     subclass = Class.new(Person).tap { |c| c.element_name = 'person' }
     address = silence_warnings { subclass.new.load(@first_address).address }
-    assert_kind_of subclass::Address, address
+    assert_kind_of subclass::UnnamedResource, address
   end
 
   def test_load_collection_with_existing_resource
@@ -137,11 +137,11 @@ class BaseLoadTest < ActiveSupport::TestCase
 
   def test_load_collection_with_unknown_resource
     Person.__send__(:remove_const, :Address) if Person.const_defined?(:Address)
-    assert !Person.const_defined?(:Address), "Address shouldn't exist until autocreated"
+    assert !Person.const_defined?(:Address), "Address shouldn't exist"
     addresses = silence_warnings { @person.load(:addresses => @addresses).addresses }
-    assert Person.const_defined?(:Address), "Address should have been autocreated"
-    addresses.each { |address| assert_kind_of Person::Address, address }
-    assert_equal @addresses.map { |a| a[:address].stringify_keys }, addresses.map(&:attributes)
+    assert Person.const_defined?(:UnnamedResource), "UnnamedResource should have been autocreated"
+    addresses.each { |address| assert_kind_of Person::UnnamedResource, address }
+    assert_equal @addresses.map { |a| a[:address].stringify_keys }, addresses.map {|el| el.address.attributes }
   end
 
   def test_load_collection_with_single_existing_resource
@@ -153,11 +153,11 @@ class BaseLoadTest < ActiveSupport::TestCase
 
   def test_load_collection_with_single_unknown_resource
     Person.__send__(:remove_const, :Address) if Person.const_defined?(:Address)
-    assert !Person.const_defined?(:Address), "Address shouldn't exist until autocreated"
+    assert !Person.const_defined?(:Address), "Address shouldn't exist."
     addresses = silence_warnings { @person.load(:addresses => [ @first_address ]).addresses }
-    assert Person.const_defined?(:Address), "Address should have been autocreated"
-    addresses.each { |address| assert_kind_of Person::Address, address }
-    assert_equal [ @first_address.values.first ].map(&:stringify_keys), addresses.map(&:attributes)
+    assert Person.const_defined?(:UnnamedResource), "UnnamedResource should have been autocreated"
+    addresses.each { |address| assert_kind_of Person::UnnamedResource, address }
+    assert_equal [ @first_address.values.first ].map(&:stringify_keys), addresses.map {|el| el.address.attributes }
   end
 
   def test_recursively_loaded_collections
@@ -165,16 +165,16 @@ class BaseLoadTest < ActiveSupport::TestCase
     assert_equal @deep[:id], person.id
 
     street = person.street
-    assert_kind_of Person::Street, street
+    assert_kind_of Person::UnnamedResource, street
     assert_equal @deep[:street][:id], street.id
 
     state = street.state
-    assert_kind_of Person::Street::State, state
+    assert_kind_of Person::UnnamedResource::UnnamedResource, state
     assert_equal @deep[:street][:state][:id], state.id
 
     rivers = state.notable_rivers
     assert_kind_of Array, rivers
-    assert_kind_of Person::Street::State::NotableRiver, rivers.first
+    assert_kind_of Person::UnnamedResource::UnnamedResource::UnnamedResource, rivers.first
     assert_equal @deep[:street][:state][:notable_rivers].first[:id], rivers.first.id
     assert_equal @matz[:id], rivers.last.rafted_by.id
 
@@ -216,4 +216,12 @@ class BaseLoadTest < ActiveSupport::TestCase
     n = Highrise::Deeply::Nested::TestDifferentLevels::Note.new(:comments => [{ :name => "1" }])
     assert_kind_of Highrise::Deeply::Nested::Comment, n.comments.first
   end
+
+  def test_load_collection_with_unknown_resource_unconstantizable_characters
+    @addresses.first[:address]['2nd_Addr.'] = "45th Street"
+    addresses = silence_warnings { @person.load(:addresses => @addresses).addresses }
+    addresses.each { |address| assert_kind_of Person::UnnamedResource, address }
+    assert_equal @addresses.map { |a| a[:address].stringify_keys }, addresses.map {|el| el.address.attributes }
+  end
+
 end
