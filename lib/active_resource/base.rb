@@ -1621,24 +1621,22 @@ module ActiveResource
 
         const_args = [resource_name, false]
 
-        if const_valid?(*const_args)
-          if self.class.const_defined?(*const_args)
-            self.class.const_get(*const_args)
+        if !const_valid?(*const_args)
+          # resource_name is not a valid ruby module name and cannot be created normally
+           find_or_create_resource_for(:UnnamedResource)
+        elsif self.class.const_defined?(*const_args)
+          self.class.const_get(*const_args)
+        else
+          ancestors = self.class.name.to_s.split("::")
+          if ancestors.size > 1
+            find_or_create_resource_in_modules(resource_name, ancestors)
           else
-            ancestors = self.class.name.to_s.split("::")
-            if ancestors.size > 1
-              find_or_create_resource_in_modules(resource_name, ancestors)
+            if Object.const_defined?(*const_args)
+              Object.const_get(*const_args)
             else
-              if Object.const_defined?(*const_args)
-                Object.const_get(*const_args)
-              else
-                create_resource_for(resource_name)
-              end
+              create_resource_for(resource_name)
             end
           end
-        else
-          # resource_name was not a valid ruby module name and cannot be created normally
-          find_or_create_resource_for(:UnnamedResource)
         end
       end
 
