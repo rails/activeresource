@@ -1,6 +1,5 @@
 require 'abstract_unit'
 require "fixtures/person"
-require 'fixtures/post'
 require "fixtures/street_address"
 require 'active_support/core_ext/hash/conversions'
 
@@ -90,17 +89,23 @@ class BaseLoadTest < ActiveSupport::TestCase
     @person = Person.new
   end
 
-  def test_load_hash_with_integers_as_keys
-    assert_nothing_raised{@person.load(@books)}
+  def test_load_hash_with_integers_as_keys_creates_stringified_attributes
+    Person.__send__(:remove_const, :Book) if Person.const_defined?(:Book)
+    assert !Person.const_defined?(:Book), "Books shouldn't exist until autocreated"
+    assert_nothing_raised{ @person.load(@books) }
+    assert_equal @books[:books].map{ |book| book.stringify_keys }, @person.books.map(&:attributes)
   end
 
-  def test_load_hash_with_dates_as_keys
+  def test_load_hash_with_dates_as_keys_creates_stringified_attributes
+    Person.__send__(:remove_const, :Book) if Person.const_defined?(:Book)
+    assert !Person.const_defined?(:Book), "Books shouldn't exist until autocreated"
     assert_nothing_raised{@person.load(@books_date)}
+    assert_equal @books_date[:books].map{ |book| book.stringify_keys }, @person.books.map(&:attributes)
   end
 
   def test_load_hash_with_unacceptable_constant_characters_creates_unknown_resource
     Person.__send__(:remove_const, :Books) if Person.const_defined?(:Books)
-    assert !Person.const_defined?(:Books), "books shouldn't exist until autocreated"
+    assert !Person.const_defined?(:Books), "Books shouldn't exist until autocreated"
     assert_nothing_raised{@person.load(@complex_books)}
     assert Person::Books.const_defined?(:UnknownResource), "UnknownResource should have been autocreated"
     @person.books.attributes.keys.each { |key| assert_kind_of Person::Books::UnknownResource, @person.books.attributes[key] }
