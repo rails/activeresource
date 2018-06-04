@@ -1621,7 +1621,7 @@ module ActiveResource
 
         const_args = [resource_name, false]
 
-        begin
+        if const_valid?(*const_args)
           if self.class.const_defined?(*const_args)
             self.class.const_get(*const_args)
           else
@@ -1636,10 +1636,17 @@ module ActiveResource
               end
             end
           end
-        rescue NameError
+        else
           # resource_name was not a valid ruby module name and cannot be created normally
           find_or_create_resource_for(:UnknownResource)
         end
+      end
+
+      def const_valid?(*const_args)
+        self.class.const_defined?(*const_args)
+        true
+      rescue NameError
+        false
       end
 
       # Create and return a class definition for a resource inside the current resource
