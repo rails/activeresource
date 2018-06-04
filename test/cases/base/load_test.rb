@@ -107,8 +107,8 @@ class BaseLoadTest < ActiveSupport::TestCase
     Person.__send__(:remove_const, :Books) if Person.const_defined?(:Books)
     assert !Person.const_defined?(:Books), "Books shouldn't exist until autocreated"
     assert_nothing_raised{@person.load(@complex_books)}
-    assert Person::Books.const_defined?(:UnknownResource), "UnknownResource should have been autocreated"
-    @person.books.attributes.keys.each { |key| assert_kind_of Person::Books::UnknownResource, @person.books.attributes[key] }
+    assert Person::Books.const_defined?(:UnnamedResource), "UnnamedResource should have been autocreated"
+    @person.books.attributes.keys.each { |key| assert_kind_of Person::Books::UnnamedResource, @person.books.attributes[key] }
   end
 
   def test_load_expects_hash

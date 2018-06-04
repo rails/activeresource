@@ -1638,7 +1638,7 @@ module ActiveResource
           end
         else
           # resource_name was not a valid ruby module name and cannot be created normally
-          find_or_create_resource_for(:UnknownResource)
+          find_or_create_resource_for(:UnnamedResource)
         end
       end
 
