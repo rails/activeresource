@@ -1135,8 +1135,8 @@ module ActiveResource
           prefix_options, query_options = {}, {}
 
           (options || {}).each do |key, value|
-            next if key.blank? || !key.respond_to?(:to_sym)
-            (prefix_parameters.include?(key.to_sym) ? prefix_options : query_options)[key.to_sym] = value
+            next if key.blank?
+            (prefix_parameters.include?(key.to_s.to_sym) ? prefix_options : query_options)[key.to_s.to_sym] = value
           end
 
           [ prefix_options, query_options ]
@@ -1620,7 +1620,11 @@ module ActiveResource
         resource_name = name.to_s.camelize
 
         const_args = [resource_name, false]
-        if self.class.const_defined?(*const_args)
+
+        if !const_valid?(*const_args)
+          # resource_name is not a valid ruby module name and cannot be created normally
+           find_or_create_resource_for(:UnnamedResource)
+        elsif self.class.const_defined?(*const_args)
           self.class.const_get(*const_args)
         else
           ancestors = self.class.name.to_s.split("::")
@@ -1634,6 +1638,13 @@ module ActiveResource
             end
           end
         end
+      end
+
+      def const_valid?(*const_args)
+        self.class.const_defined?(*const_args)
+        true
+      rescue NameError
+        false
       end
 
       # Create and return a class definition for a resource inside the current resource

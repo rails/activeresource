@@ -72,15 +72,43 @@ class BaseLoadTest < ActiveSupport::TestCase
         {Time.at(1009839600) => "Ruby in a Nutshell"},
         {Time.at(1199142000) => "The Ruby Programming Language"}
     ]}
+
+    @complex_books = {
+      books: {
+        "Complex.String&-Character*|=_+()!~": {
+          isbn: 1009839690,
+          author: 'Frank Smith'
+        },
+        "16Candles": {
+          isbn: 1199142400,
+          author: 'John Hughes'
+        }
+      }
+    }
+
     @person = Person.new
   end
 
-  def test_load_hash_with_integers_as_keys
-    assert_nothing_raised{@person.load(@books)}
+  def test_load_hash_with_integers_as_keys_creates_stringified_attributes
+    Person.__send__(:remove_const, :Book) if Person.const_defined?(:Book)
+    assert !Person.const_defined?(:Book), "Books shouldn't exist until autocreated"
+    assert_nothing_raised{ @person.load(@books) }
+    assert_equal @books[:books].map{ |book| book.stringify_keys }, @person.books.map(&:attributes)
   end
 
-  def test_load_hash_with_dates_as_keys
+  def test_load_hash_with_dates_as_keys_creates_stringified_attributes
+    Person.__send__(:remove_const, :Book) if Person.const_defined?(:Book)
+    assert !Person.const_defined?(:Book), "Books shouldn't exist until autocreated"
     assert_nothing_raised{@person.load(@books_date)}
+    assert_equal @books_date[:books].map{ |book| book.stringify_keys }, @person.books.map(&:attributes)
+  end
+
+  def test_load_hash_with_unacceptable_constant_characters_creates_unknown_resource
+    Person.__send__(:remove_const, :Books) if Person.const_defined?(:Books)
+    assert !Person.const_defined?(:Books), "Books shouldn't exist until autocreated"
+    assert_nothing_raised{@person.load(@complex_books)}
+    assert Person::Books.const_defined?(:UnnamedResource), "UnnamedResource should have been autocreated"
+    @person.books.attributes.keys.each { |key| assert_kind_of Person::Books::UnnamedResource, @person.books.attributes[key] }
   end
 
   def test_load_expects_hash
