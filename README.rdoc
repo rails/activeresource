@@ -41,6 +41,10 @@ that inherits from ActiveResource::Base and providing a <tt>site</tt> class vari
 
    class Person < ActiveResource::Base
      self.site = "http://api.people.com:3000"
+     self.include_format_in_path = false # If your API doesn't support the format in the URL
+     # If your json has main key which has the items list, for example :
+     # { 'status': 200, 'data': [ {item1}, {item2}, {item2} ] }
+     self.response_array_key = 'data'
    end
 
 Now the Person class is REST enabled and can invoke REST services very similarly to how Active Record invokes

@@ -20,7 +20,8 @@ module ActiveResource
       :head => 'Accept'
     }
 
-    attr_reader :site, :user, :password, :auth_type, :timeout, :open_timeout, :read_timeout, :proxy, :ssl_options
+    attr_reader :site, :user, :password, :auth_type, :timeout, :open_timeout,
+                :read_timeout, :proxy, :ssl_options, :response_array_key
     attr_accessor :format, :logger
 
     class << self
@@ -33,7 +34,7 @@ module ActiveResource
     # attribute to the URI for the remote resource service.
     def initialize(site, format = ActiveResource::Formats::JsonFormat, logger: nil)
       raise ArgumentError, 'Missing site URI' unless site
-      @proxy = @user = @password = nil
+      @proxy = @user = @password = @response_array_key = nil
       self.site = site
       self.format = format
       self.logger = logger
@@ -85,6 +86,11 @@ module ActiveResource
     # Hash of options applied to Net::HTTP instance when +site+ protocol is 'https'.
     def ssl_options=(options)
       @ssl_options = options
+    end
+
+    # Sets the response array key
+    def response_array_key=(response_array_key)
+      @response_array_key = response_array_key
     end
 
     # Executes a GET request.

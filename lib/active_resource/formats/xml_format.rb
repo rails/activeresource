@@ -17,7 +17,7 @@ module ActiveResource
         hash.to_xml(options)
       end
 
-      def decode(xml)
+      def decode(xml, response_array_key = nil)
         Formats.remove_root(Hash.from_xml(xml))
       end
     end
