@@ -592,6 +592,32 @@ class BaseTest < ActiveSupport::TestCase
     assert_not_equal(first_connection, second_connection, 'Connection should be re-created')
   end
 
+  def test_header_should_be_overwritten_if_changed_in_base_class_within_module
+    code = <<-CODE
+      module TestModule
+        # Base class for ActiveResources
+        class Base < ActiveResource::Base
+          self.site = 'http://market'
+        end
+      end
+
+      module TestModule
+        class Fruit < Base
+        end
+      end
+    CODE
+
+    eval code
+
+    TestModule::Base.headers['Authorization'] = 'value1'
+    fruit = TestModule::Fruit
+    assert_equal 'value1', fruit.headers['Authorization']
+
+    TestModule::Base.headers['Authorization'] = 'value2'
+    fruit = TestModule::Fruit
+    assert_equal 'value2', fruit.headers['Authorization']
+  end
+
   def test_header_inheritance
     fruit = Class.new(ActiveResource::Base)
     apple = Class.new(fruit)
