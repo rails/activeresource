@@ -9,6 +9,8 @@ class AuthorizationTest < ActiveSupport::TestCase
     @david = { :person => { :id => 2, :name => 'David' } }.to_json
     @authenticated_conn = ActiveResource::Connection.new("http://david:test123@localhost")
     @basic_authorization_request_header = { 'Authorization' => 'Basic ZGF2aWQ6dGVzdDEyMw==' }
+    @jwt = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c'
+    @bearer_token_authorization_request_header = { 'Authorization' => "Bearer #{@jwt}" }
   end
 
   private
@@ -25,6 +27,7 @@ class BasicAuthorizationTest < AuthorizationTest
     ActiveResource::HttpMock.respond_to do |mock|
       mock.get    "/people/2.json",           @basic_authorization_request_header, @david
       mock.get    "/people/1.json",           @basic_authorization_request_header, nil, 401, { 'WWW-Authenticate' => 'i_should_be_ignored' }
+      mock.get    "/people/3.json",           @bearer_token_authorization_request_header, @david
       mock.put    "/people/2.json",           @basic_authorization_request_header, nil, 204
       mock.delete "/people/2.json",           @basic_authorization_request_header, nil, 200
       mock.post   "/people/2/addresses.json", @basic_authorization_request_header, nil, 201, 'Location' => '/people/1/addresses/5'
@@ -146,6 +149,25 @@ class BasicAuthorizationTest < AuthorizationTest
 
     assert_equal "Basic", authorization[0]
     assert_equal ["david", "test123"], ::Base64.decode64(authorization[1]).split(":")[0..1]
+  end
+
+  def test_authorization_header_explicitly_setting_jwt_and_auth_type_is_bearer
+    @conn = ActiveResource::Connection.new("http://localhost")
+    @conn.auth_type = :bearer
+    @conn.bearer_token = @jwt
+    authorization_header = @conn.__send__(:authorization_header, :get, URI.parse('/people/3.json'))
+    assert_equal @bearer_token_authorization_request_header['Authorization'], authorization_header['Authorization']
+    authorization = authorization_header["Authorization"].to_s.split
+
+    assert_equal "Bearer", authorization[0]
+    assert_equal @jwt, authorization[1]
+  end
+
+  def test_authorization_header_if_no_jwt_and_auth_type_is_bearer
+    @conn = ActiveResource::Connection.new("http://localhost")
+    @conn.auth_type = :bearer
+    authorization_header = @conn.__send__(:authorization_header, :get, URI.parse('/people/3.json'))
+    assert_nil authorization_header['Authorization']
   end
 
   def test_client_nonce_is_not_nil

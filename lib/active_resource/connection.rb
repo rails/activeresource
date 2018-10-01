@@ -20,7 +20,7 @@ module ActiveResource
       :head => 'Accept'
     }
 
-    attr_reader :site, :user, :password, :auth_type, :timeout, :open_timeout, :read_timeout, :proxy, :ssl_options
+    attr_reader :site, :user, :password, :bearer_token, :auth_type, :timeout, :open_timeout, :read_timeout, :proxy, :ssl_options
     attr_accessor :format, :logger
 
     class << self
@@ -33,7 +33,7 @@ module ActiveResource
     # attribute to the URI for the remote resource service.
     def initialize(site, format = ActiveResource::Formats::JsonFormat, logger: nil)
       raise ArgumentError, 'Missing site URI' unless site
-      @proxy = @user = @password = nil
+      @proxy = @user = @password = @bearer_token = nil
       self.site = site
       self.format = format
       self.logger = logger
@@ -60,6 +60,11 @@ module ActiveResource
     # Sets the password for remote service.
     def password=(password)
       @password = password
+    end
+
+    # Sets the bearer token for remote service.
+    def bearer_token=(bearer_token)
+      @bearer_token = bearer_token
     end
 
     # Sets the auth type for remote service.
@@ -240,6 +245,8 @@ module ActiveResource
           else
             { 'Authorization' => 'Basic ' + ["#{@user}:#{@password}"].pack('m').delete("\r\n") }
           end
+        elsif @bearer_token
+          { 'Authorization' => "Bearer #{@bearer_token}" }
         else
           {}
         end
@@ -294,7 +301,7 @@ module ActiveResource
       def legitimize_auth_type(auth_type)
         return :basic if auth_type.nil?
         auth_type = auth_type.to_sym
-        auth_type.in?([:basic, :digest]) ? auth_type : :basic
+        auth_type.in?([:basic, :digest, :bearer]) ? auth_type : :basic
       end
   end
 end
