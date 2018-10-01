@@ -70,7 +70,7 @@ You can also set any specific HTTP header using the same way.  As mentioned abov
 
     ActiveResource::Base.headers['Authorization'] = current_session_api_token
     
-Global Authentication to be used across all subclasses of `ActiveResource::Base` should be handled using the `ActiveResource::Connection` class.
+Global Authentication to be used across all subclasses of ActiveResource::Base should be handled using the ActiveResource::Connection class.
 
     ActiveResource::Base.connection.auth_type = :bearer
     ActiveResource::Base.connection.bearer_token = @bearer_token
