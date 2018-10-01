@@ -80,6 +80,18 @@ Global Authentication to be used across all subclasses of ActiveResource::Base s
       self.connection.bearer_token = @bearer_token
     end
 
+ActiveResource supports 2 options for HTTP authentication today.
+
+1. Basic
+
+    ActiveResource::Connection.new("http://my%40email.com:%31%32%33@localhost")
+    # username: my@email.com password: 123
+
+2. Bearer Token
+
+    ActiveResource::Base.connection.auth_type = :bearer
+    ActiveResource::Base.connection.bearer_token = @bearer_token
+
 ==== Protocol
 
 Active Resource is built on a standard JSON or XML format for requesting and submitting resources over HTTP.  It mirrors the RESTful routing
