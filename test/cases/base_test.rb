@@ -1434,12 +1434,6 @@ class BaseTest < ActiveSupport::TestCase
   end
 
   def test_parse_non_singleton_resource_with_has_one_makes_get_request_on_child_route
-    accepts = { 'Accept' => 'application/json' }
-    ActiveResource::HttpMock.respond_to do |mock|
-      mock.get '/posts/1.json', accepts, @post
-      mock.get '/posts/1/author.json', accepts, @matz
-    end
-
     Post.send(:has_one, :author, class_name: 'Person')
     post = Post.find(1)
     assert post.author.name == ActiveSupport::JSON.decode(@matz)['person']['name']

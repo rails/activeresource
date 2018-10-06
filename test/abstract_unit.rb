@@ -140,9 +140,10 @@ def setup_response
     # sound
     mock.get    "/sounds/1.json",                {}, @startup_sound
     # post
-    mock.get    "/posts.json",                   {}, @posts
-    mock.get    "/posts/1.json",                 {}, @post
-    mock.get    "/posts/1/comments.json",        {}, @comments
+    mock.get    "/api/v3/posts.json",            {}, @posts
+    mock.get    "/api/v3/posts/1.json",          {}, @post
+    mock.get    "/api/v3/posts/1/comments.json", {}, @comments
+    mock.get    "/api/v3/posts/1/author.json",   {}, @matz
     # products
     mock.get '/products/1.json', {}, @product
     mock.get '/products/1/inventory.json', {}, @inventory
