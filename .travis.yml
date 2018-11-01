@@ -3,8 +3,9 @@ sudo: false
 cache: bundler
 
 rvm:
-  - 2.4.3
-  - 2.5.0
+  - 2.3.8
+  - 2.4.5
+  - 2.5.3
   - ruby-head
   - jruby-head
 
@@ -14,17 +15,30 @@ matrix:
     - rvm: ruby-head
     - rvm: jruby-head
   include:
-    - rvm: 2.2.9
+    - rvm: 2.2.10
       env: BRANCH=5-0-stable
-    - rvm: 2.2.9
+    - rvm: 2.2.10
       env: BRANCH=5-1-stable
-    - rvm: 2.2.9
+    - rvm: 2.2.10
+      env: BRANCH=5-2-stable
+    - rvm: 2.3.8
+      env: BRANCH=5-0-stable
+    - rvm: 2.2.8
+      env: BRANCH=5-1-stable
+    - rvm: 2.3.8
+      env: BRANCH=5-2-stable
+    - rvm: 2.4.5
+      env: BRANCH=5-0-stable
+    - rvm: 2.4.5
+      env: BRANCH=5-1-stable
+    - rvm: 2.4.5
+      env: BRANCH=5-2-stable
+    - rvm: 2.5.3
+      env: BRANCH=5-0-stable
+    - rvm: 2.5.3
+      env: BRANCH=5-1-stable
+    - rvm: 2.5.3
       env: BRANCH=5-2-stable
 
 notifications:
   email: false
-  campfire:
-    on_success: change
-    on_failure: always
-    rooms:
-      - secure: "CGWvthGkBKNnTnk9YSmf9AXKoiRI33fCl5D3jU4nx3cOPu6kv2R9nMjt9EAo\nOuS4Q85qNSf4VNQ2cUPNiNYSWQ+XiTfivKvDUw/QW9r1FejYyeWarMsSBWA+\n0fADjF1M2dkDIVLgYPfwoXEv7l+j654F1KLKB69F0F/netwP9CQ="
