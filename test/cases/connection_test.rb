@@ -1,21 +1,23 @@
-require 'abstract_unit'
+# frozen_string_literal: true
+
+require "abstract_unit"
 
 class ConnectionTest < ActiveSupport::TestCase
   ResponseCodeStub = Struct.new(:code)
   RedirectResponseStub = Struct.new(:code, :Location)
 
   def setup
-    @conn = ActiveResource::Connection.new('http://localhost')
-    matz  = { :person => { :id => 1, :name => 'Matz' } }
-    david = { :person => { :id => 2, :name => 'David' } }
-    @people = { :people => [ matz, david ] }.to_json
-    @people_single = { 'people-single-elements' => [ matz ] }.to_json
-    @people_empty = { 'people-empty-elements' => [ ] }.to_json
+    @conn = ActiveResource::Connection.new("http://localhost")
+    matz  = { person: { id: 1, name: "Matz" } }
+    david = { person: { id: 2, name: "David" } }
+    @people = { people: [ matz, david ] }.to_json
+    @people_single = { "people-single-elements" => [ matz ] }.to_json
+    @people_empty = { "people-empty-elements" => [ ] }.to_json
     @matz  = matz.to_json
     @david = david.to_json
-    @header = { 'key' => 'value' }.freeze
+    @header = { "key" => "value" }.freeze
 
-    @default_request_headers = { 'Content-Type' => 'application/json' }
+    @default_request_headers = { "Content-Type" => "application/json" }
     ActiveResource::HttpMock.respond_to do |mock|
       mock.get    "/people/2.json", @header, @david
       mock.get    "/people.json", {}, @people
@@ -26,8 +28,8 @@ class ConnectionTest < ActiveSupport::TestCase
       mock.put    "/people/2.json", {}, @header, 204
       mock.delete "/people/1.json", {}, nil, 200
       mock.delete "/people/2.json", @header, nil, 200
-      mock.post   "/people.json",   {}, nil, 201, 'Location' => '/people/5.json'
-      mock.post   "/members.json",  {}, @header, 201, 'Location' => '/people/6.json'
+      mock.post   "/people.json",   {}, nil, 201, "Location" => "/people/5.json"
+      mock.post   "/members.json",  {}, @header, 201, "Location" => "/people/6.json"
       mock.head   "/people/1.json", {}, nil, 200
     end
   end
@@ -37,7 +39,7 @@ class ConnectionTest < ActiveSupport::TestCase
     ActiveResource::Base.logger = original_logger = Object.new
     old_site = ActiveResource::Base.site
 
-    ActiveResource::Base.site = 'http://localhost'
+    ActiveResource::Base.site = "http://localhost"
     assert_equal original_logger, ActiveResource::Base.connection.logger
 
     ActiveResource::Base.logger = Logger.new(STDOUT)
@@ -106,7 +108,7 @@ class ConnectionTest < ActiveSupport::TestCase
     end
   end
 
-  ResponseHeaderStub = Struct.new(:code, :message, 'Allow')
+  ResponseHeaderStub = Struct.new(:code, :message, "Allow")
   def test_should_return_allowed_methods_for_method_no_allowed_exception
     begin
       handle_response ResponseHeaderStub.new(405, "HTTP Failed...", "GET, POST")
@@ -228,14 +230,14 @@ class ConnectionTest < ActiveSupport::TestCase
   end
 
   def test_timeout
-    @http = mock('new Net::HTTP')
+    @http = mock("new Net::HTTP")
     @conn.expects(:http).returns(@http)
-    @http.expects(:get).raises(Timeout::Error, 'execution expired')
-    assert_raise(ActiveResource::TimeoutError) { @conn.get('/people_timeout.json') }
+    @http.expects(:get).raises(Timeout::Error, "execution expired")
+    assert_raise(ActiveResource::TimeoutError) { @conn.get("/people_timeout.json") }
   end
 
   def test_setting_timeout
-    http = Net::HTTP.new('')
+    http = Net::HTTP.new("")
 
     [10, 20].each do |timeout|
       @conn.timeout = timeout
@@ -246,17 +248,17 @@ class ConnectionTest < ActiveSupport::TestCase
   end
 
   def test_accept_http_header
-    @http = mock('new Net::HTTP')
+    @http = mock("new Net::HTTP")
     @conn.expects(:http).returns(@http)
-    path = '/people/1.xml'
-    @http.expects(:get).with(path, { 'Accept' => 'application/xhtml+xml' }).returns(ActiveResource::Response.new(@matz, 200, { 'Content-Type' => 'text/xhtml' }))
-    assert_nothing_raised { @conn.get(path, { 'Accept' => 'application/xhtml+xml' }) }
+    path = "/people/1.xml"
+    @http.expects(:get).with(path, "Accept" => "application/xhtml+xml").returns(ActiveResource::Response.new(@matz, 200, "Content-Type" => "text/xhtml"))
+    assert_nothing_raised { @conn.get(path, "Accept" => "application/xhtml+xml") }
   end
 
   def test_ssl_options_get_applied_to_http
-    http = Net::HTTP.new('')
-    @conn.site = 'https://secure'
-    @conn.ssl_options = { :verify_mode => OpenSSL::SSL::VERIFY_PEER }
+    http = Net::HTTP.new("")
+    @conn.site = "https://secure"
+    @conn.ssl_options = { verify_mode: OpenSSL::SSL::VERIFY_PEER }
     @conn.send(:configure_http, http)
 
     assert http.use_ssl?
@@ -264,20 +266,20 @@ class ConnectionTest < ActiveSupport::TestCase
   end
 
   def test_ssl_options_get_applied_to_https_urls_without_explicitly_setting_ssl_options
-    http = Net::HTTP.new('')
-    @conn.site = 'https://secure'
+    http = Net::HTTP.new("")
+    @conn.site = "https://secure"
     assert @conn.send(:configure_http, http).use_ssl?
   end
 
   def test_ssl_error
-    http = Net::HTTP.new('')
+    http = Net::HTTP.new("")
     @conn.expects(:http).returns(http)
-    http.expects(:get).raises(OpenSSL::SSL::SSLError, 'Expired certificate')
-    assert_raise(ActiveResource::SSLError) { @conn.get('/people/1.json') }
+    http.expects(:get).raises(OpenSSL::SSL::SSLError, "Expired certificate")
+    assert_raise(ActiveResource::SSLError) { @conn.get("/people/1.json") }
   end
 
   def test_auth_type_can_be_string
-    @conn.auth_type = 'digest'
+    @conn.auth_type = "digest"
     assert_equal(:digest, @conn.auth_type)
   end
 
@@ -326,7 +328,7 @@ class ConnectionTest < ActiveSupport::TestCase
   end
 
   def new_connection
-    ActiveResource::Connection.new('http://localhost')
+    ActiveResource::Connection.new("http://localhost")
   end
 
   protected
@@ -338,7 +340,7 @@ class ConnectionTest < ActiveSupport::TestCase
 
     def assert_redirect_raises(code)
       assert_raise(ActiveResource::Redirection, "Expected response code #{code} to raise ActiveResource::Redirection") do
-        handle_response RedirectResponseStub.new(code, 'http://example.com/')
+        handle_response RedirectResponseStub.new(code, "http://example.com/")
       end
     end
 

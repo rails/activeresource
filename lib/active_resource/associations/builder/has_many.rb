@@ -1,4 +1,6 @@
-module ActiveResource::Associations::Builder 
+# frozen_string_literal: true
+
+module ActiveResource::Associations::Builder
   class HasMany < Association
     self.macro = :has_many
 

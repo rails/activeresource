@@ -1,16 +1,18 @@
-require 'abstract_unit'
+# frozen_string_literal: true
+
+require "abstract_unit"
 
 class AuthorizationTest < ActiveSupport::TestCase
   Response = Struct.new(:code)
 
   def setup
-    @conn = ActiveResource::Connection.new('http://localhost')
-    @matz  = { :person => { :id => 1, :name => 'Matz' } }.to_json
-    @david = { :person => { :id => 2, :name => 'David' } }.to_json
+    @conn = ActiveResource::Connection.new("http://localhost")
+    @matz  = { person: { id: 1, name: "Matz" } }.to_json
+    @david = { person: { id: 2, name: "David" } }.to_json
     @authenticated_conn = ActiveResource::Connection.new("http://david:test123@localhost")
-    @basic_authorization_request_header = { 'Authorization' => 'Basic ZGF2aWQ6dGVzdDEyMw==' }
-    @jwt = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c'
-    @bearer_token_authorization_request_header = { 'Authorization' => "Bearer #{@jwt}" }
+    @basic_authorization_request_header = { "Authorization" => "Basic ZGF2aWQ6dGVzdDEyMw==" }
+    @jwt = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+    @bearer_token_authorization_request_header = { "Authorization" => "Bearer #{@jwt}" }
   end
 
   private
@@ -26,11 +28,11 @@ class BasicAuthorizationTest < AuthorizationTest
 
     ActiveResource::HttpMock.respond_to do |mock|
       mock.get    "/people/2.json",           @basic_authorization_request_header, @david
-      mock.get    "/people/1.json",           @basic_authorization_request_header, nil, 401, { 'WWW-Authenticate' => 'i_should_be_ignored' }
+      mock.get    "/people/1.json",           @basic_authorization_request_header, nil, 401, "WWW-Authenticate" => "i_should_be_ignored"
       mock.get    "/people/3.json",           @bearer_token_authorization_request_header, @david
       mock.put    "/people/2.json",           @basic_authorization_request_header, nil, 204
       mock.delete "/people/2.json",           @basic_authorization_request_header, nil, 200
-      mock.post   "/people/2/addresses.json", @basic_authorization_request_header, nil, 201, 'Location' => '/people/1/addresses/5'
+      mock.post   "/people/2/addresses.json", @basic_authorization_request_header, nil, 201, "Location" => "/people/1/addresses/5"
       mock.head   "/people/2.json",           @basic_authorization_request_header, nil, 200
     end
   end
@@ -75,8 +77,8 @@ class BasicAuthorizationTest < AuthorizationTest
 
 
   def test_authorization_header
-    authorization_header = @authenticated_conn.__send__(:authorization_header, :get, URI.parse('/people/2.json'))
-    assert_equal @basic_authorization_request_header['Authorization'], authorization_header['Authorization']
+    authorization_header = @authenticated_conn.__send__(:authorization_header, :get, URI.parse("/people/2.json"))
+    assert_equal @basic_authorization_request_header["Authorization"], authorization_header["Authorization"]
     authorization = authorization_header["Authorization"].to_s.split
 
     assert_equal "Basic", authorization[0]
@@ -85,7 +87,7 @@ class BasicAuthorizationTest < AuthorizationTest
 
   def test_authorization_header_with_username_but_no_password
     @conn = ActiveResource::Connection.new("http://david:@localhost")
-    authorization_header = @conn.__send__(:authorization_header, :get, URI.parse('/people/2.json'))
+    authorization_header = @conn.__send__(:authorization_header, :get, URI.parse("/people/2.json"))
     authorization = authorization_header["Authorization"].to_s.split
 
     assert_equal "Basic", authorization[0]
@@ -94,7 +96,7 @@ class BasicAuthorizationTest < AuthorizationTest
 
   def test_authorization_header_with_password_but_no_username
     @conn = ActiveResource::Connection.new("http://:test123@localhost")
-    authorization_header = @conn.__send__(:authorization_header, :get, URI.parse('/people/2.json'))
+    authorization_header = @conn.__send__(:authorization_header, :get, URI.parse("/people/2.json"))
     authorization = authorization_header["Authorization"].to_s.split
 
     assert_equal "Basic", authorization[0]
@@ -103,7 +105,7 @@ class BasicAuthorizationTest < AuthorizationTest
 
   def test_authorization_header_with_decoded_credentials_from_url
     @conn = ActiveResource::Connection.new("http://my%40email.com:%31%32%33@localhost")
-    authorization_header = @conn.__send__(:authorization_header, :get, URI.parse('/people/2.json'))
+    authorization_header = @conn.__send__(:authorization_header, :get, URI.parse("/people/2.json"))
     authorization = authorization_header["Authorization"].to_s.split
 
     assert_equal "Basic", authorization[0]
@@ -112,10 +114,10 @@ class BasicAuthorizationTest < AuthorizationTest
 
   def test_authorization_header_explicitly_setting_username_and_password
     @authenticated_conn = ActiveResource::Connection.new("http://@localhost")
-    @authenticated_conn.user = 'david'
-    @authenticated_conn.password = 'test123'
-    authorization_header = @authenticated_conn.__send__(:authorization_header, :get, URI.parse('/people/2.json'))
-    assert_equal @basic_authorization_request_header['Authorization'], authorization_header['Authorization']
+    @authenticated_conn.user = "david"
+    @authenticated_conn.password = "test123"
+    authorization_header = @authenticated_conn.__send__(:authorization_header, :get, URI.parse("/people/2.json"))
+    assert_equal @basic_authorization_request_header["Authorization"], authorization_header["Authorization"]
     authorization = authorization_header["Authorization"].to_s.split
 
     assert_equal "Basic", authorization[0]
@@ -125,7 +127,7 @@ class BasicAuthorizationTest < AuthorizationTest
   def test_authorization_header_explicitly_setting_username_but_no_password
     @conn = ActiveResource::Connection.new("http://@localhost")
     @conn.user = "david"
-    authorization_header = @conn.__send__(:authorization_header, :get, URI.parse('/people/2.json'))
+    authorization_header = @conn.__send__(:authorization_header, :get, URI.parse("/people/2.json"))
     authorization = authorization_header["Authorization"].to_s.split
 
     assert_equal "Basic", authorization[0]
@@ -135,7 +137,7 @@ class BasicAuthorizationTest < AuthorizationTest
   def test_authorization_header_explicitly_setting_password_but_no_username
     @conn = ActiveResource::Connection.new("http://@localhost")
     @conn.password = "test123"
-    authorization_header = @conn.__send__(:authorization_header, :get, URI.parse('/people/2.json'))
+    authorization_header = @conn.__send__(:authorization_header, :get, URI.parse("/people/2.json"))
     authorization = authorization_header["Authorization"].to_s.split
 
     assert_equal "Basic", authorization[0]
@@ -143,8 +145,8 @@ class BasicAuthorizationTest < AuthorizationTest
   end
 
   def test_authorization_header_if_credentials_supplied_and_auth_type_is_basic
-    authorization_header = @authenticated_conn.__send__(:authorization_header, :get, URI.parse('/people/2.json'))
-    assert_equal @basic_authorization_request_header['Authorization'], authorization_header['Authorization']
+    authorization_header = @authenticated_conn.__send__(:authorization_header, :get, URI.parse("/people/2.json"))
+    assert_equal @basic_authorization_request_header["Authorization"], authorization_header["Authorization"]
     authorization = authorization_header["Authorization"].to_s.split
 
     assert_equal "Basic", authorization[0]
@@ -155,8 +157,8 @@ class BasicAuthorizationTest < AuthorizationTest
     @conn = ActiveResource::Connection.new("http://localhost")
     @conn.auth_type = :bearer
     @conn.bearer_token = @jwt
-    authorization_header = @conn.__send__(:authorization_header, :get, URI.parse('/people/3.json'))
-    assert_equal @bearer_token_authorization_request_header['Authorization'], authorization_header['Authorization']
+    authorization_header = @conn.__send__(:authorization_header, :get, URI.parse("/people/3.json"))
+    assert_equal @bearer_token_authorization_request_header["Authorization"], authorization_header["Authorization"]
     authorization = authorization_header["Authorization"].to_s.split
 
     assert_equal "Bearer", authorization[0]
@@ -166,8 +168,8 @@ class BasicAuthorizationTest < AuthorizationTest
   def test_authorization_header_if_no_jwt_and_auth_type_is_bearer
     @conn = ActiveResource::Connection.new("http://localhost")
     @conn.auth_type = :bearer
-    authorization_header = @conn.__send__(:authorization_header, :get, URI.parse('/people/3.json'))
-    assert_nil authorization_header['Authorization']
+    authorization_header = @conn.__send__(:authorization_header, :get, URI.parse("/people/3.json"))
+    assert_nil authorization_header["Authorization"]
   end
 
   def test_client_nonce_is_not_nil
@@ -181,37 +183,37 @@ class DigestAuthorizationTest < AuthorizationTest
     @authenticated_conn.auth_type = :digest
 
     # Make client nonce deterministic
-    def @authenticated_conn.client_nonce; 'i-am-a-client-nonce' end
+    def @authenticated_conn.client_nonce; "i-am-a-client-nonce" end
 
     @nonce = "MTI0OTUxMzc4NzpjYWI3NDM3NDNmY2JmODU4ZjQ2ZjcwNGZkMTJiMjE0NA=="
 
     ActiveResource::HttpMock.respond_to do |mock|
-      mock.get    "/people/2.json",           { 'Authorization' => blank_digest_auth_header("/people/2.json", "fad396f6a34aeba28e28b9b96ddbb671") }, nil, 401, { 'WWW-Authenticate' => response_digest_auth_header }
-      mock.get    "/people/2.json",           { 'Authorization' => request_digest_auth_header("/people/2.json", "c064d5ba8891a25290c76c8c7d31fb7b") }, @david, 200
-      mock.get    "/people/1.json",           { 'Authorization' => request_digest_auth_header("/people/1.json", "f9c0b594257bb8422af4abd429c5bb70") }, @matz, 200
+      mock.get    "/people/2.json",           { "Authorization" => blank_digest_auth_header("/people/2.json", "fad396f6a34aeba28e28b9b96ddbb671") }, nil, 401, "WWW-Authenticate" => response_digest_auth_header
+      mock.get    "/people/2.json",           { "Authorization" => request_digest_auth_header("/people/2.json", "c064d5ba8891a25290c76c8c7d31fb7b") }, @david, 200
+      mock.get    "/people/1.json",           { "Authorization" => request_digest_auth_header("/people/1.json", "f9c0b594257bb8422af4abd429c5bb70") }, @matz, 200
 
-      mock.put    "/people/2.json",           { 'Authorization' => blank_digest_auth_header("/people/2.json", "50a685d814f94665b9d160fbbaa3958a") }, nil, 401, { 'WWW-Authenticate' => response_digest_auth_header }
-      mock.put    "/people/2.json",           { 'Authorization' => request_digest_auth_header("/people/2.json", "5a75cde841122d8e0f20f8fd1f98a743") }, nil, 204
+      mock.put    "/people/2.json",           { "Authorization" => blank_digest_auth_header("/people/2.json", "50a685d814f94665b9d160fbbaa3958a") }, nil, 401, "WWW-Authenticate" => response_digest_auth_header
+      mock.put    "/people/2.json",           { "Authorization" => request_digest_auth_header("/people/2.json", "5a75cde841122d8e0f20f8fd1f98a743") }, nil, 204
 
-      mock.delete "/people/2.json",           { 'Authorization' => blank_digest_auth_header("/people/2.json", "846f799107eab5ca4285b909ee299a33") }, nil, 401, { 'WWW-Authenticate' => response_digest_auth_header }
-      mock.delete "/people/2.json",           { 'Authorization' => request_digest_auth_header("/people/2.json", "9f5b155224edbbb69fd99d8ce094681e") }, nil, 200
+      mock.delete "/people/2.json",           { "Authorization" => blank_digest_auth_header("/people/2.json", "846f799107eab5ca4285b909ee299a33") }, nil, 401, "WWW-Authenticate" => response_digest_auth_header
+      mock.delete "/people/2.json",           { "Authorization" => request_digest_auth_header("/people/2.json", "9f5b155224edbbb69fd99d8ce094681e") }, nil, 200
 
-      mock.post   "/people/2/addresses.json", { 'Authorization' => blank_digest_auth_header("/people/2/addresses.json", "6984d405ff3d9ed07bbf747dcf16afb0") }, nil, 401, { 'WWW-Authenticate' => response_digest_auth_header }
-      mock.post   "/people/2/addresses.json", { 'Authorization' => request_digest_auth_header("/people/2/addresses.json", "4bda6a28dbf930b5af9244073623bd04") }, nil, 201, 'Location' => '/people/1/addresses/5'
+      mock.post   "/people/2/addresses.json", { "Authorization" => blank_digest_auth_header("/people/2/addresses.json", "6984d405ff3d9ed07bbf747dcf16afb0") }, nil, 401, "WWW-Authenticate" => response_digest_auth_header
+      mock.post   "/people/2/addresses.json", { "Authorization" => request_digest_auth_header("/people/2/addresses.json", "4bda6a28dbf930b5af9244073623bd04") }, nil, 201, "Location" => "/people/1/addresses/5"
 
-      mock.head   "/people/2.json",           { 'Authorization' => blank_digest_auth_header("/people/2.json", "15e5ed84ba5c4cfcd5c98a36c2e4f421") }, nil, 401, { 'WWW-Authenticate' => response_digest_auth_header }
-      mock.head   "/people/2.json",           { 'Authorization' => request_digest_auth_header("/people/2.json", "d4c6d2bcc8717abb2e2ccb8c49ee6a91") }, nil, 200
+      mock.head   "/people/2.json",           { "Authorization" => blank_digest_auth_header("/people/2.json", "15e5ed84ba5c4cfcd5c98a36c2e4f421") }, nil, 401, "WWW-Authenticate" => response_digest_auth_header
+      mock.head   "/people/2.json",           { "Authorization" => request_digest_auth_header("/people/2.json", "d4c6d2bcc8717abb2e2ccb8c49ee6a91") }, nil, 200
     end
   end
 
   def test_authorization_header_if_credentials_supplied_and_auth_type_is_digest
-    authorization_header = @authenticated_conn.__send__(:authorization_header, :get, URI.parse('/people/2.json'))
-    assert_equal blank_digest_auth_header("/people/2.json", "fad396f6a34aeba28e28b9b96ddbb671"), authorization_header['Authorization']
+    authorization_header = @authenticated_conn.__send__(:authorization_header, :get, URI.parse("/people/2.json"))
+    assert_equal blank_digest_auth_header("/people/2.json", "fad396f6a34aeba28e28b9b96ddbb671"), authorization_header["Authorization"]
   end
 
   def test_authorization_header_with_query_string_if_auth_type_is_digest
-    authorization_header = @authenticated_conn.__send__(:authorization_header, :get, URI.parse('/people/2.json?only=name'))
-    assert_equal blank_digest_auth_header("/people/2.json?only=name", "f8457b0b5d21b6b80737a386217afb24"), authorization_header['Authorization']
+    authorization_header = @authenticated_conn.__send__(:authorization_header, :get, URI.parse("/people/2.json?only=name"))
+    assert_equal blank_digest_auth_header("/people/2.json?only=name", "f8457b0b5d21b6b80737a386217afb24"), authorization_header["Authorization"]
   end
 
   def test_get_with_digest_auth_handles_initial_401_response_and_retries

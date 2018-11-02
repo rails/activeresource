@@ -1,4 +1,6 @@
-module ActiveResource::Associations::Builder 
+# frozen_string_literal: true
+
+module ActiveResource::Associations::Builder
   class BelongsTo < Association
     self.valid_options += [:foreign_key]
 
@@ -8,7 +10,7 @@ module ActiveResource::Associations::Builder
       validate_options
       reflection = model.create_reflection(self.class.macro, name, options)
       model.defines_belongs_to_finder_method(reflection)
-      return reflection
+      reflection
     end
   end
 end

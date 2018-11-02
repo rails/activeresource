@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "active_resource"
 require "rails"
 
@@ -7,7 +9,7 @@ module ActiveResource
 
     initializer "active_resource.set_configs" do |app|
       ActiveSupport.on_load(:active_resource) do
-        app.config.active_resource.each do |k,v|
+        app.config.active_resource.each do |k, v|
           send "#{k}=", v
         end
       end

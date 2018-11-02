@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module ActiveResource # :nodoc:
   class Schema # :nodoc:
     # attributes can be known to be one of these types. They are easy to
@@ -29,8 +31,8 @@ module ActiveResource # :nodoc:
 
       the_type = type.to_s
       # TODO: add defaults
-      #the_attr = [type.to_s]
-      #the_attr << options[:default] if options.has_key? :default
+      # the_attr = [type.to_s]
+      # the_attr << options[:default] if options.has_key? :default
       @attrs[name.to_s] = the_type
       self
     end
@@ -45,7 +47,7 @@ module ActiveResource # :nodoc:
       #   attr_names.each { |name| attribute(name, 'string', options) }
       # end
       class_eval <<-EOV, __FILE__, __LINE__ + 1
-        def #{attr_type.to_s}(*args)
+        def #{attr_type}(*args)
           options = args.extract_options!
           attr_names = args
 

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "abstract_unit"
 require "fixtures/person"
 require "active_support/log_subscriber/test_helper"
@@ -10,7 +12,7 @@ class LogSubscriberTest < ActiveSupport::TestCase
   def setup
     super
 
-    @matz = { :person => { :id => 1, :name => 'Matz' } }.to_json
+    @matz = { person: { id: 1, name: "Matz" } }.to_json
     ActiveResource::HttpMock.respond_to do |mock|
       mock.get "/people/1.json", {}, @matz
       mock.get "/people/2.json", {}, nil, 404
@@ -37,7 +39,7 @@ class LogSubscriberTest < ActiveSupport::TestCase
   rescue
     wait
     assert_equal 2, @logger.logged(:error).size
-    assert_equal 'GET http://37s.sunrise.i:3000/people/2.json', @logger.logged(:error)[0]
+    assert_equal "GET http://37s.sunrise.i:3000/people/2.json", @logger.logged(:error)[0]
     assert_match(/\-\-\> 404 404 0/, @logger.logged(:error)[1])
   end
 
@@ -46,7 +48,7 @@ class LogSubscriberTest < ActiveSupport::TestCase
   rescue
     wait
     assert_equal 2, @logger.logged(:error).size
-    assert_equal 'GET http://37s.sunrise.i:3000/people/3.json', @logger.logged(:error)[0]
+    assert_equal "GET http://37s.sunrise.i:3000/people/3.json", @logger.logged(:error)[0]
     assert_match(/\-\-\> 502 502 0/, @logger.logged(:error)[1])
   end
 
@@ -55,7 +57,7 @@ class LogSubscriberTest < ActiveSupport::TestCase
   rescue
     wait
     assert_equal 2, @logger.logged(:error).size
-    assert_equal 'GET http://37s.sunrise.i:3000/people/99.json', @logger.logged(:error)[0]
+    assert_equal "GET http://37s.sunrise.i:3000/people/99.json", @logger.logged(:error)[0]
     assert_match(/\-\-\> 523 ActiveResource connection error 0/, @logger.logged(:error)[1])
   end
 end

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module ActiveResource
   module Singleton
     extend ActiveSupport::Concern
@@ -60,20 +62,19 @@ module ActiveResource
       #
       #   Inventory.find
       #   # => raises ResourceNotFound
-      def find(options={})
+      def find(options = {})
         find_singleton(options)
       end
 
       private
-      # Find singleton resource
-      def find_singleton(options)
-        prefix_options, query_options = split_options(options[:params])
+        # Find singleton resource
+        def find_singleton(options)
+          prefix_options, query_options = split_options(options[:params])
 
-        path = singleton_path(prefix_options, query_options)
-        resp = self.format.decode(self.connection.get(path, self.headers).body)
-        instantiate_record(resp, prefix_options)
-      end
-
+          path = singleton_path(prefix_options, query_options)
+          resp = self.format.decode(self.connection.get(path, self.headers).body)
+          instantiate_record(resp, prefix_options)
+        end
     end
     # Deletes the resource from the remote service.
     #
@@ -88,27 +89,25 @@ module ActiveResource
 
     protected
 
-    # Update the resource on the remote service
-    def update
-      connection.put(singleton_path(prefix_options), encode, self.class.headers).tap do |response|
-        load_attributes_from_response(response)
+      # Update the resource on the remote service
+      def update
+        connection.put(singleton_path(prefix_options), encode, self.class.headers).tap do |response|
+          load_attributes_from_response(response)
+        end
       end
-    end
 
-    # Create (i.e. \save to the remote service) the \new resource.
-    def create
-      connection.post(singleton_path, encode, self.class.headers).tap do |response|
-        self.id = id_from_response(response)
-        load_attributes_from_response(response)
+      # Create (i.e. \save to the remote service) the \new resource.
+      def create
+        connection.post(singleton_path, encode, self.class.headers).tap do |response|
+          self.id = id_from_response(response)
+          load_attributes_from_response(response)
+        end
       end
-    end
 
     private
 
-    def singleton_path(options = nil)
-      self.class.singleton_path(options || prefix_options)
-    end
-
+      def singleton_path(options = nil)
+        self.class.singleton_path(options || prefix_options)
+      end
   end
-
 end

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # turns everything into the same object
 class AddressXMLFormatter
   include ActiveResource::Formats::XmlFormat
@@ -6,11 +8,10 @@ class AddressXMLFormatter
     data = ActiveResource::Formats::XmlFormat.decode(xml)
     # process address fields
     data.each do |address|
-      address['city_state'] = "#{address['city']}, #{address['state']}"
+      address["city_state"] = "#{address['city']}, #{address['state']}"
     end
     data
   end
-
 end
 
 class AddressResource < ActiveResource::Base

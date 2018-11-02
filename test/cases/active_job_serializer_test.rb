@@ -1,20 +1,21 @@
-require 'abstract_unit'
+# frozen_string_literal: true
 
-require 'fixtures/project'
-require 'fixtures/person'
-require 'fixtures/product'
-require 'active_job'
-require 'active_job/arguments'
-require 'active_resource/active_job_serializer' if ActiveJob::VERSION::MAJOR >= 6
+require "abstract_unit"
+
+require "fixtures/project"
+require "fixtures/person"
+require "fixtures/product"
+require "active_job"
+require "active_job/arguments"
+require "active_resource/active_job_serializer" if ActiveJob::VERSION::MAJOR >= 6
 
 class ActiveJobSerializerTest < ActiveSupport::TestCase
-
   setup do
     @klass = ActiveResource::ActiveJobSerializer
   end
 
   def test_serialize
-    project = Project.new(id: 1, name: 'Ruby on Rails')
+    project = Project.new(id: 1, name: "Ruby on Rails")
     project.prefix_options[:person_id] = 1
     project_json = {
       _aj_serialized: @klass.name,
@@ -29,7 +30,7 @@ class ActiveJobSerializerTest < ActiveSupport::TestCase
   end
 
   def test_deserialize
-    person = Person.new(id: 2, name: 'David')
+    person = Person.new(id: 2, name: "David")
     person.persisted = true
     person_json = {
       _aj_serialized: @klass.name,
@@ -44,9 +45,9 @@ class ActiveJobSerializerTest < ActiveSupport::TestCase
   end
 
   def test_serialize?
-    product = Product.new(id: 3, name: 'Chunky Bacon')
+    product = Product.new(id: 3, name: "Chunky Bacon")
 
     assert @klass.serialize?(product)
-    refute @klass.serialize?('not a resource')
+    assert_not @klass.serialize?("not a resource")
   end
 end if ActiveJob::VERSION::MAJOR >= 6

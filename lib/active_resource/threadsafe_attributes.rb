@@ -1,4 +1,6 @@
-require 'active_support/core_ext/object/duplicable'
+# frozen_string_literal: true
+
+require "active_support/core_ext/object/duplicable"
 
 module ThreadsafeAttributes
   def self.included(klass)
@@ -27,38 +29,38 @@ module ThreadsafeAttributes
 
   private
 
-  def get_threadsafe_attribute(name, main_thread)
-    if threadsafe_attribute_defined_by_thread?(name, Thread.current)
-      get_threadsafe_attribute_by_thread(name, Thread.current)
-    elsif threadsafe_attribute_defined_by_thread?(name, main_thread)
-      value = get_threadsafe_attribute_by_thread(name, main_thread)
-      value = value.dup if value.duplicable?
+    def get_threadsafe_attribute(name, main_thread)
+      if threadsafe_attribute_defined_by_thread?(name, Thread.current)
+        get_threadsafe_attribute_by_thread(name, Thread.current)
+      elsif threadsafe_attribute_defined_by_thread?(name, main_thread)
+        value = get_threadsafe_attribute_by_thread(name, main_thread)
+        value = value.dup if value.duplicable?
+        set_threadsafe_attribute_by_thread(name, value, Thread.current)
+        value
+      end
+    end
+
+    def set_threadsafe_attribute(name, value, main_thread)
       set_threadsafe_attribute_by_thread(name, value, Thread.current)
-      value
+      unless threadsafe_attribute_defined_by_thread?(name, main_thread)
+        set_threadsafe_attribute_by_thread(name, value, main_thread)
+      end
     end
-  end
 
-  def set_threadsafe_attribute(name, value, main_thread)
-    set_threadsafe_attribute_by_thread(name, value, Thread.current)
-    unless threadsafe_attribute_defined_by_thread?(name, main_thread)
-      set_threadsafe_attribute_by_thread(name, value, main_thread)
+    def threadsafe_attribute_defined?(name, main_thread)
+      threadsafe_attribute_defined_by_thread?(name, Thread.current) || ((Thread.current != main_thread) && threadsafe_attribute_defined_by_thread?(name, main_thread))
     end
-  end
 
-  def threadsafe_attribute_defined?(name, main_thread)
-    threadsafe_attribute_defined_by_thread?(name, Thread.current) || ((Thread.current != main_thread) && threadsafe_attribute_defined_by_thread?(name, main_thread))
-  end
+    def get_threadsafe_attribute_by_thread(name, thread)
+      thread.thread_variable_get "active.resource.#{name}.#{self.object_id}"
+    end
 
-  def get_threadsafe_attribute_by_thread(name, thread)
-    thread.thread_variable_get "active.resource.#{name}.#{self.object_id}"
-  end
+    def set_threadsafe_attribute_by_thread(name, value, thread)
+      thread.thread_variable_set "active.resource.#{name}.#{self.object_id}.defined", true
+      thread.thread_variable_set "active.resource.#{name}.#{self.object_id}", value
+    end
 
-  def set_threadsafe_attribute_by_thread(name, value, thread)
-    thread.thread_variable_set "active.resource.#{name}.#{self.object_id}.defined", true
-    thread.thread_variable_set "active.resource.#{name}.#{self.object_id}", value
-  end
-
-  def threadsafe_attribute_defined_by_thread?(name, thread)
-    thread.thread_variable_get "active.resource.#{name}.#{self.object_id}.defined"
-  end
+    def threadsafe_attribute_defined_by_thread?(name, thread)
+      thread.thread_variable_get "active.resource.#{name}.#{self.object_id}.defined"
+    end
 end

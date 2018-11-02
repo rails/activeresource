@@ -1,18 +1,20 @@
-require 'abstract_unit'
+# frozen_string_literal: true
+
+require "abstract_unit"
 require "fixtures/person"
 
 class BaseErrorsTest < ActiveSupport::TestCase
   def setup
     ActiveResource::HttpMock.respond_to do |mock|
-      mock.post "/people.xml", {}, %q(<?xml version="1.0" encoding="UTF-8"?><errors><error>Age can't be blank</error><error>Known attribute can't be blank</error><error>Name can't be blank</error><error>Name must start with a letter</error><error>Person quota full for today.</error><error>Phone work can't be blank</error><error>Phone is not valid</error></errors>), 422, {'Content-Type' => 'application/xml; charset=utf-8'}
-      mock.post "/people.json", {}, %q({"errors":{"age":["can't be blank"],"known_attribute":["can't be blank"],"name":["can't be blank", "must start with a letter"],"person":["quota full for today."],"phone_work":["can't be blank"],"phone":["is not valid"]}}), 422, {'Content-Type' => 'application/json; charset=utf-8'}
+      mock.post "/people.xml", {}, %q(<?xml version="1.0" encoding="UTF-8"?><errors><error>Age can't be blank</error><error>Known attribute can't be blank</error><error>Name can't be blank</error><error>Name must start with a letter</error><error>Person quota full for today.</error><error>Phone work can't be blank</error><error>Phone is not valid</error></errors>), 422, "Content-Type" => "application/xml; charset=utf-8"
+      mock.post "/people.json", {}, %q({"errors":{"age":["can't be blank"],"known_attribute":["can't be blank"],"name":["can't be blank", "must start with a letter"],"person":["quota full for today."],"phone_work":["can't be blank"],"phone":["is not valid"]}}), 422, "Content-Type" => "application/json; charset=utf-8"
     end
   end
 
   def test_should_mark_as_invalid
     [ :json, :xml ].each do |format|
       invalid_user_using_format(format) do
-        assert !@person.valid?
+        assert_not @person.valid?
       end
     end
   end
@@ -28,7 +30,7 @@ class BaseErrorsTest < ActiveSupport::TestCase
 
   def test_should_parse_json_errors_when_no_errors_key
     ActiveResource::HttpMock.respond_to do |mock|
-      mock.post "/people.json", {}, '{}', 422, {'Content-Type' => 'application/json; charset=utf-8'}
+      mock.post "/people.json", {}, "{}", 422, "Content-Type" => "application/json; charset=utf-8"
     end
 
     invalid_user_using_format(:json) do
@@ -100,14 +102,14 @@ class BaseErrorsTest < ActiveSupport::TestCase
 
     [ :json, :xml ].each do |format|
       invalid_user_using_format(format) do
-        assert !@person.valid?
+        assert_not @person.valid?
       end
     end
   end
 
   def test_should_parse_json_string_errors_with_an_errors_key
     ActiveResource::HttpMock.respond_to do |mock|
-      mock.post "/people.json", {}, %q({"errors":["Age can't be blank", "Name can't be blank", "Name must start with a letter", "Person quota full for today.", "Phone work can't be blank", "Phone is not valid"]}), 422, {'Content-Type' => 'application/json; charset=utf-8'}
+      mock.post "/people.json", {}, %q({"errors":["Age can't be blank", "Name can't be blank", "Name must start with a letter", "Person quota full for today.", "Phone work can't be blank", "Phone is not valid"]}), 422, "Content-Type" => "application/json; charset=utf-8"
     end
 
     assert_deprecated(/as an array/) do
@@ -124,7 +126,7 @@ class BaseErrorsTest < ActiveSupport::TestCase
 
   def test_should_parse_3_1_style_json_errors
     ActiveResource::HttpMock.respond_to do |mock|
-      mock.post "/people.json", {}, %q({"age":["can't be blank"],"name":["can't be blank", "must start with a letter"],"person":["quota full for today."],"phone_work":["can't be blank"],"phone":["is not valid"]}), 422, {'Content-Type' => 'application/json; charset=utf-8'}
+      mock.post "/people.json", {}, %q({"age":["can't be blank"],"name":["can't be blank", "must start with a letter"],"person":["quota full for today."],"phone_work":["can't be blank"],"phone":["is not valid"]}), 422, "Content-Type" => "application/json; charset=utf-8"
     end
 
     assert_deprecated(/without a root/) do
@@ -140,18 +142,18 @@ class BaseErrorsTest < ActiveSupport::TestCase
   end
 
   private
-  def invalid_user_using_format(mime_type_reference)
-    previous_format = Person.format
-    previous_schema = Person.schema
+    def invalid_user_using_format(mime_type_reference)
+      previous_format = Person.format
+      previous_schema = Person.schema
 
-    Person.format = mime_type_reference
-    Person.schema = { 'known_attribute' => 'string' }
-    @person = Person.new(:name => '', :age => '', :phone => '', :phone_work => '')
-    assert_equal false, @person.save
+      Person.format = mime_type_reference
+      Person.schema = { "known_attribute" => "string" }
+      @person = Person.new(name: "", age: "", phone: "", phone_work: "")
+      assert_equal false, @person.save
 
-    yield
-  ensure
-    Person.format = previous_format
-    Person.schema = previous_schema
-  end
+      yield
+    ensure
+      Person.format = previous_format
+      Person.schema = previous_schema
+    end
 end

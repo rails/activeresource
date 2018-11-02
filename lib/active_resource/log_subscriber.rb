@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module ActiveResource
   class LogSubscriber < ActiveSupport::LogSubscriber
     def request(event)

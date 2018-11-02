@@ -1,27 +1,29 @@
 #!/usr/bin/env rake
-require 'rake/testtask'
-require 'bundler'
+# frozen_string_literal: true
+
+require "rake/testtask"
+require "bundler"
 Bundler::GemHelper.install_tasks
 
 desc "Default Task"
-task :default => [ :test ]
+task default: [ :test ]
 
 # Run the unit tests
 
 Rake::TestTask.new { |t|
   t.libs << "test"
-  t.pattern = 'test/**/*_test.rb'
+  t.pattern = "test/**/*_test.rb"
   t.warning = true
   t.verbose = true
 }
 
 namespace :test do
   task :isolated do
-    ruby = File.join(*RbConfig::CONFIG.values_at('bindir', 'RUBY_INSTALL_NAME'))
+    ruby = File.join(*RbConfig::CONFIG.values_at("bindir", "RUBY_INSTALL_NAME"))
     activesupport_path = "#{File.dirname(__FILE__)}/../activesupport/lib"
     Dir.glob("test/**/*_test.rb").all? do |file|
-      sh(ruby, '-w', "-Ilib:test:#{activesupport_path}", file)
-    end or raise "Failures"
+      sh(ruby, "-w", "-Ilib:test:#{activesupport_path}", file)
+    end || raise("Failures")
   end
 end
 

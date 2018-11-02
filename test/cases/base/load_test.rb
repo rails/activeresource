@@ -1,7 +1,9 @@
-require 'abstract_unit'
+# frozen_string_literal: true
+
+require "abstract_unit"
 require "fixtures/person"
 require "fixtures/street_address"
-require 'active_support/core_ext/hash/conversions'
+require "active_support/core_ext/hash/conversions"
 
 module Highrise
   class Note < ActiveResource::Base
@@ -44,44 +46,44 @@ class BaseLoadTest < ActiveSupport::TestCase
   end
 
   def setup
-    @matz  = { :id => 1, :name => 'Matz' }
+    @matz = { id: 1, name: "Matz" }
 
-    @first_address = { :address => { :id => 1, :street => '12345 Street' } }
-    @addresses = [@first_address, { :address => { :id => 2, :street => '67890 Street' } }]
-    @addresses_from_json = { :street_addresses => @addresses }
-    @addresses_from_json_single = { :street_addresses => [ @first_address ] }
+    @first_address = { address: { id: 1, street: "12345 Street" } }
+    @addresses = [@first_address, { address: { id: 2, street: "67890 Street" } }]
+    @addresses_from_json = { street_addresses: @addresses }
+    @addresses_from_json_single = { street_addresses: [ @first_address ] }
 
-    @deep  = { :id => 1, :street => {
-      :id => 1, :state => { :id => 1, :name => 'Oregon',
-        :notable_rivers => [
-          { :id => 1, :name => 'Willamette' },
-          { :id => 2, :name => 'Columbia', :rafted_by => @matz }],
-        :postal_codes => [ 97018, 1234567890 ],
-        :dates => [ Time.now ],
-        :votes => [ true, false, true ],
-        :places => [ "Columbia City", "Unknown" ]}}}
+    @deep  = { id: 1, street: {
+      id: 1, state: { id: 1, name: "Oregon",
+        notable_rivers: [
+          { id: 1, name: "Willamette" },
+          { id: 2, name: "Columbia", rafted_by: @matz }],
+        postal_codes: [ 97018, 1234567890 ],
+        dates: [ Time.now ],
+        votes: [ true, false, true ],
+        places: [ "Columbia City", "Unknown" ] } } }
 
 
     # List of books formated as [{timestamp_of_publication => name}, ...]
-    @books = {:books => [
-        {1009839600 => "Ruby in a Nutshell"},
-        {1199142000 => "The Ruby Programming Language"}
-      ]}
+    @books = { books: [
+        { 1009839600 => "Ruby in a Nutshell" },
+        { 1199142000 => "The Ruby Programming Language" }
+      ] }
 
-    @books_date = {:books => [
-        {Time.at(1009839600) => "Ruby in a Nutshell"},
-        {Time.at(1199142000) => "The Ruby Programming Language"}
-    ]}
+    @books_date = { books: [
+        { Time.at(1009839600) => "Ruby in a Nutshell" },
+        { Time.at(1199142000) => "The Ruby Programming Language" }
+    ] }
 
     @complex_books = {
       books: {
         "Complex.String&-Character*|=_+()!~": {
           isbn: 1009839690,
-          author: 'Frank Smith'
+          author: "Frank Smith"
         },
         "16Candles": {
           isbn: 1199142400,
-          author: 'John Hughes'
+          author: "John Hughes"
         }
       }
     }
@@ -91,22 +93,22 @@ class BaseLoadTest < ActiveSupport::TestCase
 
   def test_load_hash_with_integers_as_keys_creates_stringified_attributes
     Person.__send__(:remove_const, :Book) if Person.const_defined?(:Book)
-    assert !Person.const_defined?(:Book), "Books shouldn't exist until autocreated"
-    assert_nothing_raised{ @person.load(@books) }
-    assert_equal @books[:books].map{ |book| book.stringify_keys }, @person.books.map(&:attributes)
+    assert_not Person.const_defined?(:Book), "Books shouldn't exist until autocreated"
+    assert_nothing_raised { @person.load(@books) }
+    assert_equal @books[:books].map { |book| book.stringify_keys }, @person.books.map(&:attributes)
   end
 
   def test_load_hash_with_dates_as_keys_creates_stringified_attributes
     Person.__send__(:remove_const, :Book) if Person.const_defined?(:Book)
-    assert !Person.const_defined?(:Book), "Books shouldn't exist until autocreated"
-    assert_nothing_raised{@person.load(@books_date)}
-    assert_equal @books_date[:books].map{ |book| book.stringify_keys }, @person.books.map(&:attributes)
+    assert_not Person.const_defined?(:Book), "Books shouldn't exist until autocreated"
+    assert_nothing_raised { @person.load(@books_date) }
+    assert_equal @books_date[:books].map { |book| book.stringify_keys }, @person.books.map(&:attributes)
   end
 
   def test_load_hash_with_unacceptable_constant_characters_creates_unknown_resource
     Person.__send__(:remove_const, :Books) if Person.const_defined?(:Books)
-    assert !Person.const_defined?(:Books), "Books shouldn't exist until autocreated"
-    assert_nothing_raised{@person.load(@complex_books)}
+    assert_not Person.const_defined?(:Books), "Books shouldn't exist until autocreated"
+    assert_nothing_raised { @person.load(@complex_books) }
     assert Person::Books.const_defined?(:UnnamedResource), "UnnamedResource should have been autocreated"
     @person.books.attributes.keys.each { |key| assert_kind_of Person::Books::UnnamedResource, @person.books.attributes[key] }
   end
@@ -128,18 +130,18 @@ class BaseLoadTest < ActiveSupport::TestCase
   def test_after_load_attributes_are_accessible
     assert_equal Hash.new, @person.attributes
     assert_equal @matz.stringify_keys, @person.load(@matz).attributes
-    assert_equal @matz[:name], @person.attributes['name']
+    assert_equal @matz[:name], @person.attributes["name"]
   end
 
   def test_after_load_attributes_are_accessible_via_indifferent_access
     assert_equal Hash.new, @person.attributes
     assert_equal @matz.stringify_keys, @person.load(@matz).attributes
-    assert_equal @matz[:name], @person.attributes['name']
+    assert_equal @matz[:name], @person.attributes["name"]
     assert_equal @matz[:name], @person.attributes[:name]
   end
 
   def test_load_one_with_existing_resource
-    address = @person.load(:street_address => @first_address.values.first).street_address
+    address = @person.load(street_address: @first_address.values.first).street_address
     assert_kind_of StreetAddress, address
     assert_equal @first_address.values.first.stringify_keys, address.attributes
   end
@@ -151,7 +153,7 @@ class BaseLoadTest < ActiveSupport::TestCase
   end
 
   def test_load_one_with_unknown_resource_from_anonymous_subclass
-    subclass = Class.new(Person).tap { |c| c.element_name = 'person' }
+    subclass = Class.new(Person).tap { |c| c.element_name = "person" }
     address = silence_warnings { subclass.new.load(@first_address).address }
     assert_kind_of subclass::Address, address
   end
@@ -165,8 +167,8 @@ class BaseLoadTest < ActiveSupport::TestCase
 
   def test_load_collection_with_unknown_resource
     Person.__send__(:remove_const, :Address) if Person.const_defined?(:Address)
-    assert !Person.const_defined?(:Address), "Address shouldn't exist until autocreated"
-    addresses = silence_warnings { @person.load(:addresses => @addresses).addresses }
+    assert_not Person.const_defined?(:Address), "Address shouldn't exist until autocreated"
+    addresses = silence_warnings { @person.load(addresses: @addresses).addresses }
     assert Person.const_defined?(:Address), "Address should have been autocreated"
     addresses.each { |address| assert_kind_of Person::Address, address }
     assert_equal @addresses.map { |a| a[:address].stringify_keys }, addresses.map(&:attributes)
@@ -181,8 +183,8 @@ class BaseLoadTest < ActiveSupport::TestCase
 
   def test_load_collection_with_single_unknown_resource
     Person.__send__(:remove_const, :Address) if Person.const_defined?(:Address)
-    assert !Person.const_defined?(:Address), "Address shouldn't exist until autocreated"
-    addresses = silence_warnings { @person.load(:addresses => [ @first_address ]).addresses }
+    assert_not Person.const_defined?(:Address), "Address shouldn't exist until autocreated"
+    addresses = silence_warnings { @person.load(addresses: [ @first_address ]).addresses }
     assert Person.const_defined?(:Address), "Address should have been autocreated"
     addresses.each { |address| assert_kind_of Person::Address, address }
     assert_equal [ @first_address.values.first ].map(&:stringify_keys), addresses.map(&:attributes)
@@ -231,17 +233,17 @@ class BaseLoadTest < ActiveSupport::TestCase
   end
 
   def test_nested_collections_within_the_same_namespace
-    n = Highrise::Note.new(:comments => [{ :comment => { :name => "1" } }])
+    n = Highrise::Note.new(comments: [{ comment: { name: "1" } }])
     assert_kind_of Highrise::Comment, n.comments.first
   end
 
   def test_nested_collections_within_deeply_nested_namespace
-    n = Highrise::Deeply::Nested::Note.new(:comments => [{ :name => "1" }])
+    n = Highrise::Deeply::Nested::Note.new(comments: [{ name: "1" }])
     assert_kind_of Highrise::Deeply::Nested::Comment, n.comments.first
   end
 
   def test_nested_collections_in_different_levels_of_namespaces
-    n = Highrise::Deeply::Nested::TestDifferentLevels::Note.new(:comments => [{ :name => "1" }])
+    n = Highrise::Deeply::Nested::TestDifferentLevels::Note.new(comments: [{ name: "1" }])
     assert_kind_of Highrise::Deeply::Nested::Comment, n.comments.first
   end
 end

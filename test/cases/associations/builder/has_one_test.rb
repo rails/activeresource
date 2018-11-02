@@ -1,7 +1,9 @@
-require 'abstract_unit'
+# frozen_string_literal: true
 
-require 'fixtures/product'
-require 'fixtures/inventory'
+require "abstract_unit"
+
+require "fixtures/product"
+require "fixtures/inventory"
 
 class ActiveResource::Associations::Builder::HasOneTest < ActiveSupport::TestCase
   def setup
@@ -23,5 +25,4 @@ class ActiveResource::Associations::Builder::HasOneTest < ActiveSupport::TestCas
     assert_equal :inventory, reflection.name
     assert_equal Inventory, reflection.klass
   end
-
 end

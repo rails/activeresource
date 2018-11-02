@@ -1,7 +1,8 @@
-require 'abstract_unit'
+# frozen_string_literal: true
+
+require "abstract_unit"
 
 class ThreadsafeAttributesTest < ActiveSupport::TestCase
-
   class TestClass
     include ThreadsafeAttributes
     threadsafe_attribute :safeattr
@@ -12,7 +13,7 @@ class ThreadsafeAttributesTest < ActiveSupport::TestCase
   end
 
   test "#threadsafe attributes work in a single thread" do
-    refute @tester.safeattr_defined?
+    assert_not @tester.safeattr_defined?
     assert_nil @tester.safeattr
     @tester.safeattr = "a value"
     assert @tester.safeattr_defined?
@@ -47,7 +48,7 @@ class ThreadsafeAttributesTest < ActiveSupport::TestCase
   end
 
   test "#changing a threadsafe attribute in a thread sets an equal value for the main thread, if no value has been set" do
-    refute @tester.safeattr_defined?
+    assert_not @tester.safeattr_defined?
     assert_nil @tester.safeattr
     Thread.new do
       @tester.safeattr = "value from child"
@@ -71,7 +72,7 @@ class ThreadsafeAttributesTest < ActiveSupport::TestCase
     end.resume
   end
 
-  unless RUBY_PLATFORM == 'java'
+  unless RUBY_PLATFORM == "java"
     test "threadsafe attributes can be accessed after forking within a thread" do
       reader, writer = IO.pipe
       @tester.safeattr = "a value"

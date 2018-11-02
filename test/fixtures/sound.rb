@@ -1,4 +1,6 @@
-module Asset  
+# frozen_string_literal: true
+
+module Asset
   class Sound < ActiveResource::Base
     self.site = "http://37s.sunrise.i:3000"
   end

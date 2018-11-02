@@ -1,10 +1,11 @@
-module ActiveResource::Associations
+# frozen_string_literal: true
 
+module ActiveResource::Associations
   module Builder
-    autoload :Association, 'active_resource/associations/builder/association'
-    autoload :HasMany,     'active_resource/associations/builder/has_many'
-    autoload :HasOne,      'active_resource/associations/builder/has_one'
-    autoload :BelongsTo,   'active_resource/associations/builder/belongs_to'
+    autoload :Association, "active_resource/associations/builder/association"
+    autoload :HasMany,     "active_resource/associations/builder/has_many"
+    autoload :HasOne,      "active_resource/associations/builder/has_one"
+    autoload :BelongsTo,   "active_resource/associations/builder/belongs_to"
   end
 
 
@@ -112,7 +113,7 @@ module ActiveResource::Associations
   # <tt>belongs_to :customer, :foreign_key => 'user_id'</tt>
   # Creates a belongs_to association called customer which would be resolved by the foreign_key <tt>user_id</tt> instead of <tt>customer_id</tt>
   #
-  def belongs_to(name, options={})
+  def belongs_to(name, options = {})
     Builder::BelongsTo.build(self, name, options)
   end
 
@@ -147,7 +148,7 @@ module ActiveResource::Associations
       elsif attributes.include?(method_name)
         attributes[method_name]
       elsif !new_record?
-        instance_variable_set(ivar_name, reflection.klass.find(:all, :params => {:"#{self.class.element_name}_id" => self.id}))
+        instance_variable_set(ivar_name, reflection.klass.find(:all, params: { :"#{self.class.element_name}_id" => self.id }))
       else
         instance_variable_set(ivar_name, self.class.collection_parser.new)
       end
@@ -165,11 +166,10 @@ module ActiveResource::Associations
       elsif attributes.include?(method_name)
         attributes[method_name]
       elsif reflection.klass.respond_to?(:singleton_name)
-        instance_variable_set(ivar_name, reflection.klass.find(:params => {:"#{self.class.element_name}_id" => self.id}))
+        instance_variable_set(ivar_name, reflection.klass.find(params: { :"#{self.class.element_name}_id" => self.id }))
       else
-        instance_variable_set(ivar_name, reflection.klass.find(:one, :from => "/#{self.class.collection_name}/#{self.id}/#{method_name}#{self.class.format_extension}"))
+        instance_variable_set(ivar_name, reflection.klass.find(:one, from: "/#{self.class.collection_name}/#{self.id}/#{method_name}#{self.class.format_extension}"))
       end
     end
   end
-
 end

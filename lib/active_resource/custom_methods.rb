@@ -1,4 +1,6 @@
-require 'active_support/core_ext/object/blank'
+# frozen_string_literal: true
+
+require "active_support/core_ext/object/blank"
 
 module ActiveResource
   # A module to support custom REST methods and sub-resources, allowing you to break out
@@ -59,15 +61,15 @@ module ActiveResource
           derooted.is_a?(Array) ? derooted.map { |e| Formats.remove_root(e) } : derooted
         end
 
-        def post(custom_method_name, options = {}, body = '')
+        def post(custom_method_name, options = {}, body = "")
           connection.post(custom_method_collection_url(custom_method_name, options), body, headers)
         end
 
-        def patch(custom_method_name, options = {}, body = '')
+        def patch(custom_method_name, options = {}, body = "")
           connection.patch(custom_method_collection_url(custom_method_name, options), body, headers)
         end
 
-        def put(custom_method_name, options = {}, body = '')
+        def put(custom_method_name, options = {}, body = "")
           connection.put(custom_method_collection_url(custom_method_name, options), body, headers)
         end
 
@@ -102,11 +104,11 @@ module ActiveResource
       end
     end
 
-    def patch(method_name, options = {}, body = '')
+    def patch(method_name, options = {}, body = "")
       connection.patch(custom_method_element_url(method_name, options), body, self.class.headers)
     end
 
-    def put(method_name, options = {}, body = '')
+    def put(method_name, options = {}, body = "")
       connection.put(custom_method_element_url(method_name, options), body, self.class.headers)
     end
 

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class SetterTrap < ActiveSupport::ProxyObject
   class << self
     def rollback_sets(obj)

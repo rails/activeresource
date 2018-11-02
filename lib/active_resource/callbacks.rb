@@ -1,4 +1,6 @@
-require 'active_support/core_ext/array/wrap'
+# frozen_string_literal: true
+
+require "active_support/core_ext/array/wrap"
 
 module ActiveResource
   module Callbacks

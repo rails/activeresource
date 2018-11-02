@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Person < ActiveResource::Base
   self.site = "http://37s.sunrise.i:3000"
 end
@@ -11,4 +13,3 @@ module External
     self.site = "http://external.profile.data.nl"
   end
 end
-

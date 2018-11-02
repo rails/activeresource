@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 #--
 # Copyright (c) 2006-2012 David Heinemeier Hansson
 #
@@ -21,10 +23,10 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #++
 
-require 'active_support'
-require 'active_model'
-require 'active_resource/exceptions'
-require 'active_resource/version'
+require "active_support"
+require "active_model"
+require "active_resource/exceptions"
+require "active_resource/version"
 
 module ActiveResource
   extend ActiveSupport::Autoload
@@ -41,4 +43,4 @@ module ActiveResource
   autoload :Collection
 end
 
-require 'active_resource/railtie' if defined?(Rails.application)
+require "active_resource/railtie" if defined?(Rails.application)

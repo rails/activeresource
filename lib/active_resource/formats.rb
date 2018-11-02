@@ -1,7 +1,9 @@
+# frozen_string_literal: true
+
 module ActiveResource
   module Formats
-    autoload :XmlFormat, 'active_resource/formats/xml_format'
-    autoload :JsonFormat, 'active_resource/formats/json_format'
+    autoload :XmlFormat, "active_resource/formats/xml_format"
+    autoload :JsonFormat, "active_resource/formats/json_format"
 
     # Lookup the format class from a mime type reference symbol. Example:
     #

@@ -1,7 +1,9 @@
-require 'abstract_unit'
+# frozen_string_literal: true
 
-require 'fixtures/person'
-require 'fixtures/street_address'
+require "abstract_unit"
+
+require "fixtures/person"
+require "fixtures/street_address"
 
 class ActiveResource::Associations::Builder::HasManyTest < ActiveSupport::TestCase
   def setup
@@ -23,5 +25,4 @@ class ActiveResource::Associations::Builder::HasManyTest < ActiveSupport::TestCa
     assert_equal :street_address, reflection.name
     assert_equal StreetAddress, reflection.klass
   end
-
 end

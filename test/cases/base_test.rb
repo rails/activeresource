@@ -1,4 +1,6 @@
-require 'abstract_unit'
+# frozen_string_literal: true
+
+require "abstract_unit"
 require "fixtures/person"
 require "fixtures/customer"
 require "fixtures/street_address"
@@ -11,9 +13,9 @@ require "fixtures/post"
 require "fixtures/comment"
 require "fixtures/product"
 require "fixtures/inventory"
-require 'active_support/json'
-require 'active_support/core_ext/hash/conversions'
-require 'mocha/setup'
+require "active_support/json"
+require "active_support/core_ext/hash/conversions"
+require "mocha/setup"
 
 class BaseTest < ActiveSupport::TestCase
   def setup
@@ -32,9 +34,9 @@ class BaseTest < ActiveSupport::TestCase
   ########################################################################
 
   def test_site_accessor_accepts_uri_or_string_argument
-    site = URI.parse('http://localhost')
+    site = URI.parse("http://localhost")
 
-    assert_nothing_raised { Person.site = 'http://localhost' }
+    assert_nothing_raised { Person.site = "http://localhost" }
     assert_equal site, Person.site
 
     assert_nothing_raised { Person.site = site }
@@ -42,22 +44,22 @@ class BaseTest < ActiveSupport::TestCase
   end
 
   def test_should_use_site_prefix_and_credentials
-    assert_equal 'http://foo:bar@beast.caboo.se', Forum.site.to_s
-    assert_equal 'http://foo:bar@beast.caboo.se/forums/:forum_id', Topic.site.to_s
+    assert_equal "http://foo:bar@beast.caboo.se", Forum.site.to_s
+    assert_equal "http://foo:bar@beast.caboo.se/forums/:forum_id", Topic.site.to_s
   end
 
   def test_site_variable_can_be_reset
     actor = Class.new(ActiveResource::Base)
     assert_nil actor.site
-    actor.site = 'http://localhost:31337'
+    actor.site = "http://localhost:31337"
     actor.site = nil
     assert_nil actor.site
   end
 
   def test_proxy_accessor_accepts_uri_or_string_argument
-    proxy = URI.parse('http://localhost')
+    proxy = URI.parse("http://localhost")
 
-    assert_nothing_raised { Person.proxy = 'http://localhost' }
+    assert_nothing_raised { Person.proxy = "http://localhost" }
     assert_equal proxy, Person.proxy
 
     assert_nothing_raised { Person.proxy = proxy }
@@ -65,27 +67,27 @@ class BaseTest < ActiveSupport::TestCase
   end
 
   def test_should_use_proxy_prefix_and_credentials
-    assert_equal 'http://user:password@proxy.local:3000', ProxyResource.proxy.to_s
+    assert_equal "http://user:password@proxy.local:3000", ProxyResource.proxy.to_s
   end
 
   def test_proxy_variable_can_be_reset
     actor = Class.new(ActiveResource::Base)
     assert_nil actor.site
-    actor.proxy = 'http://localhost:31337'
+    actor.proxy = "http://localhost:31337"
     actor.proxy = nil
     assert_nil actor.site
   end
 
   def test_should_accept_setting_user
-    Forum.user = 'david'
-    assert_equal('david', Forum.user)
-    assert_equal('david', Forum.connection.user)
+    Forum.user = "david"
+    assert_equal("david", Forum.user)
+    assert_equal("david", Forum.connection.user)
   end
 
   def test_should_accept_setting_password
-    Forum.password = 'test123'
-    assert_equal('test123', Forum.password)
-    assert_equal('test123', Forum.connection.password)
+    Forum.password = "test123"
+    assert_equal("test123", Forum.password)
+    assert_equal("test123", Forum.connection.password)
   end
 
   def test_should_accept_setting_auth_type
@@ -113,17 +115,17 @@ class BaseTest < ActiveSupport::TestCase
   end
 
   def test_should_accept_setting_ssl_options
-    expected = {:verify => 1}
-    Forum.ssl_options= expected
+    expected = { verify: 1 }
+    Forum.ssl_options = expected
     assert_equal(expected, Forum.ssl_options)
     assert_equal(expected, Forum.connection.ssl_options)
   end
 
   def test_user_variable_can_be_reset
     actor = Class.new(ActiveResource::Base)
-    actor.site = 'http://cinema'
+    actor.site = "http://cinema"
     assert_nil actor.user
-    actor.user = 'username'
+    actor.user = "username"
     actor.user = nil
     assert_nil actor.user
     assert_nil actor.connection.user
@@ -131,9 +133,9 @@ class BaseTest < ActiveSupport::TestCase
 
   def test_password_variable_can_be_reset
     actor = Class.new(ActiveResource::Base)
-    actor.site = 'http://cinema'
+    actor.site = "http://cinema"
     assert_nil actor.password
-    actor.password = 'username'
+    actor.password = "username"
     actor.password = nil
     assert_nil actor.password
     assert_nil actor.connection.password
@@ -141,7 +143,7 @@ class BaseTest < ActiveSupport::TestCase
 
   def test_timeout_variable_can_be_reset
     actor = Class.new(ActiveResource::Base)
-    actor.site = 'http://cinema'
+    actor.site = "http://cinema"
     assert_nil actor.timeout
     actor.timeout = 5
     actor.timeout = nil
@@ -151,7 +153,7 @@ class BaseTest < ActiveSupport::TestCase
 
   def test_open_timeout_variable_can_be_reset
     actor = Class.new(ActiveResource::Base)
-    actor.site = 'http://cinema'
+    actor.site = "http://cinema"
     assert_nil actor.open_timeout
     actor.open_timeout = 5
     actor.open_timeout = nil
@@ -161,7 +163,7 @@ class BaseTest < ActiveSupport::TestCase
 
   def test_read_timeout_variable_can_be_reset
     actor = Class.new(ActiveResource::Base)
-    actor.site = 'http://cinema'
+    actor.site = "http://cinema"
     assert_nil actor.read_timeout
     actor.read_timeout = 5
     actor.read_timeout = nil
@@ -172,13 +174,13 @@ class BaseTest < ActiveSupport::TestCase
   def test_ssl_options_hash_can_be_reset
     # SSL options are nil, resulting in an empty hash on the connection.
     actor = Class.new(ActiveResource::Base)
-    actor.site = 'https://cinema'
+    actor.site = "https://cinema"
     assert_nil actor.ssl_options
     connection = actor.connection
     assert_equal Hash.new, connection.ssl_options
 
     # Setting SSL options wipes the connection.
-    actor.ssl_options = { :foo => 5 }
+    actor.ssl_options = { foo: 5 }
     assert_not_equal connection, actor.connection
     connection = actor.connection
     assert_equal 5, connection.ssl_options[:foo]
@@ -191,7 +193,7 @@ class BaseTest < ActiveSupport::TestCase
 
   def test_credentials_from_site_are_decoded
     actor = Class.new(ActiveResource::Base)
-    actor.site = 'http://my%40email.com:%31%32%33@cinema'
+    actor.site = "http://my%40email.com:%31%32%33@cinema"
     assert_equal("my@email.com", actor.user)
     assert_equal("123", actor.password)
   end
@@ -206,23 +208,23 @@ class BaseTest < ActiveSupport::TestCase
     assert_equal Person.site, actor.site
 
     # Subclass returns frozen superclass copy.
-    assert !Person.site.frozen?
+    assert_not Person.site.frozen?
     assert actor.site.frozen?
 
     # Changing subclass site doesn't change superclass site.
-    actor.site = 'http://localhost:31337'
+    actor.site = "http://localhost:31337"
     assert_not_equal Person.site, actor.site
 
     # Changed subclass site is not frozen.
-    assert !actor.site.frozen?
+    assert_not actor.site.frozen?
 
     # Changing superclass site doesn't overwrite subclass site.
-    Person.site = 'http://somewhere.else'
+    Person.site = "http://somewhere.else"
     assert_not_equal Person.site, actor.site
 
     # Changing superclass site after subclassing changes subclass site.
     jester = Class.new(actor)
-    actor.site = 'http://nomad'
+    actor.site = "http://nomad"
     assert_equal actor.site, jester.site
     assert jester.site.frozen?
 
@@ -230,11 +232,11 @@ class BaseTest < ActiveSupport::TestCase
     fruit = Class.new(ActiveResource::Base)
     apple = Class.new(fruit)
 
-    fruit.site = 'http://market'
-    assert_equal fruit.site, apple.site, 'subclass did not adopt changes from parent class'
+    fruit.site = "http://market"
+    assert_equal fruit.site, apple.site, "subclass did not adopt changes from parent class"
 
-    fruit.site = 'http://supermarket'
-    assert_equal fruit.site, apple.site, 'subclass did not adopt changes from parent class'
+    fruit.site = "http://supermarket"
+    assert_equal fruit.site, apple.site, "subclass did not adopt changes from parent class"
   end
 
   def test_proxy_reader_uses_superclass_site_until_written
@@ -242,30 +244,30 @@ class BaseTest < ActiveSupport::TestCase
     assert_nil ActiveResource::Base.proxy
     assert_nil Class.new(ActiveResource::Base).proxy
 
-    Person.proxy = 'http://proxy.local'
+    Person.proxy = "http://proxy.local"
 
     # Subclass uses superclass proxy.
     actor = Class.new(Person)
     assert_equal Person.proxy, actor.proxy
 
     # Subclass returns frozen superclass copy.
-    assert !Person.proxy.frozen?
+    assert_not Person.proxy.frozen?
     assert actor.proxy.frozen?
 
     # Changing subclass proxy doesn't change superclass site.
-    actor.proxy = 'http://localhost:31337'
+    actor.proxy = "http://localhost:31337"
     assert_not_equal Person.proxy, actor.proxy
 
     # Changed subclass proxy is not frozen.
-    assert !actor.proxy.frozen?
+    assert_not actor.proxy.frozen?
 
     # Changing superclass proxy doesn't overwrite subclass site.
-    Person.proxy = 'http://somewhere.else'
+    Person.proxy = "http://somewhere.else"
     assert_not_equal Person.proxy, actor.proxy
 
     # Changing superclass proxy after subclassing changes subclass site.
     jester = Class.new(actor)
-    actor.proxy = 'http://nomad'
+    actor.proxy = "http://nomad"
     assert_equal actor.proxy, jester.proxy
     assert jester.proxy.frozen?
 
@@ -273,87 +275,87 @@ class BaseTest < ActiveSupport::TestCase
     fruit = Class.new(ActiveResource::Base)
     apple = Class.new(fruit)
 
-    fruit.proxy = 'http://market'
-    assert_equal fruit.proxy, apple.proxy, 'subclass did not adopt changes from parent class'
+    fruit.proxy = "http://market"
+    assert_equal fruit.proxy, apple.proxy, "subclass did not adopt changes from parent class"
 
-    fruit.proxy = 'http://supermarket'
-    assert_equal fruit.proxy, apple.proxy, 'subclass did not adopt changes from parent class'
+    fruit.proxy = "http://supermarket"
+    assert_equal fruit.proxy, apple.proxy, "subclass did not adopt changes from parent class"
   end
 
   def test_user_reader_uses_superclass_user_until_written
     # Superclass is Object so returns nil.
     assert_nil ActiveResource::Base.user
     assert_nil Class.new(ActiveResource::Base).user
-    Person.user = 'anonymous'
+    Person.user = "anonymous".dup
 
     # Subclass uses superclass user.
     actor = Class.new(Person)
     assert_equal Person.user, actor.user
 
     # Subclass returns frozen superclass copy.
-    assert !Person.user.frozen?
+    assert_not Person.user.frozen?
     assert actor.user.frozen?
 
     # Changing subclass user doesn't change superclass user.
-    actor.user = 'david'
+    actor.user = "david"
     assert_not_equal Person.user, actor.user
 
     # Changing superclass user doesn't overwrite subclass user.
-    Person.user = 'john'
+    Person.user = "john"
     assert_not_equal Person.user, actor.user
 
     # Changing superclass user after subclassing changes subclass user.
     jester = Class.new(actor)
-    actor.user = 'john.doe'
+    actor.user = "john.doe"
     assert_equal actor.user, jester.user
 
     # Subclasses are always equal to superclass user when not overridden
     fruit = Class.new(ActiveResource::Base)
     apple = Class.new(fruit)
 
-    fruit.user = 'manager'
-    assert_equal fruit.user, apple.user, 'subclass did not adopt changes from parent class'
+    fruit.user = "manager"
+    assert_equal fruit.user, apple.user, "subclass did not adopt changes from parent class"
 
-    fruit.user = 'client'
-    assert_equal fruit.user, apple.user, 'subclass did not adopt changes from parent class'
+    fruit.user = "client"
+    assert_equal fruit.user, apple.user, "subclass did not adopt changes from parent class"
   end
 
   def test_password_reader_uses_superclass_password_until_written
     # Superclass is Object so returns nil.
     assert_nil ActiveResource::Base.password
     assert_nil Class.new(ActiveResource::Base).password
-    Person.password = 'my-password'
+    Person.password = "my-password".dup
 
     # Subclass uses superclass password.
     actor = Class.new(Person)
     assert_equal Person.password, actor.password
 
     # Subclass returns frozen superclass copy.
-    assert !Person.password.frozen?
+    assert_not Person.password.frozen?
     assert actor.password.frozen?
 
     # Changing subclass password doesn't change superclass password.
-    actor.password = 'secret'
+    actor.password = "secret"
     assert_not_equal Person.password, actor.password
 
     # Changing superclass password doesn't overwrite subclass password.
-    Person.password = 'super-secret'
+    Person.password = "super-secret"
     assert_not_equal Person.password, actor.password
 
     # Changing superclass password after subclassing changes subclass password.
     jester = Class.new(actor)
-    actor.password = 'even-more-secret'
+    actor.password = "even-more-secret"
     assert_equal actor.password, jester.password
 
     # Subclasses are always equal to superclass password when not overridden
     fruit = Class.new(ActiveResource::Base)
     apple = Class.new(fruit)
 
-    fruit.password = 'mega-secret'
-    assert_equal fruit.password, apple.password, 'subclass did not adopt changes from parent class'
+    fruit.password = "mega-secret"
+    assert_equal fruit.password, apple.password, "subclass did not adopt changes from parent class"
 
-    fruit.password = 'ok-password'
-    assert_equal fruit.password, apple.password, 'subclass did not adopt changes from parent class'
+    fruit.password = "ok-password"
+    assert_equal fruit.password, apple.password, "subclass did not adopt changes from parent class"
   end
 
   def test_timeout_reader_uses_superclass_timeout_until_written
@@ -384,10 +386,10 @@ class BaseTest < ActiveSupport::TestCase
     apple = Class.new(fruit)
 
     fruit.timeout = 25
-    assert_equal fruit.timeout, apple.timeout, 'subclass did not adopt changes from parent class'
+    assert_equal fruit.timeout, apple.timeout, "subclass did not adopt changes from parent class"
 
     fruit.timeout = 30
-    assert_equal fruit.timeout, apple.timeout, 'subclass did not adopt changes from parent class'
+    assert_equal fruit.timeout, apple.timeout, "subclass did not adopt changes from parent class"
   end
 
   def test_open_and_read_timeout_readers_uses_superclass_timeout_until_written
@@ -429,19 +431,19 @@ class BaseTest < ActiveSupport::TestCase
 
     fruit.open_timeout = 25
     fruit.read_timeout = 25
-    assert_equal fruit.open_timeout, apple.open_timeout, 'subclass did not adopt changes from parent class'
-    assert_equal fruit.read_timeout, apple.read_timeout, 'subclass did not adopt changes from parent class'
+    assert_equal fruit.open_timeout, apple.open_timeout, "subclass did not adopt changes from parent class"
+    assert_equal fruit.read_timeout, apple.read_timeout, "subclass did not adopt changes from parent class"
 
     fruit.open_timeout = 30
     fruit.read_timeout = 30
-    assert_equal fruit.open_timeout, apple.open_timeout, 'subclass did not adopt changes from parent class'
-    assert_equal fruit.read_timeout, apple.read_timeout, 'subclass did not adopt changes from parent class'
+    assert_equal fruit.open_timeout, apple.open_timeout, "subclass did not adopt changes from parent class"
+    assert_equal fruit.read_timeout, apple.read_timeout, "subclass did not adopt changes from parent class"
   end
 
   def test_primary_key_uses_superclass_primary_key_until_written
     # Superclass is Object so defaults to 'id'
-    assert_equal 'id', ActiveResource::Base.primary_key
-    assert_equal 'id', Class.new(ActiveResource::Base).primary_key
+    assert_equal "id", ActiveResource::Base.primary_key
+    assert_equal "id", Class.new(ActiveResource::Base).primary_key
     Person.primary_key = :first
 
     # Subclass uses superclass primary_key
@@ -466,47 +468,47 @@ class BaseTest < ActiveSupport::TestCase
     apple = Class.new(fruit)
 
     fruit.primary_key = :fifth
-    assert_equal fruit.primary_key, apple.primary_key, 'subclass did not adopt changes from parent class'
+    assert_equal fruit.primary_key, apple.primary_key, "subclass did not adopt changes from parent class"
 
     fruit.primary_key = :sixth
-    assert_equal fruit.primary_key, apple.primary_key, 'subclass did not adopt changes from parent class'
+    assert_equal fruit.primary_key, apple.primary_key, "subclass did not adopt changes from parent class"
 
     # Reset the primary key for subsequent tests
-    Person.primary_key = 'id'
+    Person.primary_key = "id"
   end
 
   def test_ssl_options_reader_uses_superclass_ssl_options_until_written
     # Superclass is Object so returns nil.
     assert_nil ActiveResource::Base.ssl_options
     assert_nil Class.new(ActiveResource::Base).ssl_options
-    Person.ssl_options = {:foo => 'bar'}
+    Person.ssl_options = { foo: "bar" }
 
     # Subclass uses superclass ssl_options.
     actor = Class.new(Person)
     assert_equal Person.ssl_options, actor.ssl_options
 
     # Changing subclass ssl_options doesn't change superclass ssl_options.
-    actor.ssl_options = {:baz => ''}
+    actor.ssl_options = { baz: "" }
     assert_not_equal Person.ssl_options, actor.ssl_options
 
     # Changing superclass ssl_options doesn't overwrite subclass ssl_options.
-    Person.ssl_options = {:color => 'blue'}
+    Person.ssl_options = { color: "blue" }
     assert_not_equal Person.ssl_options, actor.ssl_options
 
     # Changing superclass ssl_options after subclassing changes subclass ssl_options.
     jester = Class.new(actor)
-    actor.ssl_options = {:color => 'red'}
+    actor.ssl_options = { color: "red" }
     assert_equal actor.ssl_options, jester.ssl_options
 
     # Subclasses are always equal to superclass ssl_options when not overridden.
     fruit = Class.new(ActiveResource::Base)
     apple = Class.new(fruit)
 
-    fruit.ssl_options = {:alpha => 'betas'}
-    assert_equal fruit.ssl_options, apple.ssl_options, 'subclass did not adopt changes from parent class'
+    fruit.ssl_options = { alpha: "betas" }
+    assert_equal fruit.ssl_options, apple.ssl_options, "subclass did not adopt changes from parent class"
 
-    fruit.ssl_options = {:omega => 'moos'}
-    assert_equal fruit.ssl_options, apple.ssl_options, 'subclass did not adopt changes from parent class'
+    fruit.ssl_options = { omega: "moos" }
+    assert_equal fruit.ssl_options, apple.ssl_options, "subclass did not adopt changes from parent class"
   end
 
   def test_updating_baseclass_site_object_wipes_descendent_cached_connection_objects
@@ -514,53 +516,53 @@ class BaseTest < ActiveSupport::TestCase
     fruit = Class.new(ActiveResource::Base)
     apple = Class.new(fruit)
 
-    fruit.site = 'http://market'
+    fruit.site = "http://market"
     assert_equal fruit.connection.site, apple.connection.site
     first_connection = apple.connection.object_id
 
-    fruit.site = 'http://supermarket'
+    fruit.site = "http://supermarket"
     assert_equal fruit.connection.site, apple.connection.site
     second_connection = apple.connection.object_id
-    assert_not_equal(first_connection, second_connection, 'Connection should be re-created')
+    assert_not_equal(first_connection, second_connection, "Connection should be re-created")
   end
 
   def test_updating_baseclass_user_wipes_descendent_cached_connection_objects
     # Subclasses are always equal to superclass user when not overridden
     fruit = Class.new(ActiveResource::Base)
     apple = Class.new(fruit)
-    fruit.site = 'http://market'
+    fruit.site = "http://market"
 
-    fruit.user = 'david'
+    fruit.user = "david"
     assert_equal fruit.connection.user, apple.connection.user
     first_connection = apple.connection.object_id
 
-    fruit.user = 'john'
+    fruit.user = "john"
     assert_equal fruit.connection.user, apple.connection.user
     second_connection = apple.connection.object_id
-    assert_not_equal(first_connection, second_connection, 'Connection should be re-created')
+    assert_not_equal(first_connection, second_connection, "Connection should be re-created")
   end
 
   def test_updating_baseclass_password_wipes_descendent_cached_connection_objects
     # Subclasses are always equal to superclass password when not overridden
     fruit = Class.new(ActiveResource::Base)
     apple = Class.new(fruit)
-    fruit.site = 'http://market'
+    fruit.site = "http://market"
 
-    fruit.password = 'secret'
+    fruit.password = "secret"
     assert_equal fruit.connection.password, apple.connection.password
     first_connection = apple.connection.object_id
 
-    fruit.password = 'supersecret'
+    fruit.password = "supersecret"
     assert_equal fruit.connection.password, apple.connection.password
     second_connection = apple.connection.object_id
-    assert_not_equal(first_connection, second_connection, 'Connection should be re-created')
+    assert_not_equal(first_connection, second_connection, "Connection should be re-created")
   end
 
   def test_updating_baseclass_timeout_wipes_descendent_cached_connection_objects
     # Subclasses are always equal to superclass timeout when not overridden
     fruit = Class.new(ActiveResource::Base)
     apple = Class.new(fruit)
-    fruit.site = 'http://market'
+    fruit.site = "http://market"
 
     fruit.timeout = 5
     assert_equal fruit.connection.timeout, apple.connection.timeout
@@ -569,14 +571,14 @@ class BaseTest < ActiveSupport::TestCase
     fruit.timeout = 10
     assert_equal fruit.connection.timeout, apple.connection.timeout
     second_connection = apple.connection.object_id
-    assert_not_equal(first_connection, second_connection, 'Connection should be re-created')
+    assert_not_equal(first_connection, second_connection, "Connection should be re-created")
   end
 
   def test_updating_baseclass_read_and_open_timeouts_wipes_descendent_cached_connection_objects
     # Subclasses are always equal to superclass timeout when not overridden
     fruit = Class.new(ActiveResource::Base)
     apple = Class.new(fruit)
-    fruit.site = 'http://market'
+    fruit.site = "http://market"
 
     fruit.open_timeout = 1
     fruit.read_timeout = 5
@@ -589,58 +591,58 @@ class BaseTest < ActiveSupport::TestCase
     assert_equal fruit.connection.open_timeout, apple.connection.open_timeout
     assert_equal fruit.connection.read_timeout, apple.connection.read_timeout
     second_connection = apple.connection.object_id
-    assert_not_equal(first_connection, second_connection, 'Connection should be re-created')
+    assert_not_equal(first_connection, second_connection, "Connection should be re-created")
   end
 
   def test_header_inheritance
     fruit = Class.new(ActiveResource::Base)
     apple = Class.new(fruit)
-    fruit.site = 'http://market'
+    fruit.site = "http://market"
 
-    fruit.headers['key'] = 'value'
-    assert_equal 'value', apple.headers['key']
+    fruit.headers["key"] = "value"
+    assert_equal "value", apple.headers["key"]
   end
 
   def test_header_inheritance_set_at_multiple_points
     fruit = Class.new(ActiveResource::Base)
     apple = Class.new(fruit)
-    fruit.site = 'http://market'
+    fruit.site = "http://market"
 
-    fruit.headers['key'] = 'value'
-    assert_equal 'value', apple.headers['key']
+    fruit.headers["key"] = "value"
+    assert_equal "value", apple.headers["key"]
 
-    apple.headers['key2'] = 'value2'
-    fruit.headers['key3'] = 'value3'
+    apple.headers["key2"] = "value2"
+    fruit.headers["key3"] = "value3"
 
-    assert_equal 'value', apple.headers['key']
-    assert_equal 'value2', apple.headers['key2']
-    assert_equal 'value3', apple.headers['key3']
+    assert_equal "value", apple.headers["key"]
+    assert_equal "value2", apple.headers["key2"]
+    assert_equal "value3", apple.headers["key3"]
   end
 
   def test_header_inheritance_should_not_leak_upstream
     fruit = Class.new(ActiveResource::Base)
     apple = Class.new(fruit)
-    fruit.site = 'http://market'
+    fruit.site = "http://market"
 
-    fruit.headers['key'] = 'value'
+    fruit.headers["key"] = "value"
 
-    apple.headers['key2'] = 'value2'
-    assert_nil fruit.headers['key2']
+    apple.headers["key2"] = "value2"
+    assert_nil fruit.headers["key2"]
   end
 
   def test_header_should_be_copied_to_main_thread_if_not_defined
     fruit = Class.new(ActiveResource::Base)
 
     Thread.new do
-      fruit.site = 'http://market'
-      assert_equal 'http://market', fruit.site.to_s
+      fruit.site = "http://market"
+      assert_equal "http://market", fruit.site.to_s
 
-      fruit.headers['key'] = 'value'
-      assert_equal 'value', fruit.headers['key']
+      fruit.headers["key"] = "value"
+      assert_equal "value", fruit.headers["key"]
     end.join
 
-    assert_equal 'http://market', fruit.site.to_s
-    assert_equal 'value', fruit.headers['key']
+    assert_equal "http://market", fruit.site.to_s
+    assert_equal "value", fruit.headers["key"]
   end
 
   def test_connection_should_use_connection_class
@@ -663,30 +665,30 @@ class BaseTest < ActiveSupport::TestCase
   end
 
   def test_collection_path
-    assert_equal '/people.json', Person.collection_path
+    assert_equal "/people.json", Person.collection_path
   end
 
   def test_collection_path_with_parameters
-    assert_equal '/people.json?gender=male', Person.collection_path(:gender => 'male')
-    assert_equal '/people.json?gender=false', Person.collection_path(:gender => false)
-    assert_equal '/people.json?gender=', Person.collection_path(:gender => nil)
+    assert_equal "/people.json?gender=male", Person.collection_path(gender: "male")
+    assert_equal "/people.json?gender=false", Person.collection_path(gender: false)
+    assert_equal "/people.json?gender=", Person.collection_path(gender: nil)
 
-    assert_equal '/people.json?gender=male', Person.collection_path('gender' => 'male')
+    assert_equal "/people.json?gender=male", Person.collection_path("gender" => "male")
 
     # Use includes? because ordering of param hash is not guaranteed
-    assert Person.collection_path(:gender => 'male', :student => true).include?('/people.json?')
-    assert Person.collection_path(:gender => 'male', :student => true).include?('gender=male')
-    assert Person.collection_path(:gender => 'male', :student => true).include?('student=true')
+    assert Person.collection_path(gender: "male", student: true).include?("/people.json?")
+    assert Person.collection_path(gender: "male", student: true).include?("gender=male")
+    assert Person.collection_path(gender: "male", student: true).include?("student=true")
 
-    assert_equal '/people.json?name%5B%5D=bob&name%5B%5D=your+uncle%2Bme&name%5B%5D=&name%5B%5D=false', Person.collection_path(:name => ['bob', 'your uncle+me', nil, false])
-    assert_equal '/people.json?struct%5Ba%5D%5B%5D=2&struct%5Ba%5D%5B%5D=1&struct%5Bb%5D=fred', Person.collection_path(:struct => {:a => [2,1], 'b' => 'fred'})
+    assert_equal "/people.json?name%5B%5D=bob&name%5B%5D=your+uncle%2Bme&name%5B%5D=&name%5B%5D=false", Person.collection_path(name: ["bob", "your uncle+me", nil, false])
+    assert_equal "/people.json?struct%5Ba%5D%5B%5D=2&struct%5Ba%5D%5B%5D=1&struct%5Bb%5D=fred", Person.collection_path(struct: { :a => [2, 1], "b" => "fred" })
   end
 
   def test_custom_element_path
-    assert_equal '/people/1/addresses/1.json', StreetAddress.element_path(1, :person_id => 1)
-    assert_equal '/people/1/addresses/1.json', StreetAddress.element_path(1, 'person_id' => 1)
-    assert_equal '/people/Greg/addresses/1.json', StreetAddress.element_path(1, 'person_id' => 'Greg')
-    assert_equal '/people/ann%20mary/addresses/ann%20mary.json', StreetAddress.element_path(:'ann mary', 'person_id' => 'ann mary')
+    assert_equal "/people/1/addresses/1.json", StreetAddress.element_path(1, person_id: 1)
+    assert_equal "/people/1/addresses/1.json", StreetAddress.element_path(1, "person_id" => 1)
+    assert_equal "/people/Greg/addresses/1.json", StreetAddress.element_path(1, "person_id" => "Greg")
+    assert_equal "/people/ann%20mary/addresses/ann%20mary.json", StreetAddress.element_path(:'ann mary', "person_id" => "ann mary")
   end
 
   def test_custom_element_path_without_required_prefix_param
@@ -696,26 +698,26 @@ class BaseTest < ActiveSupport::TestCase
   end
 
   def test_module_element_path
-    assert_equal '/sounds/1.json', Asset::Sound.element_path(1)
+    assert_equal "/sounds/1.json", Asset::Sound.element_path(1)
   end
 
   def test_module_element_url
-    assert_equal 'http://37s.sunrise.i:3000/sounds/1.json', Asset::Sound.element_url(1)
+    assert_equal "http://37s.sunrise.i:3000/sounds/1.json", Asset::Sound.element_url(1)
   end
 
   def test_custom_element_path_with_redefined_to_param
     Person.module_eval do
       alias_method :original_to_param_element_path, :to_param
-       def to_param
-         name
-       end
+      def to_param
+        name
+      end
     end
 
     # Class method.
-    assert_equal '/people/Greg.json', Person.element_path('Greg')
+    assert_equal "/people/Greg.json", Person.element_path("Greg")
 
     # Protected Instance method.
-    assert_equal '/people/Greg.json', Person.find('Greg').send(:element_path)
+    assert_equal "/people/Greg.json", Person.find("Greg").send(:element_path)
 
     ensure
       # revert back to original
@@ -727,14 +729,14 @@ class BaseTest < ActiveSupport::TestCase
   end
 
   def test_custom_element_path_with_parameters
-    assert_equal '/people/1/addresses/1.json?type=work', StreetAddress.element_path(1, :person_id => 1, :type => 'work')
-    assert_equal '/people/1/addresses/1.json?type=work', StreetAddress.element_path(1, 'person_id' => 1, :type => 'work')
-    assert_equal '/people/1/addresses/1.json?type=work', StreetAddress.element_path(1, :type => 'work', :person_id => 1)
-    assert_equal '/people/1/addresses/1.json?type%5B%5D=work&type%5B%5D=play+time', StreetAddress.element_path(1, :person_id => 1, :type => ['work', 'play time'])
+    assert_equal "/people/1/addresses/1.json?type=work", StreetAddress.element_path(1, person_id: 1, type: "work")
+    assert_equal "/people/1/addresses/1.json?type=work", StreetAddress.element_path(1, "person_id" => 1, :type => "work")
+    assert_equal "/people/1/addresses/1.json?type=work", StreetAddress.element_path(1, type: "work", person_id: 1)
+    assert_equal "/people/1/addresses/1.json?type%5B%5D=work&type%5B%5D=play+time", StreetAddress.element_path(1, person_id: 1, type: ["work", "play time"])
   end
 
   def test_custom_element_path_with_prefix_and_parameters
-    assert_equal '/people/1/addresses/1.json?type=work', StreetAddress.element_path(1, {:person_id => 1}, {:type => 'work'})
+    assert_equal "/people/1/addresses/1.json?type=work", StreetAddress.element_path(1, { person_id: 1 }, { type: "work" })
   end
 
   def test_custom_collection_path_without_required_prefix_param
@@ -744,25 +746,25 @@ class BaseTest < ActiveSupport::TestCase
   end
 
   def test_custom_collection_path
-    assert_equal '/people/1/addresses.json', StreetAddress.collection_path(:person_id => 1)
-    assert_equal '/people/1/addresses.json', StreetAddress.collection_path('person_id' => 1)
+    assert_equal "/people/1/addresses.json", StreetAddress.collection_path(person_id: 1)
+    assert_equal "/people/1/addresses.json", StreetAddress.collection_path("person_id" => 1)
   end
 
   def test_custom_collection_path_with_parameters
-    assert_equal '/people/1/addresses.json?type=work', StreetAddress.collection_path(:person_id => 1, :type => 'work')
-    assert_equal '/people/1/addresses.json?type=work', StreetAddress.collection_path('person_id' => 1, :type => 'work')
+    assert_equal "/people/1/addresses.json?type=work", StreetAddress.collection_path(person_id: 1, type: "work")
+    assert_equal "/people/1/addresses.json?type=work", StreetAddress.collection_path("person_id" => 1, :type => "work")
   end
 
   def test_custom_collection_path_with_prefix_and_parameters
-    assert_equal '/people/1/addresses.json?type=work', StreetAddress.collection_path({:person_id => 1}, {:type => 'work'})
+    assert_equal "/people/1/addresses.json?type=work", StreetAddress.collection_path({ person_id: 1 }, { type: "work" })
   end
 
   def test_custom_element_name
-    assert_equal 'address', StreetAddress.element_name
+    assert_equal "address", StreetAddress.element_name
   end
 
   def test_custom_collection_name
-    assert_equal 'addresses', StreetAddress.collection_name
+    assert_equal "addresses", StreetAddress.collection_name
   end
 
   def test_prefix
@@ -780,7 +782,7 @@ class BaseTest < ActiveSupport::TestCase
   def test_set_prefix_with_inline_keys
     SetterTrap.rollback_sets(Person) do |person_class|
       person_class.prefix = "the_prefix:the_param"
-      assert_equal "the_prefixthe_param_value", person_class.prefix(:the_param => "the_param_value")
+      assert_equal "the_prefixthe_param_value", person_class.prefix(the_param: "the_param_value")
     end
   end
 
@@ -803,8 +805,8 @@ class BaseTest < ActiveSupport::TestCase
   end
 
   def test_custom_prefix
-    assert_equal '/people//', StreetAddress.prefix
-    assert_equal '/people/1/', StreetAddress.prefix(:person_id => 1)
+    assert_equal "/people//", StreetAddress.prefix
+    assert_equal "/people/1/", StreetAddress.prefix(person_id: 1)
     assert_equal [:person_id].to_set, StreetAddress.__send__(:prefix_parameters)
   end
 
@@ -817,25 +819,25 @@ class BaseTest < ActiveSupport::TestCase
     assert_respond_to matz, :name
     assert_respond_to matz, :name=
     assert_respond_to matz, :name?
-    assert !matz.respond_to?(:super_scalable_stuff)
+    assert_not matz.respond_to?(:super_scalable_stuff)
   end
 
   def test_custom_header
-    Person.headers['key'] = 'value'
+    Person.headers["key"] = "value"
     assert_raise(ActiveResource::ResourceNotFound) { Person.find(4) }
   ensure
-    Person.headers.delete('key')
+    Person.headers.delete("key")
   end
 
   def test_build_with_custom_header
-    Person.headers['key'] = 'value'
+    Person.headers["key"] = "value"
     ActiveResource::HttpMock.respond_to do |mock|
       mock.get "/people/new.json", {}, Person.new.to_json
-      mock.get "/people/new.json", { 'key' => 'value' }, Person.new.to_json, 404
+      mock.get "/people/new.json", { "key" => "value" }, Person.new.to_json, 404
     end
     assert_raise(ActiveResource::ResourceNotFound) { Person.build }
   ensure
-    Person.headers.delete('key')
+    Person.headers.delete("key")
   end
 
   def test_build_without_attributes_for_prefix_call
@@ -865,22 +867,22 @@ class BaseTest < ActiveSupport::TestCase
   def test_save
     rick = Person.new
     assert rick.save
-    assert_equal '5', rick.id
+    assert_equal "5", rick.id
   end
 
   def test_save!
     rick = Person.new
     assert rick.save!
-    assert_equal '5', rick.id
+    assert_equal "5", rick.id
   end
 
   def test_id_from_response
     p = Person.new
-    resp = {'Location' => '/foo/bar/1'}
-    assert_equal '1', p.__send__(:id_from_response, resp)
+    resp = { "Location" => "/foo/bar/1" }
+    assert_equal "1", p.__send__(:id_from_response, resp)
 
-    resp['Location'] << '.json'
-    assert_equal '1', p.__send__(:id_from_response, resp)
+    resp["Location"] += ".json"
+    assert_equal "1", p.__send__(:id_from_response, resp)
   end
 
   def test_id_from_response_without_location
@@ -891,24 +893,24 @@ class BaseTest < ActiveSupport::TestCase
 
   def test_not_persisted_with_no_body_and_positive_content_length
     resp = ActiveResource::Response.new(nil)
-    resp['Content-Length'] = "100"
+    resp["Content-Length"] = "100"
     Person.connection.expects(:post).returns(resp)
-    assert !Person.create.persisted?
+    assert_not Person.create.persisted?
   end
 
   def test_not_persisted_with_body_and_zero_content_length
     resp = ActiveResource::Response.new(@rick)
-    resp['Content-Length'] = "0"
+    resp["Content-Length"] = "0"
     Person.connection.expects(:post).returns(resp)
-    assert !Person.create.persisted?
+    assert_not Person.create.persisted?
   end
 
   # These response codes aren't allowed to have bodies per HTTP spec
   def test_not_persisted_with_empty_response_codes
-    [100,101,204,304].each do |status_code|
+    [100, 101, 204, 304].each do |status_code|
       resp = ActiveResource::Response.new(@rick, status_code)
       Person.connection.expects(:post).returns(resp)
-      assert !Person.create.persisted?
+      assert_not Person.create.persisted?
     end
   end
 
@@ -916,38 +918,38 @@ class BaseTest < ActiveSupport::TestCase
   # the body anyway in its absence.
   def test_persisted_with_no_content_length
     resp = ActiveResource::Response.new(@rick)
-    resp['Content-Length'] = nil
+    resp["Content-Length"] = nil
     Person.connection.expects(:post).returns(resp)
     assert Person.create.persisted?
   end
 
   def test_create_with_custom_prefix
-    matzs_house = StreetAddress.new(:person_id => 1)
+    matzs_house = StreetAddress.new(person_id: 1)
     matzs_house.save
-    assert_equal '5', matzs_house.id
+    assert_equal "5", matzs_house.id
   end
 
   # Test that loading a resource preserves its prefix_options.
   def test_load_preserves_prefix_options
-    address = StreetAddress.find(1, :params => { :person_id => 1 })
-    ryan = Person.new(:id => 1, :name => 'Ryan', :address => address)
+    address = StreetAddress.find(1, params: { person_id: 1 })
+    ryan = Person.new(id: 1, name: "Ryan", address: address)
     assert_equal address.prefix_options, ryan.address.prefix_options
   end
 
   def test_reload_works_with_prefix_options
-    address = StreetAddress.find(1, :params => { :person_id => 1 })
+    address = StreetAddress.find(1, params: { person_id: 1 })
     assert_equal address, address.reload
   end
 
   def test_reload_with_redefined_to_param
     Person.module_eval do
       alias_method :original_to_param_reload, :to_param
-       def to_param
-         name
-       end
+      def to_param
+        name
+      end
     end
 
-    person = Person.find('Greg')
+    person = Person.find("Greg")
     assert_equal person, person.reload
 
     ensure
@@ -965,10 +967,10 @@ class BaseTest < ActiveSupport::TestCase
   end
 
   def test_create
-    rick = Person.create(:name => 'Rick')
+    rick = Person.create(name: "Rick")
     assert rick.valid?
-    assert !rick.new?
-    assert_equal '5', rick.id
+    assert_not rick.new?
+    assert_equal "5", rick.id
 
     # test additional attribute returned on create
     assert_equal 25, rick.age
@@ -977,20 +979,20 @@ class BaseTest < ActiveSupport::TestCase
     ActiveResource::HttpMock.respond_to do |mock|
       mock.post   "/people.json", {}, nil, 409
     end
-    assert_raise(ActiveResource::ResourceConflict) { Person.create(:name => 'Rick') }
+    assert_raise(ActiveResource::ResourceConflict) { Person.create(name: "Rick") }
   end
 
   def test_create_without_location
     ActiveResource::HttpMock.respond_to do |mock|
       mock.post   "/people.json", {}, nil, 201
     end
-    person = Person.create(:name => 'Rick')
+    person = Person.create(name: "Rick")
     assert_nil person.id
   end
 
   def test_create!
-    rick = Person.create(:name => 'Rick')
-    rick_bang = Person.create!(:name => 'Rick')
+    rick = Person.create(name: "Rick")
+    rick_bang = Person.create!(name: "Rick")
 
     assert_equal rick.id, rick_bang.id
     assert_equal rick.age, rick_bang.age
@@ -998,7 +1000,7 @@ class BaseTest < ActiveSupport::TestCase
     ActiveResource::HttpMock.respond_to do |mock|
       mock.post   "/people.json", {}, nil, 422
     end
-    assert_raise(ActiveResource::ResourceInvalid) { Person.create!(:name => 'Rick') }
+    assert_raise(ActiveResource::ResourceInvalid) { Person.create!(name: "Rick") }
   end
 
   def test_clone
@@ -1011,7 +1013,7 @@ class BaseTest < ActiveSupport::TestCase
   end
 
   def test_nested_clone
-    addy = StreetAddress.find(1, :params => {:person_id => 1})
+    addy = StreetAddress.find(1, params: { person_id: 1 })
     addy_c = addy.clone
     assert addy_c.new?
     addy.attributes.each do |k, v|
@@ -1022,12 +1024,12 @@ class BaseTest < ActiveSupport::TestCase
 
   def test_complex_clone
     matz = Person.find(1)
-    matz.address = StreetAddress.find(1, :params => {:person_id => matz.id})
-    matz.non_ar_hash = {:not => "an ARes instance"}
+    matz.address = StreetAddress.find(1, params: { person_id: matz.id })
+    matz.non_ar_hash = { not: "an ARes instance" }
     matz.non_ar_arr = ["not", "ARes"]
     matz_c = matz.clone
     assert matz_c.new?
-    assert_raise(NoMethodError) {matz_c.address}
+    assert_raise(NoMethodError) { matz_c.address }
     assert_equal matz.non_ar_hash, matz_c.non_ar_hash
     assert_equal matz.non_ar_arr, matz_c.non_ar_arr
 
@@ -1045,7 +1047,7 @@ class BaseTest < ActiveSupport::TestCase
   end
 
   def test_update_with_custom_prefix_with_specific_id
-    addy = StreetAddress.find(1, :params => { :person_id => 1 })
+    addy = StreetAddress.find(1, params: { person_id: 1 })
     addy.street = "54321 Street"
     assert_kind_of StreetAddress, addy
     assert_equal "54321 Street", addy.street
@@ -1053,7 +1055,7 @@ class BaseTest < ActiveSupport::TestCase
   end
 
   def test_update_with_custom_prefix_without_specific_id
-    addy = StreetAddress.find(:first, :params => { :person_id => 1 })
+    addy = StreetAddress.find(:first, params: { person_id: 1 })
     addy.street = "54321 Lane"
     assert_kind_of StreetAddress, addy
     assert_equal "54321 Lane", addy.street
@@ -1086,29 +1088,29 @@ class BaseTest < ActiveSupport::TestCase
     matz.expects(:save).returns(true)
 
     assert_equal "Matz", matz.name
-    assert matz.update_attribute('name', "David")
+    assert matz.update_attribute("name", "David")
     assert_equal "David", matz.name
   end
 
 
   def test_update_attributes_as_symbols
-    addy = StreetAddress.first(:params => {:person_id => 1})
+    addy = StreetAddress.first(params: { person_id: 1 })
     addy.expects(:save).returns(true)
 
     assert_equal "12345 Street", addy.street
     assert_equal "Australia", addy.country
-    assert addy.update_attributes(:street => '54321 Street', :country => 'USA')
+    assert addy.update_attributes(street: "54321 Street", country: "USA")
     assert_equal "54321 Street", addy.street
     assert_equal "USA", addy.country
   end
 
   def test_update_attributes_as_strings
-    addy = StreetAddress.first(:params => {:person_id => 1})
+    addy = StreetAddress.first(params: { person_id: 1 })
     addy.expects(:save).returns(true)
 
     assert_equal "12345 Street", addy.street
     assert_equal "Australia", addy.country
-    assert addy.update_attributes('street' => '54321 Street', 'country' => 'USA')
+    assert addy.update_attributes("street" => "54321 Street", "country" => "USA")
     assert_equal "54321 Street", addy.street
     assert_equal "USA", addy.country
   end
@@ -1126,11 +1128,11 @@ class BaseTest < ActiveSupport::TestCase
   end
 
   def test_destroy_with_custom_prefix
-    assert StreetAddress.find(1, :params => { :person_id => 1 }).destroy
+    assert StreetAddress.find(1, params: { person_id: 1 }).destroy
     ActiveResource::HttpMock.respond_to do |mock|
       mock.get "/people/1/addresses/1.json", {}, nil, 404
     end
-    assert_raise(ActiveResource::ResourceNotFound) { StreetAddress.find(1, :params => { :person_id => 1 }) }
+    assert_raise(ActiveResource::ResourceNotFound) { StreetAddress.find(1, params: { person_id: 1 }) }
   end
 
   def test_destroy_with_410_gone
@@ -1150,11 +1152,11 @@ class BaseTest < ActiveSupport::TestCase
   end
 
   def test_delete_with_custom_prefix
-    assert StreetAddress.delete(1, :person_id => 1)
+    assert StreetAddress.delete(1, person_id: 1)
     ActiveResource::HttpMock.respond_to do |mock|
       mock.get "/people/1/addresses/1.json", {}, nil, 404
     end
-    assert_raise(ActiveResource::ResourceNotFound) { StreetAddress.find(1, :params => { :person_id => 1 }) }
+    assert_raise(ActiveResource::ResourceNotFound) { StreetAddress.find(1, params: { person_id: 1 }) }
   end
 
   def test_delete_with_410_gone
@@ -1166,14 +1168,14 @@ class BaseTest < ActiveSupport::TestCase
   end
 
   def test_delete_with_custom_header
-    Person.headers['key'] = 'value'
+    Person.headers["key"] = "value"
     ActiveResource::HttpMock.respond_to do |mock|
       mock.delete "/people/1.json", {}, nil, 200
-      mock.delete "/people/1.json", { 'key' => 'value' }, nil, 404
+      mock.delete "/people/1.json", { "key" => "value" }, nil, 404
     end
     assert_raise(ActiveResource::ResourceNotFound) { Person.delete(1) }
   ensure
-    Person.headers.delete('key')
+    Person.headers.delete("key")
   end
 
   ########################################################################
@@ -1181,24 +1183,24 @@ class BaseTest < ActiveSupport::TestCase
   ########################################################################
   def test_exists
     # Class method.
-    assert !Person.exists?(nil)
+    assert_not Person.exists?(nil)
     assert Person.exists?(1)
-    assert !Person.exists?(99)
+    assert_not Person.exists?(99)
 
     # Instance method.
-    assert !Person.new.exists?
+    assert_not Person.new.exists?
     assert Person.find(1).exists?
-    assert !Person.new(:id => 99).exists?
+    assert_not Person.new(id: 99).exists?
 
     # Nested class method.
-    assert StreetAddress.exists?(1,  :params => { :person_id => 1 })
-    assert !StreetAddress.exists?(1, :params => { :person_id => 2 })
-    assert !StreetAddress.exists?(2, :params => { :person_id => 1 })
+    assert StreetAddress.exists?(1,  params: { person_id: 1 })
+    assert_not StreetAddress.exists?(1, params: { person_id: 2 })
+    assert_not StreetAddress.exists?(2, params: { person_id: 1 })
 
     # Nested instance method.
-    assert StreetAddress.find(1, :params => { :person_id => 1 }).exists?
-    assert !StreetAddress.new({:id => 1, :person_id => 2}).exists?
-    assert !StreetAddress.new({:id => 2, :person_id => 1}).exists?
+    assert StreetAddress.find(1, params: { person_id: 1 }).exists?
+    assert_not StreetAddress.new(id: 1, person_id: 2).exists?
+    assert_not StreetAddress.new(id: 2, person_id: 1).exists?
   end
 
   def test_exists_with_redefined_to_param
@@ -1210,16 +1212,16 @@ class BaseTest < ActiveSupport::TestCase
     end
 
     # Class method.
-    assert Person.exists?('Greg')
+    assert Person.exists?("Greg")
 
     # Instance method.
-    assert Person.find('Greg').exists?
+    assert Person.find("Greg").exists?
 
     # Nested class method.
-    assert StreetAddress.exists?(1,  :params => { :person_id => Person.find('Greg').to_param })
+    assert StreetAddress.exists?(1,  params: { person_id: Person.find("Greg").to_param })
 
     # Nested instance method.
-    assert StreetAddress.find(1, :params => { :person_id => Person.find('Greg').to_param }).exists?
+    assert StreetAddress.find(1, params: { person_id: Person.find("Greg").to_param }).exists?
 
   ensure
     # revert back to original
@@ -1235,7 +1237,7 @@ class BaseTest < ActiveSupport::TestCase
     ActiveResource::Connection.any_instance.expects(:http).returns(http)
     http.expects(:request).returns(ActiveResource::Response.new(""))
 
-    assert Person.exists?('not-mocked')
+    assert Person.exists?("not-mocked")
   end
 
   def test_exists_with_410_gone
@@ -1243,7 +1245,7 @@ class BaseTest < ActiveSupport::TestCase
       mock.head "/people/1.json", {}, nil, 410
     end
 
-    assert !Person.exists?(1)
+    assert_not Person.exists?(1)
   end
 
   def test_exists_with_204_no_content
@@ -1258,18 +1260,18 @@ class BaseTest < ActiveSupport::TestCase
     joe = Person.find(6)
     joe.singleton_class.class_eval do
       def non_attribute_field
-        'foo'
+        "foo"
       end
 
       def id
-        'bar'
+        "bar"
       end
     end
 
     assert_equal joe.read_attribute_for_serialization(:id), 6
-    assert_equal joe.read_attribute_for_serialization(:name), 'Joe'
+    assert_equal joe.read_attribute_for_serialization(:name), "Joe"
     assert_equal joe.read_attribute_for_serialization(:likes_hats), true
-    assert_equal joe.read_attribute_for_serialization(:non_attribute_field), 'foo'
+    assert_equal joe.read_attribute_for_serialization(:non_attribute_field), "foo"
   end
 
   def test_to_xml
@@ -1280,7 +1282,7 @@ class BaseTest < ActiveSupport::TestCase
 
     assert_equal encode, xml
     assert xml.include?('<?xml version="1.0" encoding="UTF-8"?>')
-    assert xml.include?('<name>Matz</name>')
+    assert xml.include?("<name>Matz</name>")
     assert xml.include?('<id type="integer">1</id>')
   ensure
     Person.format = :json
@@ -1290,16 +1292,16 @@ class BaseTest < ActiveSupport::TestCase
     Person.format = :xml
     old_elem_name = Person.element_name
     matz = Person.find(1)
-    Person.element_name = 'ruby_creator'
+    Person.element_name = "ruby_creator"
     encode = matz.encode
     xml = matz.to_xml
 
     assert_equal encode, xml
     assert xml.include?('<?xml version="1.0" encoding="UTF-8"?>')
-    assert xml.include?('<ruby-creator>')
-    assert xml.include?('<name>Matz</name>')
+    assert xml.include?("<ruby-creator>")
+    assert xml.include?("<name>Matz</name>")
     assert xml.include?('<id type="integer">1</id>')
-    assert xml.include?('</ruby-creator>')
+    assert xml.include?("</ruby-creator>")
   ensure
     Person.format = :json
     Person.element_name = old_elem_name
@@ -1308,7 +1310,7 @@ class BaseTest < ActiveSupport::TestCase
   def test_to_xml_with_private_method_name_as_attribute
     Person.format = :xml
 
-    customer = Customer.new(:foo => "foo")
+    customer = Customer.new(foo: "foo")
     customer.singleton_class.class_eval do
       def foo
         "bar"
@@ -1316,7 +1318,7 @@ class BaseTest < ActiveSupport::TestCase
       private :foo
     end
 
-    assert !customer.to_xml.include?("<foo>bar</foo>")
+    assert_not customer.to_xml.include?("<foo>bar</foo>")
     assert customer.to_xml.include?("<foo>foo</foo>")
   ensure
     Person.format = :json
@@ -1351,7 +1353,7 @@ class BaseTest < ActiveSupport::TestCase
   def test_to_json_with_element_name
     old_elem_name = Person.element_name
     joe = Person.find(6)
-    Person.element_name = 'ruby_creator'
+    Person.element_name = "ruby_creator"
     encode = joe.encode
     json = joe.to_json
 
@@ -1368,7 +1370,7 @@ class BaseTest < ActiveSupport::TestCase
     new_person = Person.new
     assert_nil new_person.to_param
     matz = Person.find(1)
-    assert_equal '1', matz.to_param
+    assert_equal "1", matz.to_param
   end
 
   def test_to_key_quacks_like_active_record
@@ -1395,24 +1397,24 @@ class BaseTest < ActiveSupport::TestCase
   def test_persisted_nested_resources_from_response
     luis = Customer.find(1)
     luis.friends.each do |friend|
-      assert !friend.new?
+      assert_not friend.new?
       friend.brothers.each do |brother|
-        assert !brother.new?
+        assert_not brother.new?
         brother.children.each do |child|
-          assert !child.new?
+          assert_not child.new?
         end
       end
     end
   end
 
   def test_parse_resource_with_given_has_one_resources
-    Customer.send(:has_one, :mother, :class_name => "external/person")
+    Customer.send(:has_one, :mother, class_name: "external/person")
     luis = Customer.find(1)
     assert_kind_of External::Person, luis.mother
   end
 
   def test_parse_resources_with_given_has_many_resources
-    Customer.send(:has_many, :enemies, :class_name => "external/person")
+    Customer.send(:has_many, :enemies, class_name: "external/person")
     luis = Customer.find(1)
     luis.enemies.each do |enemy|
       assert_kind_of External::Person, enemy
@@ -1430,23 +1432,23 @@ class BaseTest < ActiveSupport::TestCase
   def test_parse_resource_with_has_one_makes_get_request_on_child_route
     Product.send(:has_one, :inventory)
     product = Product.find(1)
-    assert product.inventory.status == ActiveSupport::JSON.decode(@inventory)['status']
+    assert product.inventory.status == ActiveSupport::JSON.decode(@inventory)["status"]
   end
 
   def test_parse_non_singleton_resource_with_has_one_makes_get_request_on_child_route
-    accepts = { 'Accept' => 'application/json' }
+    accepts = { "Accept" => "application/json" }
     ActiveResource::HttpMock.respond_to do |mock|
-      mock.get '/posts/1.json', accepts, @post
-      mock.get '/posts/1/author.json', accepts, @matz
+      mock.get "/posts/1.json", accepts, @post
+      mock.get "/posts/1/author.json", accepts, @matz
     end
 
-    Post.send(:has_one, :author, class_name: 'Person')
+    Post.send(:has_one, :author, class_name: "Person")
     post = Post.find(1)
-    assert post.author.name == ActiveSupport::JSON.decode(@matz)['person']['name']
+    assert post.author.name == ActiveSupport::JSON.decode(@matz)["person"]["name"]
   end
 
   def test_with_custom_formatter
-    addresses = [{ :id => "1", :street => "1 Infinite Loop", :city => "Cupertino", :state => "CA" }].to_xml(:root => :addresses)
+    addresses = [{ id: "1", street: "1 Infinite Loop", city: "Cupertino", state: "CA" }].to_xml(root: :addresses)
 
     ActiveResource::HttpMock.respond_to do |mock|
       mock.get "/addresses.xml", {}, addresses, 200
@@ -1460,30 +1462,30 @@ class BaseTest < ActiveSupport::TestCase
   end
 
   def test_create_with_custom_primary_key
-    silver_plan = { :plan => { :code => "silver", :price => 5.00 } }.to_json
+    silver_plan = { plan: { code: "silver", price: 5.00 } }.to_json
 
     ActiveResource::HttpMock.respond_to do |mock|
-      mock.post "/plans.json", {}, silver_plan, 201, 'Location' => '/plans/silver.json'
+      mock.post "/plans.json", {}, silver_plan, 201, "Location" => "/plans/silver.json"
     end
 
-    plan = SubscriptionPlan.new(:code => "silver", :price => 5.00)
+    plan = SubscriptionPlan.new(code: "silver", price: 5.00)
     assert plan.new?
 
     plan.save!
-    assert !plan.new?
+    assert_not plan.new?
   end
 
   def test_update_with_custom_primary_key
-    silver_plan = { :plan => { :code => "silver", :price => 5.00 } }.to_json
-    silver_plan_updated = { :plan => { :code => "silver", :price => 10.00 } }.to_json
+    silver_plan = { plan: { code: "silver", price: 5.00 } }.to_json
+    silver_plan_updated = { plan: { code: "silver", price: 10.00 } }.to_json
 
     ActiveResource::HttpMock.respond_to do |mock|
       mock.get "/plans/silver.json", {}, silver_plan
-      mock.put "/plans/silver.json", {}, silver_plan_updated, 201, 'Location' => '/plans/silver.json'
+      mock.put "/plans/silver.json", {}, silver_plan_updated, 201, "Location" => "/plans/silver.json"
     end
 
     plan = SubscriptionPlan.find("silver")
-    assert !plan.new?
+    assert_not plan.new?
     assert_equal 5.00, plan.price
 
     # update price

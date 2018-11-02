@@ -1,8 +1,10 @@
-require 'abstract_unit'
-require 'active_support/core_ext/hash/conversions'
+# frozen_string_literal: true
+
+require "abstract_unit"
+require "active_support/core_ext/hash/conversions"
 
 class Developer < ActiveResource::Base
-  self.site = 'http://37s.sunrise.i:3000'
+  self.site = "http://37s.sunrise.i:3000"
 
   class << self
     def callback_string(callback_method)
@@ -47,13 +49,13 @@ end
 
 class CallbacksTest < ActiveSupport::TestCase
   def setup
-    @developer_attrs = {:id => 1, :name => "Guillermo", :salary => 100_000}
-    @developer = {"developer" => @developer_attrs}.to_json
+    @developer_attrs = { id: 1, name: "Guillermo", salary: 100_000 }
+    @developer = { "developer" => @developer_attrs }.to_json
     ActiveResource::HttpMock.respond_to do |mock|
-      mock.post   '/developers.json',   {}, @developer, 201, 'Location' => '/developers/1.json'
-      mock.get    '/developers/1.json', {}, @developer
-      mock.put    '/developers/1.json', {}, nil, 204
-      mock.delete '/developers/1.json', {}, nil, 200
+      mock.post   "/developers.json",   {}, @developer, 201, "Location" => "/developers/1.json"
+      mock.get    "/developers/1.json", {}, @developer
+      mock.put    "/developers/1.json", {}, nil, 204
+      mock.delete "/developers/1.json", {}, nil, 200
     end
   end
 

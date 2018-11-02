@@ -1,26 +1,28 @@
-require 'active_support'
-require 'active_support/core_ext/class/attribute_accessors'
-require 'active_support/core_ext/class/attribute'
-require 'active_support/core_ext/hash/indifferent_access'
-require 'active_support/core_ext/kernel/reporting'
-require 'active_support/core_ext/module/delegation'
-require 'active_support/core_ext/module/aliasing'
-require 'active_support/core_ext/object/blank'
-require 'active_support/core_ext/object/to_query'
-require 'active_support/core_ext/object/duplicable'
-require 'set'
-require 'uri'
+# frozen_string_literal: true
 
-require 'active_support/core_ext/uri'
-require 'active_resource/connection'
-require 'active_resource/formats'
-require 'active_resource/schema'
-require 'active_resource/log_subscriber'
-require 'active_resource/associations'
-require 'active_resource/reflection'
-require 'active_resource/threadsafe_attributes'
+require "active_support"
+require "active_support/core_ext/class/attribute_accessors"
+require "active_support/core_ext/class/attribute"
+require "active_support/core_ext/hash/indifferent_access"
+require "active_support/core_ext/kernel/reporting"
+require "active_support/core_ext/module/delegation"
+require "active_support/core_ext/module/aliasing"
+require "active_support/core_ext/object/blank"
+require "active_support/core_ext/object/to_query"
+require "active_support/core_ext/object/duplicable"
+require "set"
+require "uri"
 
-require 'active_model/serializers/xml'
+require "active_support/core_ext/uri"
+require "active_resource/connection"
+require "active_resource/formats"
+require "active_resource/schema"
+require "active_resource/log_subscriber"
+require "active_resource/associations"
+require "active_resource/reflection"
+require "active_resource/threadsafe_attributes"
+
+require "active_model/serializers/xml"
 
 module ActiveResource
   # ActiveResource::Base is the main class for mapping RESTful resources as models in a Rails application.
@@ -383,7 +385,7 @@ module ActiveResource
           @schema ||= {}.with_indifferent_access
           @known_attributes ||= []
 
-          schema_definition.attrs.each do |k,v|
+          schema_definition.attrs.each do |k, v|
             @schema[k] = v
             @known_attributes << k
           end
@@ -422,7 +424,7 @@ module ActiveResource
         raise ArgumentError, "Expected a hash" unless the_schema.kind_of? Hash
 
         schema do
-          the_schema.each {|k,v| attribute(k,v) }
+          the_schema.each { |k, v| attribute(k, v) }
         end
       end
 
@@ -624,7 +626,7 @@ module ActiveResource
       # * <tt>:ssl_timeout</tt> -The SSL timeout in seconds.
       def ssl_options=(options)
         self._connection = nil
-        @ssl_options  = options
+        @ssl_options = options
       end
 
       # Returns the SSL options hash.
@@ -689,15 +691,15 @@ module ActiveResource
           return primary_key if primary_key.is_a?(Symbol)
           primary_key.dup.freeze
         else
-          'id'
+          "id"
         end
       end
 
       # Gets the \prefix for a resource's nested URL (e.g., <tt>prefix/collectionname/1.json</tt>)
       # This method is regenerated at runtime based on what the \prefix is set to.
-      def prefix(options={})
+      def prefix(options = {})
         default = site.path
-        default << '/' unless default[-1..-1] == '/'
+        default << "/" unless default[-1..-1] == "/"
         # generate the actual method based on the current site path
         self.prefix = default
         prefix(options)
@@ -712,7 +714,7 @@ module ActiveResource
 
       # Sets the \prefix for a resource's nested URL (e.g., <tt>prefix/collectionname/1.json</tt>).
       # Default value is <tt>site.path</tt>.
-      def prefix=(value = '/')
+      def prefix=(value = "/")
         # Replace :placeholders with '#{embedded options[:lookups]}'
         prefix_call = value.gsub(/:\w+/) { |key| "\#{URI.parser.escape options[#{key}].to_s}" }
 
@@ -1006,7 +1008,7 @@ module ActiveResource
 
       def where(clauses = {})
         raise ArgumentError, "expected a clauses Hash, got #{clauses.inspect}" unless clauses.is_a? Hash
-        find(:all, :params => clauses)
+        find(:all, params: clauses)
       end
 
 
@@ -1068,7 +1070,7 @@ module ActiveResource
             else
               prefix_options, query_options = split_options(options[:params])
               path = collection_path(prefix_options, query_options)
-              instantiate_collection( (format.decode(connection.get(path, headers).body) || []), query_options, prefix_options )
+              instantiate_collection((format.decode(connection.get(path, headers).body) || []), query_options, prefix_options)
             end
           rescue ActiveResource::ResourceNotFound
             # Swallowing ResourceNotFound exceptions and return nil - as per
@@ -1201,13 +1203,13 @@ module ActiveResource
     #   not_ryan.hash            # => {:not => "an ARes instance"}
     def clone
       # Clone all attributes except the pk and any nested ARes
-      cloned = Hash[attributes.reject {|k,v| k == self.class.primary_key || v.is_a?(ActiveResource::Base)}.map { |k, v| [k, v.clone] }]
+      cloned = Hash[attributes.reject { |k, v| k == self.class.primary_key || v.is_a?(ActiveResource::Base) }.map { |k, v| [k, v.clone] }]
       # Form the new resource - bypass initialize of resource with 'new' as that will call 'load' which
       # attempts to convert hashes into member objects and arrays into collections of objects. We want
       # the raw objects to be cloned so we bypass load by directly setting the attributes hash.
       resource = self.class.new({})
       resource.prefix_options = self.prefix_options
-      resource.send :instance_variable_set, '@attributes', cloned
+      resource.send :instance_variable_set, "@attributes", cloned
       resource
     end
 
@@ -1382,13 +1384,13 @@ module ActiveResource
     #   Person.delete(guys_id)
     #   that_guy.exists? # => false
     def exists?
-      !new? && self.class.exists?(to_param, :params => prefix_options)
+      !new? && self.class.exists?(to_param, params: prefix_options)
     end
 
     # Returns the serialized string representation of the resource in the configured
     # serialization format specified in ActiveResource::Base.format. The options
     # applicable depend on the configured encoding format.
-    def encode(options={})
+    def encode(options = {})
       send("to_#{self.class.format.extension}", options)
     end
 
@@ -1404,7 +1406,7 @@ module ActiveResource
     #   my_branch.reload
     #   my_branch.name # => "Wilson Road"
     def reload
-      self.load(self.class.find(to_param, :params => @prefix_options).attributes, false, true)
+      self.load(self.class.find(to_param, params: @prefix_options).attributes, false, true)
     end
 
     # A method to manually load attributes from a \hash. Recursively loads collections of
@@ -1445,21 +1447,21 @@ module ActiveResource
       attributes.each do |key, value|
         @attributes[key.to_s] =
           case value
-            when Array
-              resource = nil
-              value.map do |attrs|
-                if attrs.is_a?(Hash)
-                  resource ||= find_or_create_resource_for_collection(key)
-                  resource.new(attrs, persisted)
-                else
-                  attrs.duplicable? ? attrs.dup : attrs
-                end
+          when Array
+            resource = nil
+            value.map do |attrs|
+              if attrs.is_a?(Hash)
+                resource ||= find_or_create_resource_for_collection(key)
+                resource.new(attrs, persisted)
+              else
+                attrs.duplicable? ? attrs.dup : attrs
               end
-            when Hash
-              resource = find_or_create_resource_for(key)
-              resource.new(value, persisted)
-            else
-              value.duplicable? ? value.dup : value
+            end
+          when Hash
+            resource = find_or_create_resource_for(key)
+            resource.new(value, persisted)
+          else
+            value.duplicable? ? value.dup : value
           end
       end
       self
@@ -1516,12 +1518,12 @@ module ActiveResource
       end
     end
 
-    def to_json(options={})
-      super(include_root_in_json ? { :root => self.class.element_name }.merge(options) : options)
+    def to_json(options = {})
+      super(include_root_in_json ? { root: self.class.element_name }.merge(options) : options)
     end
 
-    def to_xml(options={})
-      super({ :root => self.class.element_name }.merge(options))
+    def to_xml(options = {})
+      super({ root: self.class.element_name }.merge(options))
     end
 
     def read_attribute_for_serialization(n)
@@ -1557,9 +1559,9 @@ module ActiveResource
       end
 
       def load_attributes_from_response(response)
-        if (response_code_allows_body?(response.code.to_i) &&
-            (response['Content-Length'].nil? || response['Content-Length'] != "0") &&
-            !response.body.nil? && response.body.strip.size > 0)
+        if response_code_allows_body?(response.code.to_i) &&
+            (response["Content-Length"].nil? || response["Content-Length"] != "0") &&
+            !response.body.nil? && response.body.strip.size > 0
           load(self.class.format.decode(response.body), true, true)
           @persisted = true
         end
@@ -1567,7 +1569,7 @@ module ActiveResource
 
       # Takes a response from a typical create post and pulls the ID out
       def id_from_response(response)
-        response['Location'][/\/([^\/]*?)(\.\w+)?$/, 1] if response['Location']
+        response["Location"][/\/([^\/]*?)(\.\w+)?$/, 1] if response["Location"]
       end
 
       def element_path(options = nil)
@@ -1590,7 +1592,7 @@ module ActiveResource
 
       # Determine whether the response is allowed to have a body per HTTP 1.1 spec section 4.4.1
       def response_code_allows_body?(c)
-        !((100..199).include?(c) || [204,304].include?(c))
+        !((100..199).include?(c) || [204, 304].include?(c))
       end
 
       # Tries to find a resource for a given collection name; if it fails, then the resource is created
@@ -1603,7 +1605,7 @@ module ActiveResource
       # if it fails, then the resource is created
       def find_or_create_resource_in_modules(resource_name, module_names)
         receiver = Object
-        namespaces = module_names[0, module_names.size-1].map do |module_name|
+        namespaces = module_names[0, module_names.size - 1].map do |module_name|
           receiver = receiver.const_get(module_name)
         end
         const_args = [resource_name, false]
@@ -1623,7 +1625,7 @@ module ActiveResource
 
         if !const_valid?(*const_args)
           # resource_name is not a valid ruby module name and cannot be created normally
-           find_or_create_resource_for(:UnnamedResource)
+          find_or_create_resource_for(:UnnamedResource)
         elsif self.class.const_defined?(*const_args)
           self.class.const_get(*const_args)
         else

@@ -1,5 +1,7 @@
-require 'active_support/core_ext/class/attribute'
-require 'active_support/core_ext/module/deprecation'
+# frozen_string_literal: true
+
+require "active_support/core_ext/class/attribute"
+require "active_support/core_ext/module/deprecation"
 
 module ActiveResource
   # = Active Resource reflection
@@ -25,7 +27,6 @@ module ActiveResource
 
 
     class AssociationReflection
-
       def initialize(macro, name, options)
         @macro, @name, @options = macro, name, options
       end
@@ -65,13 +66,13 @@ module ActiveResource
       end
 
       private
-      def derive_class_name
-        return (options[:class_name] ? options[:class_name].to_s.camelize : name.to_s.classify)
-      end
+        def derive_class_name
+          (options[:class_name] ? options[:class_name].to_s.camelize : name.to_s.classify)
+        end
 
-      def derive_foreign_key
-        return options[:foreign_key] ? options[:foreign_key].to_s : "#{name.to_s.downcase}_id"
-      end
+        def derive_foreign_key
+          options[:foreign_key] ? options[:foreign_key].to_s : "#{name.to_s.downcase}_id"
+        end
     end
   end
 end

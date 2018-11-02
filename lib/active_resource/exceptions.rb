@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module ActiveResource
   class ConnectionError < StandardError # :nodoc:
     attr_reader :response
@@ -8,7 +10,7 @@ module ActiveResource
     end
 
     def to_s
-      message = "Failed."
+      message = "Failed.".dup
       message << "  Response code = #{response.code}." if response.respond_to?(:code)
       message << "  Response message = #{response.message}." if response.respond_to?(:message)
       message
@@ -34,7 +36,7 @@ module ActiveResource
   # 3xx Redirection
   class Redirection < ConnectionError # :nodoc:
     def to_s
-      response['Location'] ? "#{super} => #{response['Location']}" : super
+      response["Location"] ? "#{super} => #{response['Location']}" : super
     end
   end
 
@@ -76,7 +78,7 @@ module ActiveResource
   # 405 Method Not Allowed
   class MethodNotAllowed < ClientError # :nodoc:
     def allowed_methods
-      @response['Allow'].split(',').map { |verb| verb.strip.downcase.to_sym }
+      @response["Allow"].split(",").map { |verb| verb.strip.downcase.to_sym }
     end
   end
 end

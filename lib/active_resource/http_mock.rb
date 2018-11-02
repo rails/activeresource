@@ -1,5 +1,7 @@
-require 'active_support/core_ext/kernel/reporting'
-require 'active_support/core_ext/object/inclusion'
+# frozen_string_literal: true
+
+require "active_support/core_ext/kernel/reporting"
+require "active_support/core_ext/object/inclusion"
 
 module ActiveResource
   class InvalidRequestError < StandardError; end #:nodoc:
@@ -74,12 +76,11 @@ module ActiveResource
     private
 
       def delete_duplicate_responses(request)
-        @responses.delete_if {|r| r[0] == request }
+        @responses.delete_if { |r| r[0] == request }
       end
     end
 
     class << self
-
       # Returns an array of all request objects that have been sent to the mock. You can use this to check
       # if your model actually sent an HTTP request.
       #
@@ -203,9 +204,9 @@ module ActiveResource
       end
 
       def delete_responses_to_replace(new_responses)
-        new_responses.each{|nr|
+        new_responses.each { |nr|
           request_to_remove = nr[0]
-          @@responses = responses.delete_if{|r| r[0] == request_to_remove}
+          @@responses = responses.delete_if { |r| r[0] == request_to_remove }
         }
       end
 
@@ -238,7 +239,6 @@ module ActiveResource
       def net_connection_disabled?
         !net_connection_enabled?
       end
-
     end
 
     # body?       methods
@@ -294,15 +294,15 @@ module ActiveResource
 
     private
 
-    def headers_match?(req)
-      # Ignore format header on equality if it's not defined
-      format_header = ActiveResource::Connection::HTTP_FORMAT_HEADER_NAMES[method]
-      if headers[format_header].present? || req.headers[format_header].blank?
-        headers == req.headers
-      else
-        headers.dup.merge(format_header => req.headers[format_header]) == req.headers
+      def headers_match?(req)
+        # Ignore format header on equality if it's not defined
+        format_header = ActiveResource::Connection::HTTP_FORMAT_HEADER_NAMES[method]
+        if headers[format_header].present? || req.headers[format_header].blank?
+          headers == req.headers
+        else
+          headers.dup.merge(format_header => req.headers[format_header]) == req.headers
+        end
       end
-    end
   end
 
   class Response
@@ -310,15 +310,14 @@ module ActiveResource
 
     def initialize(body, message = 200, headers = {})
       @body, @message, @headers = body, message.to_s, headers
-      @code = @message[0,3].to_i
+      @code = @message[0, 3].to_i
 
       resp_cls = Net::HTTPResponse::CODE_TO_OBJ[@code.to_s]
       if resp_cls && !resp_cls.body_permitted?
         @body = nil
       end
 
-      self['Content-Length'] = @body.nil? ? "0" : body.size.to_s
-
+      self["Content-Length"] = @body.nil? ? "0" : body.size.to_s
     end
 
     # Returns true if code is 2xx,
@@ -338,7 +337,7 @@ module ActiveResource
     # Returns true if the other is a Response with an equal body, equal message
     # and equal headers. Otherwise it returns false.
     def ==(other)
-      if (other.is_a?(Response))
+      if other.is_a?(Response)
         other.body == body && other.message == message && other.headers == headers
       else
         false
@@ -369,7 +368,6 @@ module ActiveResource
         def stub_http?
           HttpMock.net_connection_disabled? && defined?(@http) && @http.kind_of?(Net::HTTP)
         end
-
       end
   end
 end

@@ -1,4 +1,6 @@
-require 'active_support/core_ext/hash/conversions'
+# frozen_string_literal: true
+
+require "active_support/core_ext/hash/conversions"
 
 module ActiveResource
   module Formats
@@ -13,7 +15,7 @@ module ActiveResource
         "application/xml"
       end
 
-      def encode(hash, options={})
+      def encode(hash, options = {})
         hash.to_xml(options)
       end
 

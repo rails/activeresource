@@ -1,5 +1,7 @@
-require 'abstract_unit'
-require 'active_support/core_ext/hash/conversions'
+# frozen_string_literal: true
+
+require "abstract_unit"
+require "active_support/core_ext/hash/conversions"
 require "fixtures/person"
 require "fixtures/street_address"
 
@@ -26,30 +28,30 @@ class SchemaTest < ActiveSupport::TestCase
   end
 
   test "schema should only accept a hash" do
-    ["blahblah", ['one','two'],  [:age, :name], Person.new].each do |bad_schema|
-      assert_raises(ArgumentError,"should only accept a hash (or nil), but accepted: #{bad_schema.inspect}") do
+    ["blahblah", ["one", "two"],  [:age, :name], Person.new].each do |bad_schema|
+      assert_raises(ArgumentError, "should only accept a hash (or nil), but accepted: #{bad_schema.inspect}") do
         Person.schema = bad_schema
       end
     end
   end
 
   test "schema should accept a simple hash" do
-    new_schema = {'age' => 'integer', 'name' => 'string',
-      'height' => 'float', 'bio' => 'text',
-      'weight' => 'decimal', 'photo' => 'binary',
-      'alive' => 'boolean', 'created_at' => 'timestamp',
-      'thetime' => 'time', 'thedate' => 'date', 'mydatetime' => 'datetime'}
+    new_schema = { "age" => "integer", "name" => "string",
+      "height" => "float", "bio" => "text",
+      "weight" => "decimal", "photo" => "binary",
+      "alive" => "boolean", "created_at" => "timestamp",
+      "thetime" => "time", "thedate" => "date", "mydatetime" => "datetime" }
 
     assert_nothing_raised { Person.schema = new_schema }
     assert_equal new_schema, Person.schema
   end
 
   test "schema should accept a hash with simple values" do
-    new_schema = {'age' => 'integer', 'name' => 'string',
-      'height' => 'float', 'bio' => 'text',
-      'weight' => 'decimal', 'photo' => 'binary',
-      'alive' => 'boolean', 'created_at' => 'timestamp',
-      'thetime' => 'time', 'thedate' => 'date', 'mydatetime' => 'datetime'}
+    new_schema = { "age" => "integer", "name" => "string",
+      "height" => "float", "bio" => "text",
+      "weight" => "decimal", "photo" => "binary",
+      "alive" => "boolean", "created_at" => "timestamp",
+      "thetime" => "time", "thedate" => "date", "mydatetime" => "datetime" }
 
     assert_nothing_raised { Person.schema = new_schema }
     assert_equal new_schema, Person.schema
@@ -57,26 +59,26 @@ class SchemaTest < ActiveSupport::TestCase
 
   test "schema should accept all known attribute types as values" do
     ActiveResource::Schema::KNOWN_ATTRIBUTE_TYPES.each do |the_type|
-      assert_nothing_raised { Person.schema = {'my_key' => the_type } }
+      assert_nothing_raised { Person.schema = { "my_key" => the_type } }
     end
   end
 
   test "schema should not accept unknown values" do
-    bad_values = [ :oogle, :blob, 'thing']
+    bad_values = [ :oogle, :blob, "thing"]
 
     bad_values.each do |bad_value|
-      assert_raises(ArgumentError,"should only accept a known attribute type, but accepted: #{bad_value.inspect}") do
-        Person.schema = {'key' => bad_value}
+      assert_raises(ArgumentError, "should only accept a known attribute type, but accepted: #{bad_value.inspect}") do
+        Person.schema = { "key" => bad_value }
       end
     end
   end
 
   test "schema should accept nil and remove the schema" do
-    new_schema = {'age' => 'integer', 'name' => 'string',
-      'height' => 'float', 'bio' => 'text',
-      'weight' => 'decimal', 'photo' => 'binary',
-      'alive' => 'boolean', 'created_at' => 'timestamp',
-      'thetime' => 'time', 'thedate' => 'date', 'mydatetime' => 'datetime'}
+    new_schema = { "age" => "integer", "name" => "string",
+      "height" => "float", "bio" => "text",
+      "weight" => "decimal", "photo" => "binary",
+      "alive" => "boolean", "created_at" => "timestamp",
+      "thetime" => "time", "thedate" => "date", "mydatetime" => "datetime" }
 
     assert_nothing_raised { Person.schema = new_schema }
     assert_equal new_schema, Person.schema # sanity check
@@ -86,17 +88,17 @@ class SchemaTest < ActiveSupport::TestCase
   end
 
   test "schema should be with indifferent access" do
-    new_schema = {'age' => 'integer', 'name' => 'string',
-      'height' => 'float', 'bio' => 'text',
-      'weight' => 'decimal', 'photo' => 'binary',
-      'alive' => 'boolean', 'created_at' => 'timestamp',
-      'thetime' => 'time', 'thedate' => 'date', 'mydatetime' => 'datetime'}
+    new_schema = { "age" => "integer", "name" => "string",
+      "height" => "float", "bio" => "text",
+      "weight" => "decimal", "photo" => "binary",
+      "alive" => "boolean", "created_at" => "timestamp",
+      "thetime" => "time", "thedate" => "date", "mydatetime" => "datetime" }
 
     new_schema_syms = new_schema.keys
 
     assert_nothing_raised { Person.schema = new_schema }
     new_schema_syms.each do |col|
-      assert Person.new.respond_to?(col.to_s), "should respond to the schema's string key, but failed on: #{col.to_s}"
+      assert Person.new.respond_to?(col.to_s), "should respond to the schema's string key, but failed on: #{col}"
       assert Person.new.respond_to?(col.to_sym), "should respond to the schema's symbol key, but failed on: #{col.to_sym}"
     end
   end
@@ -126,11 +128,11 @@ class SchemaTest < ActiveSupport::TestCase
 
   test "defining a schema should return it when asked" do
     assert Person.schema.blank?, "should have a blank class schema"
-    new_schema = {'age' => 'integer', 'name' => 'string',
-      'height' => 'float', 'bio' => 'text',
-      'weight' => 'decimal', 'photo' => 'binary',
-      'alive' => 'boolean', 'created_at' => 'timestamp',
-      'thetime' => 'time', 'thedate' => 'date', 'mydatetime' => 'datetime'}
+    new_schema = { "age" => "integer", "name" => "string",
+      "height" => "float", "bio" => "text",
+      "weight" => "decimal", "photo" => "binary",
+      "alive" => "boolean", "created_at" => "timestamp",
+      "thetime" => "time", "thedate" => "date", "mydatetime" => "datetime" }
 
     assert_nothing_raised {
       Person.schema = new_schema
@@ -142,14 +144,14 @@ class SchemaTest < ActiveSupport::TestCase
   test "defining a schema, then fetching a model should still match the defined schema" do
     # sanity checks
     assert Person.schema.blank?, "should have a blank class schema"
-    new_schema = {'age' => 'integer', 'name' => 'string',
-      'height' => 'float', 'bio' => 'text',
-      'weight' => 'decimal', 'photo' => 'binary',
-      'alive' => 'boolean', 'created_at' => 'timestamp',
-      'thetime' => 'time', 'thedate' => 'date', 'mydatetime' => 'datetime'}
+    new_schema = { "age" => "integer", "name" => "string",
+      "height" => "float", "bio" => "text",
+      "weight" => "decimal", "photo" => "binary",
+      "alive" => "boolean", "created_at" => "timestamp",
+      "thetime" => "time", "thedate" => "date", "mydatetime" => "datetime" }
 
     matz = Person.find(1)
-    assert !matz.schema.blank?, "should have some sort of schema on an instance variable"
+    assert_not matz.schema.blank?, "should have some sort of schema on an instance variable"
     assert_not_equal new_schema, matz.schema, "should not have the class-level schema until it's been added to the class!"
 
     assert_nothing_raised {
@@ -179,7 +181,7 @@ class SchemaTest < ActiveSupport::TestCase
         attribute :foo, :string
       end
       assert_respond_to s, :attrs, "should return attributes in theory"
-      assert_equal({'foo' => 'string' }, s.attrs, "should return attributes in practice")
+      assert_equal({ "foo" => "string" }, s.attrs, "should return attributes in practice")
     end
   end
 
@@ -188,10 +190,10 @@ class SchemaTest < ActiveSupport::TestCase
       s = nil
       Person.schema do
         s = self
-        attribute('foo', 'string')
+        attribute("foo", "string")
       end
-      assert s.attrs.has_key?('foo'), "should have saved the attribute name"
-      assert_equal 'string', s.attrs['foo'], "should have saved the attribute type"
+      assert s.attrs.has_key?("foo"), "should have saved the attribute name"
+      assert_equal "string", s.attrs["foo"], "should have saved the attribute type"
     end
   end
 
@@ -203,8 +205,8 @@ class SchemaTest < ActiveSupport::TestCase
         attribute(:foo, :integer)
       end
 
-      assert s.attrs.has_key?('foo'), "should have saved the attribute name as a string"
-      assert_equal 'integer', s.attrs['foo'], "should have saved the attribute type as a string"
+      assert s.attrs.has_key?("foo"), "should have saved the attribute name as a string"
+      assert_equal "integer", s.attrs["foo"], "should have saved the attribute type as a string"
     end
   end
 
@@ -214,27 +216,27 @@ class SchemaTest < ActiveSupport::TestCase
         s = nil
         Person.schema do
           s = self
-          attribute('foo', the_type)
+          attribute("foo", the_type)
         end
-        assert s.attrs.has_key?('foo'), "should have saved the attribute name"
-        assert_equal the_type.to_s, s.attrs['foo'], "should have saved the attribute type of: #{the_type}"
+        assert s.attrs.has_key?("foo"), "should have saved the attribute name"
+        assert_equal the_type.to_s, s.attrs["foo"], "should have saved the attribute type of: #{the_type}"
       end
     end
   end
 
   test "attributes should not accept unknown values" do
-    bad_values = [ :oogle, :blob, 'thing']
+    bad_values = [ :oogle, :blob, "thing"]
 
     bad_values.each do |bad_value|
-      assert_raises(ArgumentError,"should only accept a known attribute type, but accepted: #{bad_value.inspect}") do
+      assert_raises(ArgumentError, "should only accept a known attribute type, but accepted: #{bad_value.inspect}") do
         Person.schema do
-          attribute 'key', bad_value
+          attribute "key", bad_value
         end
       end
-      assert !self.respond_to?(bad_value), "should only respond to a known attribute type, but accepted: #{bad_value.inspect}"
-      assert_raises(NoMethodError,"should only have methods for known attribute types, but accepted: #{bad_value.inspect}") do
+      assert_not self.respond_to?(bad_value), "should only respond to a known attribute type, but accepted: #{bad_value.inspect}"
+      assert_raises(NoMethodError, "should only have methods for known attribute types, but accepted: #{bad_value.inspect}") do
         Person.schema do
-          send bad_value, 'key'
+          send bad_value, "key"
         end
       end
     end
@@ -245,15 +247,15 @@ class SchemaTest < ActiveSupport::TestCase
       s = nil
       Person.schema do
         s = self
-        send(the_type,'foo')
+        send(the_type, "foo")
       end
-      assert s.attrs.has_key?('foo'), "should now have saved the attribute name"
-      assert_equal the_type.to_s, s.attrs['foo'], "should have saved the attribute type of: #{the_type}"
+      assert s.attrs.has_key?("foo"), "should now have saved the attribute name"
+      assert_equal the_type.to_s, s.attrs["foo"], "should have saved the attribute type of: #{the_type}"
     end
   end
 
   test "should accept multiple attribute names for an attribute method" do
-    names = ['foo','bar','baz']
+    names = ["foo", "bar", "baz"]
     s = nil
     Person.schema do
       s = self
@@ -261,7 +263,7 @@ class SchemaTest < ActiveSupport::TestCase
     end
     names.each do |the_name|
       assert s.attrs.has_key?(the_name), "should now have saved the attribute name: #{the_name}"
-      assert_equal 'string', s.attrs[the_name], "should have saved the attribute as a string"
+      assert_equal "string", s.attrs[the_name], "should have saved the attribute as a string"
     end
   end
 
@@ -277,11 +279,11 @@ class SchemaTest < ActiveSupport::TestCase
     new_attr_name_two = :another_new_schema_attribute
     assert Person.schema.blank?, "sanity check - should have a blank class schema"
 
-    assert !Person.new.respond_to?(new_attr_name), "sanity check - should not respond to the brand-new attribute yet"
-    assert !Person.new.respond_to?(new_attr_name_two), "sanity check - should not respond to the brand-new attribute yet"
+    assert_not Person.new.respond_to?(new_attr_name), "sanity check - should not respond to the brand-new attribute yet"
+    assert_not Person.new.respond_to?(new_attr_name_two), "sanity check - should not respond to the brand-new attribute yet"
 
     assert_nothing_raised do
-      Person.schema = {new_attr_name.to_s => 'string'}
+      Person.schema = { new_attr_name.to_s => "string" }
       Person.schema { string new_attr_name_two }
     end
 
@@ -295,28 +297,28 @@ class SchemaTest < ActiveSupport::TestCase
 
     assert Person.schema.blank?, "sanity check - should have a blank class schema"
 
-    assert !Person.new.respond_to?(new_attr_name), "sanity check - should not respond to the brand-new attribute yet"
-    assert !Person.new.respond_to?(new_attr_name_two), "sanity check - should not respond to the brand-new attribute yet"
+    assert_not Person.new.respond_to?(new_attr_name), "sanity check - should not respond to the brand-new attribute yet"
+    assert_not Person.new.respond_to?(new_attr_name_two), "sanity check - should not respond to the brand-new attribute yet"
 
     assert_nothing_raised do
       Person.schema { string new_attr_name_two }
-      Person.schema = {new_attr_name.to_s => 'string'}
+      Person.schema = { new_attr_name.to_s => "string" }
     end
 
     assert_respond_to Person.new, new_attr_name, "should respond to the attribute in a passed-in schema, but failed on: #{new_attr_name}"
     assert_respond_to Person.new, new_attr_name_two, "should respond to the attribute from the schema, but failed on: #{new_attr_name_two}"
   end
 
-  test 'should retrieve the `Method` object' do
+  test "should retrieve the `Method` object" do
     new_attr_name = :my_new_schema_attribute
     new_attr_name_two = :another_new_schema_attribute
     assert Person.schema.blank?, "sanity check - should have a blank class schema"
 
-    assert !Person.new.respond_to?(new_attr_name), "sanity check - should not respond to the brand-new attribute yet"
-    assert !Person.new.respond_to?(new_attr_name_two), "sanity check - should not respond to the brand-new attribute yet"
+    assert_not Person.new.respond_to?(new_attr_name), "sanity check - should not respond to the brand-new attribute yet"
+    assert_not Person.new.respond_to?(new_attr_name_two), "sanity check - should not respond to the brand-new attribute yet"
 
     assert_nothing_raised do
-      Person.schema = {new_attr_name.to_s => 'string'}
+      Person.schema = { new_attr_name.to_s => "string" }
       Person.schema { string new_attr_name_two }
     end
 
@@ -339,7 +341,7 @@ class SchemaTest < ActiveSupport::TestCase
       Person.new.send(new_attr_name_two)
     end
 
-    Person.schema = {new_attr_name.to_s => :float}
+    Person.schema = { new_attr_name.to_s => :float }
     Person.schema { string new_attr_name_two }
 
     assert_nothing_raised do
@@ -362,11 +364,11 @@ class SchemaTest < ActiveSupport::TestCase
   end
 
   test "setting schema should set known attributes on class and instance" do
-    new_schema = {'age' => 'integer', 'name' => 'string',
-      'height' => 'float', 'bio' => 'text',
-      'weight' => 'decimal', 'photo' => 'binary',
-      'alive' => 'boolean', 'created_at' => 'timestamp',
-      'thetime' => 'time', 'thedate' => 'date', 'mydatetime' => 'datetime'}
+    new_schema = { "age" => "integer", "name" => "string",
+      "height" => "float", "bio" => "text",
+      "weight" => "decimal", "photo" => "binary",
+      "alive" => "boolean", "created_at" => "timestamp",
+      "thetime" => "time", "thedate" => "date", "mydatetime" => "datetime" }
 
     assert_nothing_raised { Person.schema = new_schema }
 
@@ -399,11 +401,11 @@ class SchemaTest < ActiveSupport::TestCase
 
   test "setting schema then fetching should add schema attributes to the instance attributes" do
     # an attribute in common with fetched instance and one that isn't
-    new_schema = {'age' => 'integer', 'name' => 'string',
-      'height' => 'float', 'bio' => 'text',
-      'weight' => 'decimal', 'photo' => 'binary',
-      'alive' => 'boolean', 'created_at' => 'timestamp',
-      'thetime' => 'time', 'thedate' => 'date', 'mydatetime' => 'datetime'}
+    new_schema = { "age" => "integer", "name" => "string",
+      "height" => "float", "bio" => "text",
+      "weight" => "decimal", "photo" => "binary",
+      "alive" => "boolean", "created_at" => "timestamp",
+      "thetime" => "time", "thedate" => "date", "mydatetime" => "datetime" }
 
     assert_nothing_raised { Person.schema = new_schema }
 
@@ -418,9 +420,9 @@ class SchemaTest < ActiveSupport::TestCase
     end
   end
 
-  test 'known attributes should be unique' do
-    new_schema = {'age' => 'integer', 'name' => 'string'}
+  test "known attributes should be unique" do
+    new_schema = { "age" => "integer", "name" => "string" }
     Person.schema = new_schema
-    assert_equal Person.new(:age => 20, :name => 'Matz').known_attributes, ['age', 'name']
+    assert_equal Person.new(age: 20, name: "Matz").known_attributes, ["age", "name"]
   end
 end

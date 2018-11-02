@@ -1,7 +1,9 @@
-module ActiveResource::Associations::Builder 
+# frozen_string_literal: true
+
+module ActiveResource::Associations::Builder
   class HasOne < Association
     self.macro = :has_one
-    
+
     def build
       validate_options
       model.create_reflection(self.class.macro, name, options).tap do |reflection|

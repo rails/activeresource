@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module ActiveResource
   class ActiveJobSerializer < ActiveJob::Serializers::ObjectSerializer
     def serialize(resource)

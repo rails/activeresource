@@ -1,15 +1,17 @@
-require 'rubygems' unless defined? Gem
-require 'bundler/setup'
+# frozen_string_literal: true
+
+require "rubygems" unless defined? Gem
+require "bundler/setup"
 
 lib = File.expand_path("#{File.dirname(__FILE__)}/../lib")
-$:.unshift(lib) unless $:.include?('lib') || $:.include?(lib)
+$:.unshift(lib) unless $:.include?("lib") || $:.include?(lib)
 
-require 'minitest/autorun'
-require 'active_resource'
-require 'active_support'
-require 'active_support/test_case'
-require 'setter_trap'
-require 'active_support/logger'
+require "minitest/autorun"
+require "active_resource"
+require "active_support"
+require "active_support/test_case"
+require "setter_trap"
+require "active_support/logger"
 
 ActiveSupport::TestCase.test_order = :random if ActiveSupport::TestCase.respond_to?(:test_order=)
 ActiveResource::Base.logger = ActiveSupport::Logger.new("#{File.dirname(__FILE__)}/debug.log")
@@ -22,22 +24,22 @@ module ActiveResource::Test
 end
 
 def setup_response
-  matz_hash = { 'person' => { :id => 1, :name => 'Matz' } }
+  matz_hash = { "person" => { id: 1, name: "Matz" } }
 
-  @default_request_headers = { 'Content-Type' => 'application/json' }
-  @matz  = matz_hash.to_json
-  @matz_xml  = matz_hash.to_xml
-  @david = { :person => { :id => 2, :name => 'David' } }.to_json
-  @greg  = { :person => { :id => 3, :name => 'Greg' } }.to_json
-  @addy  = { :address => { :id => 1, :street => '12345 Street', :country => 'Australia' } }.to_json
-  @rick  = { :person => { :name => "Rick", :age => 25 } }.to_json
-  @joe    = { :person => { :id => 6, :name => 'Joe', :likes_hats => true }}.to_json
-  @people = { :people => [ { :person => { :id => 1, :name => 'Matz' } }, { :person => { :id => 2, :name => 'David' } }] }.to_json
-  @people_david = { :people => [ { :person => { :id => 2, :name => 'David' } }] }.to_json
-  @addresses = { :addresses => [{ :address => { :id => 1, :street => '12345 Street', :country => 'Australia' } }] }.to_json
-  @post  = {:id => 1, :title => 'Hello World', :body => 'Lorem Ipsum'}.to_json
-  @posts = [{:id => 1, :title => 'Hello World', :body => 'Lorem Ipsum'},{:id => 2, :title => 'Second Post', :body => 'Lorem Ipsum'}].to_json
-  @comments = [{:id => 1, :post_id => 1, :content => 'Interesting post'},{:id => 2, :post_id => 1, :content => 'I agree'}].to_json
+  @default_request_headers = { "Content-Type" => "application/json" }
+  @matz = matz_hash.to_json
+  @matz_xml = matz_hash.to_xml
+  @david = { person: { id: 2, name: "David" } }.to_json
+  @greg  = { person: { id: 3, name: "Greg" } }.to_json
+  @addy  = { address: { id: 1, street: "12345 Street", country: "Australia" } }.to_json
+  @rick  = { person: { name: "Rick", age: 25 } }.to_json
+  @joe    = { person: { id: 6, name: "Joe", likes_hats: true } }.to_json
+  @people = { people: [ { person: { id: 1, name: "Matz" } }, { person: { id: 2, name: "David" } }] }.to_json
+  @people_david = { people: [ { person: { id: 2, name: "David" } }] }.to_json
+  @addresses = { addresses: [{ address: { id: 1, street: "12345 Street", country: "Australia" } }] }.to_json
+  @post  = { id: 1, title: "Hello World", body: "Lorem Ipsum" }.to_json
+  @posts = [{ id: 1, title: "Hello World", body: "Lorem Ipsum" }, { id: 2, title: "Second Post", body: "Lorem Ipsum" }].to_json
+  @comments = [{ id: 1, post_id: 1, content: "Interesting post" }, { id: 2, post_id: 1, content: "I agree" }].to_json
 
   # - deep nested resource -
   # - Luis (Customer)
@@ -57,48 +59,48 @@ def setup_response
   #     - Milena (Customer::Friend::Brother)
   #
   @luis = {
-    :customer => {
-      :id => 1,
-      :name => 'Luis',
-      :friends => [{
-        :name => 'JK',
-        :brothers => [
+    customer: {
+      id: 1,
+      name: "Luis",
+      friends: [{
+        name: "JK",
+        brothers: [
           {
-            :name => 'Mateo',
-            :children => [{ :name => 'Edith' },{ :name => 'Martha' }]
+            name: "Mateo",
+            children: [{ name: "Edith" }, { name: "Martha" }]
           }, {
-            :name => 'Felipe',
-            :children => [{ :name => 'Bryan' },{ :name => 'Luke' }]
+            name: "Felipe",
+            children: [{ name: "Bryan" }, { name: "Luke" }]
           }
         ]
       }, {
-        :name => 'Eduardo',
-        :brothers => [
+        name: "Eduardo",
+        brothers: [
           {
-            :name => 'Sebas',
-            :children => [{ :name => 'Andres' },{ :name => 'Jorge' }]
+            name: "Sebas",
+            children: [{ name: "Andres" }, { name: "Jorge" }]
           }, {
-            :name => 'Elsa',
-            :children => [{ :name => 'Natacha' }]
+            name: "Elsa",
+            children: [{ name: "Natacha" }]
           }, {
-            :name => 'Milena',
-            :children => []
+            name: "Milena",
+            children: []
           }
         ]
       }],
-      :enemies => [{:name => 'Joker'}],
-      :mother => {:name => 'Ingeborg'}
+      enemies: [{ name: "Joker" }],
+      mother: { name: "Ingeborg" }
     }
   }.to_json
 
   @startup_sound = {
-    :sound => {
-      :name => "Mac Startup Sound", :author => { :name => "Jim Reekes" }
+    sound: {
+      name: "Mac Startup Sound", author: { name: "Jim Reekes" }
     }
   }.to_json
 
-  @product = {id: 1, name: 'Rails book'}.to_json
-  @inventory = {status: 'Sold Out', total: 10, used: 10}.to_json
+  @product = { id: 1, name: "Rails book" }.to_json
+  @inventory = { status: "Sold Out", total: 10, used: 10 }.to_json
 
   ActiveResource::HttpMock.respond_to do |mock|
     mock.get    "/people/1.json",               {}, @matz
@@ -106,12 +108,12 @@ def setup_response
     mock.get    "/people/2.xml",                {}, @david
     mock.get    "/people/Greg.json",            {}, @greg
     mock.get    "/people/6.json",               {}, @joe
-    mock.get    "/people/4.json",               { 'key' => 'value' }, nil, 404
+    mock.get    "/people/4.json",               { "key" => "value" }, nil, 404
     mock.put    "/people/1.json",               {}, nil, 204
     mock.delete "/people/1.json",               {}, nil, 200
     mock.delete "/people/2.xml",                {}, nil, 400
     mock.get    "/people/99.json",              {}, nil, 404
-    mock.post   "/people.json",                 {}, @rick, 201, 'Location' => '/people/5.xml'
+    mock.post   "/people.json",                 {}, @rick, 201, "Location" => "/people/5.xml"
     mock.get    "/people.json",                 {}, @people
     mock.get    "/people/1/addresses.json",     {}, @addresses
     mock.get    "/people/1/addresses/1.json",   {}, @addy
@@ -121,7 +123,7 @@ def setup_response
     mock.get    "/people/Greg/addresses/1.json", {}, @addy
     mock.put    "/people/1/addresses/1.json",   {}, nil, 204
     mock.delete "/people/1/addresses/1.json",   {}, nil, 200
-    mock.post   "/people/1/addresses.json",     {}, nil, 201, 'Location' => '/people/1/addresses/5'
+    mock.post   "/people/1/addresses.json",     {}, nil, 201, "Location" => "/people/1/addresses/5"
     mock.get    "/people/1/addresses/99.json",  {}, nil, 404
     mock.get    "/people//addresses.xml",       {}, nil, 404
     mock.get    "/people//addresses/1.xml",     {}, nil, 404
@@ -144,8 +146,8 @@ def setup_response
     mock.get    "/posts/1.json",                 {}, @post
     mock.get    "/posts/1/comments.json",        {}, @comments
     # products
-    mock.get '/products/1.json', {}, @product
-    mock.get '/products/1/inventory.json', {}, @inventory
+    mock.get "/products/1.json", {}, @product
+    mock.get "/products/1/inventory.json", {}, @inventory
   end
 
   Person.user = nil
