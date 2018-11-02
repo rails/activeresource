@@ -1,6 +1,29 @@
-## Active Resource 5.0.0 (May 4, 2017) ##
+## Active Resource 5.1.0 (Nov 2, 2018) ##
 
-### Enhancements ###
+*   Improve support of Active Resource objects inside fibers.
+
+*   Add support to Active Model Serializers.
+
+*   Fix error when trying to parse `nil` as a JSON response.
+
+*   Fix `exists?` to return the right value when the response code is between 200 and 206.
+
+*   Match the log level to the HTTP response code.
+
+*   Add `ActiveResource::Connection.logger` accessors to configure a specific logger instance for the
+    connection object.
+
+*   Add `ActiveResource::Base#element_url` method.
+
+*   Add Active Job serialization support with Rails 6.
+
+*   Support lazy setting of configuration options.
+
+*   Use `UnnamedResource` when resource fails to create normally.
+
+*   Add support to Bearer Token Authorization header to connection.
+
+## Active Resource 5.0.0 (May 4, 2017) ##
 
 *   Add `ActiveResource::Base.create!`.
 
