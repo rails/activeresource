@@ -151,6 +151,8 @@ module ActiveResource
           raise(ResourceConflict.new(response))
         when 410
           raise(ResourceGone.new(response))
+        when 412
+          raise(PreconditionFailed.new(response))
         when 422
           raise(ResourceInvalid.new(response))
         when 401...500

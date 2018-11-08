@@ -89,6 +89,9 @@ class ConnectionTest < ActiveSupport::TestCase
     # 410 is a removed resource
     assert_response_raises ActiveResource::ResourceGone, 410
 
+    # 412 is a precondition failed
+    assert_response_raises ActiveResource::PreconditionFailed, 412
+
     # 422 is a validation error
     assert_response_raises ActiveResource::ResourceInvalid, 422
 
