@@ -202,6 +202,7 @@ module ActiveResource
   # * 405 - ActiveResource::MethodNotAllowed
   # * 409 - ActiveResource::ResourceConflict
   # * 410 - ActiveResource::ResourceGone
+  # * 412 - ActiveResource::PreconditionFailed
   # * 422 - ActiveResource::ResourceInvalid (rescued by save as validation errors)
   # * 401..499 - ActiveResource::ClientError
   # * 500..599 - ActiveResource::ServerError

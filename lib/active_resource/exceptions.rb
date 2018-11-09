@@ -71,6 +71,10 @@ module ActiveResource
   class ResourceGone < ClientError # :nodoc:
   end
 
+  # 412 Precondition Failed
+  class PreconditionFailed < ClientError # :nodoc:
+  end
+
   # 5xx Server Error
   class ServerError < ConnectionError # :nodoc:
   end
