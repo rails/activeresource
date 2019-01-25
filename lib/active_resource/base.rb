@@ -537,6 +537,19 @@ module ActiveResource
         @auth_type = auth_type
       end
 
+      def bearer_token
+        if defined?(@bearer_token)
+          @bearer_token
+        elsif superclass != Object
+          superclass.bearer_token
+        end
+      end
+
+      def bearer_token=(bearer_token)
+        self._connection = nil
+        @bearer_token = bearer_token
+      end
+
       # Sets the format that attributes are sent and received in from a mime type reference:
       #
       #   Person.format = :json
@@ -650,6 +663,7 @@ module ActiveResource
           _connection.proxy = proxy if proxy
           _connection.user = user if user
           _connection.password = password if password
+          _connection.bearer_token = bearer_token if bearer_token
           _connection.auth_type = auth_type if auth_type
           _connection.timeout = timeout if timeout
           _connection.open_timeout = open_timeout if open_timeout

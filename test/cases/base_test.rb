@@ -96,6 +96,12 @@ class BaseTest < ActiveSupport::TestCase
     assert_equal(:digest, Forum.connection.auth_type)
   end
 
+  def test_should_accept_setting_bearer_token
+    Forum.bearer_token = 'test123'
+    assert_equal('test123', Forum.bearer_token)
+    assert_equal('test123', Forum.connection.bearer_token)
+  end
+
   def test_should_accept_setting_timeout
     Forum.timeout = 5
     assert_equal(5, Forum.timeout)
@@ -239,7 +245,7 @@ class BaseTest < ActiveSupport::TestCase
     assert_equal fruit.site, apple.site, "subclass did not adopt changes from parent class"
   end
 
-  def test_proxy_reader_uses_superclass_site_until_written
+  def test_proxy_reader_uses_superclass_proxy_until_written
     # Superclass is Object so returns nil.
     assert_nil ActiveResource::Base.proxy
     assert_nil Class.new(ActiveResource::Base).proxy
@@ -509,6 +515,47 @@ class BaseTest < ActiveSupport::TestCase
 
     fruit.ssl_options = { omega: "moos" }
     assert_equal fruit.ssl_options, apple.ssl_options, "subclass did not adopt changes from parent class"
+  end
+
+  def test_bearer_token_reader_uses_superclass_bearer_token_until_written
+    # Superclass is Object so returns nil.
+    assert_nil ActiveResource::Base.bearer_token
+    assert_nil Class.new(ActiveResource::Base).bearer_token
+    Person.bearer_token = "test123"
+
+    # Subclass uses superclass bearer_token.
+    actor = Class.new(Person)
+    assert_equal Person.bearer_token, actor.bearer_token
+
+    # Changing subclass bearer_token doesn't change superclass bearer_token.
+    actor.bearer_token = "test321"
+    assert_not_equal Person.bearer_token, actor.bearer_token
+
+    # Connection uses the bearer token of the actor
+    assert_equal actor.bearer_token, actor.connection.bearer_token
+    actor._connection = nil
+    assert_equal actor.bearer_token, actor.connection.bearer_token
+
+    # Changing superclass bearer_token doesn't overwrite subclass bearer_token.
+    Person.bearer_token = "123test"
+    assert_not_equal Person.bearer_token, actor.bearer_token
+
+    # Changing superclass bearer_token after subclassing changes subclass bearer_token.
+    jester = Class.new(actor)
+    actor.bearer_token = "321test"
+    assert_equal actor.bearer_token, jester.bearer_token
+
+    # Subclasses are always equal to superclass bearer_token when not overridden.
+    fruit = Class.new(ActiveResource::Base)
+    apple = Class.new(fruit)
+
+    fruit.bearer_token = "123test123"
+    assert_equal fruit.bearer_token, apple.bearer_token, "subclass did not adopt changes from parent class"
+
+    fruit.bearer_token = "321test321"
+    assert_equal fruit.bearer_token, apple.bearer_token, "subclass did not adopt changes from parent class"
+
+    Person.bearer_token = nil
   end
 
   def test_updating_baseclass_site_object_wipes_descendent_cached_connection_objects
