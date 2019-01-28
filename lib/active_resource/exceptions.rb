@@ -75,6 +75,10 @@ module ActiveResource
   class PreconditionFailed < ClientError # :nodoc:
   end
 
+  # 429 Too Many Requests
+  class TooManyRequests < ClientError # :nodoc:
+  end
+
   # 5xx Server Error
   class ServerError < ConnectionError # :nodoc:
   end

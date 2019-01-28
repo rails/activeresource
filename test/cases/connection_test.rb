@@ -95,6 +95,9 @@ class ConnectionTest < ActiveSupport::TestCase
     # 422 is a validation error
     assert_response_raises ActiveResource::ResourceInvalid, 422
 
+    # 429 is too many requests
+    assert_response_raises ActiveResource::TooManyRequests, 429
+
     # 4xx are client errors.
     [402, 499].each do |code|
       assert_response_raises ActiveResource::ClientError, code
