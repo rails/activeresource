@@ -221,16 +221,25 @@ module ActiveResource
         retried ||= false
         yield
       rescue UnauthorizedAccess => e
-        raise if retried || auth_type != :digest
-        @response_auth_header = e.response["WWW-Authenticate"]
+        raise if retried || !auth_type.in?([:digest, :jwt])
+        @response_auth_header = case auth_type
+                                when :digest
+                                  e.response["WWW-Authenticate"]
+                                when :jwt
+                                  # Reset the JWT
+                                  @bearer_token = nil
+                                end
         retried = true
         retry
       end
 
       def authorization_header(http_method, uri)
         if @user || @password
-          if auth_type == :digest
+          case auth_type
+          when :digest
             { "Authorization" => digest_auth_header(http_method, uri) }
+          when :jwt
+            { "Authorization" => @bearer_token || refresh_jwt(@user, @password) }
           else
             { "Authorization" => "Basic " + ["#{@user}:#{@password}"].pack("m").delete("\r\n") }
           end
@@ -290,7 +299,13 @@ module ActiveResource
       def legitimize_auth_type(auth_type)
         return :basic if auth_type.nil?
         auth_type = auth_type.to_sym
-        auth_type.in?([:basic, :digest, :bearer]) ? auth_type : :basic
+        auth_type.in?([:basic, :digest, :bearer, :jwt]) ? auth_type : :basic
+      end
+
+      def refresh_jwt(user, password)
+        response = request(:post, "/auth/login", { email: user, password: password }.to_json, default_header.update(http_format_header(:post)))
+        json = JSON.parse(response.body).with_indifferent_access
+        @bearer_token = json[:auth_token]
       end
   end
 end
