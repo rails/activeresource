@@ -537,6 +537,32 @@ module ActiveResource
         @auth_type = auth_type
       end
 
+      # Gets the callback for refreshing a token HTTP authentication
+      def auth_body
+        if defined?(@auth_body)
+          @auth_body
+        end
+      end
+
+      # Sets the callback for refreshing a token HTTP authentication
+      def auth_body=(auth_body)
+        self._connection = nil
+        @auth_body = auth_body
+      end
+
+      # Gets the authentication path for refreshing a token for authentication
+      def auth_path
+        if defined?(@auth_path)
+          @auth_path
+        end
+      end
+
+      # Gets the authentication path for refreshing a token HTTP authentication
+      def auth_path=(auth_path)
+        self._connection = nil
+        @auth_path = auth_path
+      end
+
       # Sets the format that attributes are sent and received in from a mime type reference:
       #
       #   Person.format = :json
@@ -655,6 +681,8 @@ module ActiveResource
           _connection.open_timeout = open_timeout if open_timeout
           _connection.read_timeout = read_timeout if read_timeout
           _connection.ssl_options = ssl_options if ssl_options
+          _connection.auth_path = auth_path if auth_path
+          _connection.auth_body = auth_body if auth_body
           _connection
         else
           superclass.connection

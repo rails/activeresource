@@ -21,8 +21,10 @@ module ActiveResource
       head: "Accept"
     }
 
+    VALID_AUTH_TYPES = [:basic, :digest, :bearer, :jwt]
+
     attr_reader :site, :user, :password, :bearer_token, :auth_type, :timeout, :open_timeout, :read_timeout, :proxy, :ssl_options
-    attr_accessor :format, :logger
+    attr_accessor :format, :logger, :auth_path
 
     class << self
       def requests
@@ -78,6 +80,14 @@ module ActiveResource
 
     # Hash of options applied to Net::HTTP instance when +site+ protocol is 'https'.
     attr_writer :ssl_options
+
+    def auth_body=(block)
+      @auth_body_callback = block
+    end
+
+    def auth_body
+      @auth_body_callback.call
+    end
 
     # Executes a GET request.
     # Used to get (find) resources.
@@ -226,7 +236,6 @@ module ActiveResource
                                 when :digest
                                   e.response["WWW-Authenticate"]
                                 when :jwt
-                                  # Reset the JWT
                                   @bearer_token = nil
                                 end
         retried = true
@@ -234,17 +243,15 @@ module ActiveResource
       end
 
       def authorization_header(http_method, uri)
-        if @user || @password
-          case auth_type
-          when :digest
-            { "Authorization" => digest_auth_header(http_method, uri) }
-          when :jwt
-            { "Authorization" => @bearer_token || refresh_jwt(@user, @password) }
-          else
-            { "Authorization" => "Basic " + ["#{@user}:#{@password}"].pack("m").delete("\r\n") }
-          end
-        elsif @bearer_token
-          { "Authorization" => "Bearer #{@bearer_token}" }
+        case auth_type
+        when :digest
+          @user || @password ? { "Authorization" => digest_auth_header(http_method, uri) } : {}
+        when :jwt
+          { "Authorization" => @bearer_token || refresh_token }
+        when :basic
+          @user || @password ? { "Authorization" => "Basic " + ["#{@user}:#{@password}"].pack("m").delete("\r\n") } : {}
+        when :bearer_token
+          @bearer_token ? { "Authorization" => "Bearer #{@bearer_token}" } : {}
         else
           {}
         end
@@ -299,11 +306,13 @@ module ActiveResource
       def legitimize_auth_type(auth_type)
         return :basic if auth_type.nil?
         auth_type = auth_type.to_sym
-        auth_type.in?([:basic, :digest, :bearer, :jwt]) ? auth_type : :basic
+        auth_type.in?(VALID_AUTH_TYPES) ? auth_type : :basic
       end
 
-      def refresh_jwt(user, password)
-        response = request(:post, "/auth/login", { email: user, password: password }.to_json, default_header.update(http_format_header(:post)))
+      def refresh_token
+        raise ArgumentError, "Missing JWT authorization body callback" unless @auth_body_callback
+        raise ArgumentError, "Missing JWT authorization path" unless @auth_path
+        response = request(:post, @auth_path, auth_body, default_header.update(http_format_header(:post)))
         json = JSON.parse(response.body).with_indifferent_access
         @bearer_token = json[:auth_token]
       end
