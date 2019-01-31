@@ -250,10 +250,10 @@ module ActiveResource
           { "Authorization" => @bearer_token || refresh_token }
         when :basic
           @user || @password ? { "Authorization" => "Basic " + ["#{@user}:#{@password}"].pack("m").delete("\r\n") } : {}
-        when :bearer_token
+        when :bearer
           @bearer_token ? { "Authorization" => "Bearer #{@bearer_token}" } : {}
         else
-          {}
+          @user || @password ? { "Authorization" => "Basic " + ["#{@user}:#{@password}"].pack("m").delete("\r\n") } : {}
         end
       end
 
