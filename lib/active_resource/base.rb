@@ -204,6 +204,7 @@ module ActiveResource
   # * 410 - ActiveResource::ResourceGone
   # * 412 - ActiveResource::PreconditionFailed
   # * 422 - ActiveResource::ResourceInvalid (rescued by save as validation errors)
+  # * 429 - ActiveResource::TooManyRequests
   # * 401..499 - ActiveResource::ClientError
   # * 500..599 - ActiveResource::ServerError
   # * Other - ActiveResource::ConnectionError
