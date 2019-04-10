@@ -16,7 +16,7 @@ module ActiveResource
     end
 
     initializer "active_resource.add_active_job_serializer" do |app|
-      if defined? app.config.active_job.custom_serializers
+      if app.config.try(:active_job)&.custom_serializers
         require "active_resource/active_job_serializer"
         app.config.active_job.custom_serializers << ActiveResource::ActiveJobSerializer
       end

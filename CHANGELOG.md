@@ -1,3 +1,5 @@
+*   Fix railtie logic that adds Active Job serialization support.
+
 ## Active Resource 5.1.0 (Nov 2, 2018) ##
 
 *   Improve support of Active Resource objects inside fibers.
