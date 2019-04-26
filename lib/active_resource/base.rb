@@ -301,6 +301,8 @@ module ActiveResource
   #     self.read_timeout = 10
   #   end
   class Base
+    include ReadonlyAttributes
+
     ##
     # :singleton-method:
     # The logger for diagnosing and tracing Active Resource calls.
@@ -549,7 +551,7 @@ module ActiveResource
       # Default format is <tt>:json</tt>.
       def format=(mime_type_reference_or_format)
         format = mime_type_reference_or_format.is_a?(Symbol) ?
-          ActiveResource::Formats[mime_type_reference_or_format] : mime_type_reference_or_format
+                   ActiveResource::Formats[mime_type_reference_or_format] : mime_type_reference_or_format
 
         self._format = format
         connection.format = format if site
@@ -735,10 +737,10 @@ module ActiveResource
         raise
       end
 
-      alias_method :set_prefix, :prefix=  #:nodoc:
+      alias_method :set_prefix, :prefix= #:nodoc:
 
-      alias_method :set_element_name, :element_name=  #:nodoc:
-      alias_method :set_collection_name, :collection_name=  #:nodoc:
+      alias_method :set_element_name, :element_name= #:nodoc:
+      alias_method :set_collection_name, :collection_name= #:nodoc:
 
       def format_extension
         include_format_in_path ? ".#{format.extension}" : ""
@@ -854,7 +856,7 @@ module ActiveResource
         "#{prefix(prefix_options)}#{collection_name}#{format_extension}#{query_string(query_options)}"
       end
 
-      alias_method :set_primary_key, :primary_key=  #:nodoc:
+      alias_method :set_primary_key, :primary_key= #:nodoc:
 
       # Builds a new, unsaved record using the default values from the remote server so
       # that it can be used with RESTful forms.
@@ -968,7 +970,7 @@ module ActiveResource
       #   Person.find(:last)
       #   # => nil
       def find(*arguments)
-        scope   = arguments.slice!(0)
+        scope = arguments.slice!(0)
         options = arguments.slice!(0) || {}
 
         case scope
@@ -1046,105 +1048,105 @@ module ActiveResource
           response = connection.head(path, headers)
           (200..206).include? response.code.to_i
         end
-        # id && !find_single(id, options).nil?
+          # id && !find_single(id, options).nil?
       rescue ActiveResource::ResourceNotFound, ActiveResource::ResourceGone
         false
       end
 
       private
 
-        def check_prefix_options(prefix_options)
-          p_options = HashWithIndifferentAccess.new(prefix_options)
-          prefix_parameters.each do |p|
-            raise(MissingPrefixParam, "#{p} prefix_option is missing") if p_options[p].blank?
-          end
+      def check_prefix_options(prefix_options)
+        p_options = HashWithIndifferentAccess.new(prefix_options)
+        prefix_parameters.each do |p|
+          raise(MissingPrefixParam, "#{p} prefix_option is missing") if p_options[p].blank?
         end
+      end
 
-        # Find every resource
-        def find_every(options)
-          begin
-            case from = options[:from]
-            when Symbol
-              instantiate_collection(get(from, options[:params]), options[:params])
-            when String
-              path = "#{from}#{query_string(options[:params])}"
-              instantiate_collection(format.decode(connection.get(path, headers).body) || [], options[:params])
-            else
-              prefix_options, query_options = split_options(options[:params])
-              path = collection_path(prefix_options, query_options)
-              instantiate_collection((format.decode(connection.get(path, headers).body) || []), query_options, prefix_options)
-            end
-          rescue ActiveResource::ResourceNotFound
-            # Swallowing ResourceNotFound exceptions and return nil - as per
-            # ActiveRecord.
-            nil
-          end
-        end
-
-        # Find a single resource from a one-off URL
-        def find_one(options)
+      # Find every resource
+      def find_every(options)
+        begin
           case from = options[:from]
           when Symbol
-            instantiate_record(get(from, options[:params]))
+            instantiate_collection(get(from, options[:params]), options[:params])
           when String
             path = "#{from}#{query_string(options[:params])}"
-            instantiate_record(format.decode(connection.get(path, headers).body))
+            instantiate_collection(format.decode(connection.get(path, headers).body) || [], options[:params])
+          else
+            prefix_options, query_options = split_options(options[:params])
+            path = collection_path(prefix_options, query_options)
+            instantiate_collection((format.decode(connection.get(path, headers).body) || []), query_options, prefix_options)
           end
+        rescue ActiveResource::ResourceNotFound
+          # Swallowing ResourceNotFound exceptions and return nil - as per
+          # ActiveRecord.
+          nil
+        end
+      end
+
+      # Find a single resource from a one-off URL
+      def find_one(options)
+        case from = options[:from]
+        when Symbol
+          instantiate_record(get(from, options[:params]))
+        when String
+          path = "#{from}#{query_string(options[:params])}"
+          instantiate_record(format.decode(connection.get(path, headers).body))
+        end
+      end
+
+      # Find a single resource from the default URL
+      def find_single(scope, options)
+        prefix_options, query_options = split_options(options[:params])
+        path = element_path(scope, prefix_options, query_options)
+        instantiate_record(format.decode(connection.get(path, headers).body), prefix_options)
+      end
+
+      def instantiate_collection(collection, original_params = {}, prefix_options = {})
+        collection_parser.new(collection).tap do |parser|
+          parser.resource_class = self
+          parser.original_params = original_params
+        end.collect! { |record| instantiate_record(record, prefix_options) }
+      end
+
+      def instantiate_record(record, prefix_options = {})
+        new(record, true).tap do |resource|
+          resource.prefix_options = prefix_options
+        end
+      end
+
+
+      # Accepts a URI and creates the site URI from that.
+      def create_site_uri_from(site)
+        site.is_a?(URI) ? site.dup : URI.parse(site)
+      end
+
+      # Accepts a URI and creates the proxy URI from that.
+      def create_proxy_uri_from(proxy)
+        proxy.is_a?(URI) ? proxy.dup : URI.parse(proxy)
+      end
+
+      # contains a set of the current prefix parameters.
+      def prefix_parameters
+        @prefix_parameters ||= prefix_source.scan(/:\w+/).map { |key| key[1..-1].to_sym }.to_set
+      end
+
+      # Builds the query string for the request.
+      def query_string(options)
+        "?#{options.to_query}" unless options.nil? || options.empty?
+      end
+
+      # split an option hash into two hashes, one containing the prefix options,
+      # and the other containing the leftovers.
+      def split_options(options = {})
+        prefix_options, query_options = {}, {}
+
+        (options || {}).each do |key, value|
+          next if key.blank?
+          (prefix_parameters.include?(key.to_s.to_sym) ? prefix_options : query_options)[key.to_s.to_sym] = value
         end
 
-        # Find a single resource from the default URL
-        def find_single(scope, options)
-          prefix_options, query_options = split_options(options[:params])
-          path = element_path(scope, prefix_options, query_options)
-          instantiate_record(format.decode(connection.get(path, headers).body), prefix_options)
-        end
-
-        def instantiate_collection(collection, original_params = {}, prefix_options = {})
-          collection_parser.new(collection).tap do |parser|
-            parser.resource_class  = self
-            parser.original_params = original_params
-          end.collect! { |record| instantiate_record(record, prefix_options) }
-        end
-
-        def instantiate_record(record, prefix_options = {})
-          new(record, true).tap do |resource|
-            resource.prefix_options = prefix_options
-          end
-        end
-
-
-        # Accepts a URI and creates the site URI from that.
-        def create_site_uri_from(site)
-          site.is_a?(URI) ? site.dup : URI.parse(site)
-        end
-
-        # Accepts a URI and creates the proxy URI from that.
-        def create_proxy_uri_from(proxy)
-          proxy.is_a?(URI) ? proxy.dup : URI.parse(proxy)
-        end
-
-        # contains a set of the current prefix parameters.
-        def prefix_parameters
-          @prefix_parameters ||= prefix_source.scan(/:\w+/).map { |key| key[1..-1].to_sym }.to_set
-        end
-
-        # Builds the query string for the request.
-        def query_string(options)
-          "?#{options.to_query}" unless options.nil? || options.empty?
-        end
-
-        # split an option hash into two hashes, one containing the prefix options,
-        # and the other containing the leftovers.
-        def split_options(options = {})
-          prefix_options, query_options = {}, {}
-
-          (options || {}).each do |key, value|
-            next if key.blank?
-            (prefix_parameters.include?(key.to_s.to_sym) ? prefix_options : query_options)[key.to_s.to_sym] = value
-          end
-
-          [ prefix_options, query_options ]
-        end
+        [prefix_options, query_options]
+      end
     end
 
     attr_accessor :attributes #:nodoc:
@@ -1177,7 +1179,7 @@ module ActiveResource
     #   my_other_course = Course.new(:name => "Philosophy: Reason and Being", :lecturer => "Ralph Cling")
     #   my_other_course.save
     def initialize(attributes = {}, persisted = false)
-      @attributes     = {}.with_indifferent_access
+      @attributes = {}.with_indifferent_access
       @prefix_options = {}
       @persisted = persisted
       load(attributes, false, persisted)
@@ -1231,6 +1233,7 @@ module ActiveResource
     def new?
       !persisted?
     end
+
     alias :new_record? :new?
 
     # Returns +true+ if this object has been saved, otherwise returns +false+.
@@ -1310,7 +1313,7 @@ module ActiveResource
     #   next_invoice.customer # => That Company
     def dup
       self.class.new.tap do |resource|
-        resource.attributes     = @attributes
+        resource.attributes = @attributes
         resource.prefix_options = @prefix_options
       end
     end
@@ -1393,6 +1396,7 @@ module ActiveResource
     # serialization format specified in ActiveResource::Base.format. The options
     # applicable depend on the configured encoding format.
     def encode(options = {})
+      options[:except] = self.class.readonly_attributes.map(&:to_sym)
       send("to_#{self.class.format.extension}", options)
     end
 
@@ -1537,149 +1541,150 @@ module ActiveResource
     end
 
     protected
-      def connection(refresh = false)
-        self.class.connection(refresh)
-      end
 
-      # Update the resource on the remote service.
-      def update
-        run_callbacks :update do
-          connection.put(element_path(prefix_options), encode, self.class.headers).tap do |response|
-            load_attributes_from_response(response)
-          end
+    def connection(refresh = false)
+      self.class.connection(refresh)
+    end
+
+    # Update the resource on the remote service.
+    def update
+      run_callbacks :update do
+        connection.put(element_path(prefix_options), encode, self.class.headers).tap do |response|
+          load_attributes_from_response(response)
         end
       end
+    end
 
-      # Create (i.e., \save to the remote service) the \new resource.
-      def create
-        run_callbacks :create do
-          connection.post(collection_path, encode, self.class.headers).tap do |response|
-            self.id = id_from_response(response)
-            load_attributes_from_response(response)
-          end
+    # Create (i.e., \save to the remote service) the \new resource.
+    def create
+      run_callbacks :create do
+        connection.post(collection_path, encode, self.class.headers).tap do |response|
+          self.id = id_from_response(response)
+          load_attributes_from_response(response)
         end
       end
+    end
 
-      def load_attributes_from_response(response)
-        if response_code_allows_body?(response.code.to_i) &&
-            (response["Content-Length"].nil? || response["Content-Length"] != "0") &&
-            !response.body.nil? && response.body.strip.size > 0
-          load(self.class.format.decode(response.body), true, true)
-          @persisted = true
-        end
+    def load_attributes_from_response(response)
+      if response_code_allows_body?(response.code.to_i) &&
+        (response["Content-Length"].nil? || response["Content-Length"] != "0") &&
+        !response.body.nil? && response.body.strip.size > 0
+        load(self.class.format.decode(response.body), true, true)
+        @persisted = true
       end
+    end
 
-      # Takes a response from a typical create post and pulls the ID out
-      def id_from_response(response)
-        response["Location"][/\/([^\/]*?)(\.\w+)?$/, 1] if response["Location"]
-      end
+    # Takes a response from a typical create post and pulls the ID out
+    def id_from_response(response)
+      response["Location"][/\/([^\/]*?)(\.\w+)?$/, 1] if response["Location"]
+    end
 
-      def element_path(options = nil)
-        self.class.element_path(to_param, options || prefix_options)
-      end
+    def element_path(options = nil)
+      self.class.element_path(to_param, options || prefix_options)
+    end
 
-      def element_url(options = nil)
-        self.class.element_url(to_param, options || prefix_options)
-      end
+    def element_url(options = nil)
+      self.class.element_url(to_param, options || prefix_options)
+    end
 
-      def new_element_path
-        self.class.new_element_path(prefix_options)
-      end
+    def new_element_path
+      self.class.new_element_path(prefix_options)
+    end
 
-      def collection_path(options = nil)
-        self.class.collection_path(options || prefix_options)
-      end
+    def collection_path(options = nil)
+      self.class.collection_path(options || prefix_options)
+    end
 
     private
 
-      # Determine whether the response is allowed to have a body per HTTP 1.1 spec section 4.4.1
-      def response_code_allows_body?(c)
-        !((100..199).include?(c) || [204, 304].include?(c))
-      end
+    # Determine whether the response is allowed to have a body per HTTP 1.1 spec section 4.4.1
+    def response_code_allows_body?(c)
+      !((100..199).include?(c) || [204, 304].include?(c))
+    end
 
-      # Tries to find a resource for a given collection name; if it fails, then the resource is created
-      def find_or_create_resource_for_collection(name)
-        return reflections[name.to_sym].klass if reflections.key?(name.to_sym)
-        find_or_create_resource_for(ActiveSupport::Inflector.singularize(name.to_s))
-      end
+    # Tries to find a resource for a given collection name; if it fails, then the resource is created
+    def find_or_create_resource_for_collection(name)
+      return reflections[name.to_sym].klass if reflections.key?(name.to_sym)
+      find_or_create_resource_for(ActiveSupport::Inflector.singularize(name.to_s))
+    end
 
-      # Tries to find a resource in a non empty list of nested modules
-      # if it fails, then the resource is created
-      def find_or_create_resource_in_modules(resource_name, module_names)
-        receiver = Object
-        namespaces = module_names[0, module_names.size - 1].map do |module_name|
-          receiver = receiver.const_get(module_name)
-        end
-        const_args = [resource_name, false]
-        if namespace = namespaces.reverse.detect { |ns| ns.const_defined?(*const_args) }
-          namespace.const_get(*const_args)
+    # Tries to find a resource in a non empty list of nested modules
+    # if it fails, then the resource is created
+    def find_or_create_resource_in_modules(resource_name, module_names)
+      receiver = Object
+      namespaces = module_names[0, module_names.size - 1].map do |module_name|
+        receiver = receiver.const_get(module_name)
+      end
+      const_args = [resource_name, false]
+      if namespace = namespaces.reverse.detect { |ns| ns.const_defined?(*const_args) }
+        namespace.const_get(*const_args)
+      else
+        create_resource_for(resource_name)
+      end
+    end
+
+    # Tries to find a resource for a given name; if it fails, then the resource is created
+    def find_or_create_resource_for(name)
+      return reflections[name.to_sym].klass if reflections.key?(name.to_sym)
+      resource_name = name.to_s.camelize
+
+      const_args = [resource_name, false]
+
+      if !const_valid?(*const_args)
+        # resource_name is not a valid ruby module name and cannot be created normally
+        find_or_create_resource_for(:UnnamedResource)
+      elsif self.class.const_defined?(*const_args)
+        self.class.const_get(*const_args)
+      else
+        ancestors = self.class.name.to_s.split("::")
+        if ancestors.size > 1
+          find_or_create_resource_in_modules(resource_name, ancestors)
         else
-          create_resource_for(resource_name)
-        end
-      end
-
-      # Tries to find a resource for a given name; if it fails, then the resource is created
-      def find_or_create_resource_for(name)
-        return reflections[name.to_sym].klass if reflections.key?(name.to_sym)
-        resource_name = name.to_s.camelize
-
-        const_args = [resource_name, false]
-
-        if !const_valid?(*const_args)
-          # resource_name is not a valid ruby module name and cannot be created normally
-          find_or_create_resource_for(:UnnamedResource)
-        elsif self.class.const_defined?(*const_args)
-          self.class.const_get(*const_args)
-        else
-          ancestors = self.class.name.to_s.split("::")
-          if ancestors.size > 1
-            find_or_create_resource_in_modules(resource_name, ancestors)
+          if Object.const_defined?(*const_args)
+            Object.const_get(*const_args)
           else
-            if Object.const_defined?(*const_args)
-              Object.const_get(*const_args)
-            else
-              create_resource_for(resource_name)
-            end
+            create_resource_for(resource_name)
           end
         end
       end
+    end
 
-      def const_valid?(*const_args)
-        self.class.const_defined?(*const_args)
-        true
-      rescue NameError
-        false
-      end
+    def const_valid?(*const_args)
+      self.class.const_defined?(*const_args)
+      true
+    rescue NameError
+      false
+    end
 
-      # Create and return a class definition for a resource inside the current resource
-      def create_resource_for(resource_name)
-        resource = self.class.const_set(resource_name, Class.new(ActiveResource::Base))
-        resource.prefix = self.class.prefix
-        resource.site   = self.class.site
-        resource
-      end
+    # Create and return a class definition for a resource inside the current resource
+    def create_resource_for(resource_name)
+      resource = self.class.const_set(resource_name, Class.new(ActiveResource::Base))
+      resource.prefix = self.class.prefix
+      resource.site = self.class.site
+      resource
+    end
 
-      def split_options(options = {})
-        self.class.__send__(:split_options, options)
-      end
+    def split_options(options = {})
+      self.class.__send__(:split_options, options)
+    end
 
-      def method_missing(method_symbol, *arguments) #:nodoc:
-        method_name = method_symbol.to_s
+    def method_missing(method_symbol, *arguments) #:nodoc:
+      method_name = method_symbol.to_s
 
-        if method_name =~ /(=|\?)$/
-          case $1
-          when "="
-            attributes[$`] = arguments.first
-          when "?"
-            attributes[$`]
-          end
-        else
-          return attributes[method_name] if attributes.include?(method_name)
-          # not set right now but we know about it
-          return nil if known_attributes.include?(method_name)
-          super
+      if method_name =~ /(=|\?)$/
+        case $1
+        when "="
+          attributes[$`] = arguments.first
+        when "?"
+          attributes[$`]
         end
+      else
+        return attributes[method_name] if attributes.include?(method_name)
+        # not set right now but we know about it
+        return nil if known_attributes.include?(method_name)
+        super
       end
+    end
   end
 
   class Base
