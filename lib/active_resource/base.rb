@@ -409,7 +409,7 @@ module ActiveResource
       # example:
       #
       #   class Person < ActiveResource::Base
-      #     schema = {'name' => :string, 'age' => :integer }
+      #     self.schema = {'name' => :string, 'age' => :integer }
       #   end
       #
       # The keys/values can be strings or symbols. They will be converted to
