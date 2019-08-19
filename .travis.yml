@@ -4,7 +4,7 @@ cache: bundler
 
 rvm:
   - 2.6.3
-  - 2.5.3
+  - 2.5.5
   - ruby-head
   - jruby-head
 
@@ -32,11 +32,17 @@ matrix:
       env: BRANCH=5-1-stable
     - rvm: 2.4.5
       env: BRANCH=5-2-stable
-    - rvm: 2.5.3
+    - rvm: 2.5.5
       env: BRANCH=5-0-stable
-    - rvm: 2.5.3
+    - rvm: 2.5.5
       env: BRANCH=5-1-stable
-    - rvm: 2.5.3
+    - rvm: 2.5.5
+      env: BRANCH=5-2-stable
+    - rvm: 2.6.3
+      env: BRANCH=5-0-stable
+    - rvm: 2.6.3
+      env: BRANCH=5-1-stable
+    - rvm: 2.6.3
       env: BRANCH=5-2-stable
 
 notifications:
