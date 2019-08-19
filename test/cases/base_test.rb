@@ -719,13 +719,13 @@ class BaseTest < ActiveSupport::TestCase
     # Protected Instance method.
     assert_equal "/people/Greg.json", Person.find("Greg").send(:element_path)
 
-    ensure
-      # revert back to original
-      Person.module_eval do
-        # save the 'new' to_param so we don't get a warning about discarding the method
-        alias_method :element_path_to_param, :to_param
-        alias_method :to_param, :original_to_param_element_path
-      end
+  ensure
+    # revert back to original
+    Person.module_eval do
+      # save the 'new' to_param so we don't get a warning about discarding the method
+      alias_method :element_path_to_param, :to_param
+      alias_method :to_param, :original_to_param_element_path
+    end
   end
 
   def test_custom_element_path_with_parameters
@@ -952,13 +952,13 @@ class BaseTest < ActiveSupport::TestCase
     person = Person.find("Greg")
     assert_equal person, person.reload
 
-    ensure
-      # revert back to original
-      Person.module_eval do
-        # save the 'new' to_param so we don't get a warning about discarding the method
-        alias_method :reload_to_param, :to_param
-        alias_method :to_param, :original_to_param_reload
-      end
+  ensure
+    # revert back to original
+    Person.module_eval do
+      # save the 'new' to_param so we don't get a warning about discarding the method
+      alias_method :reload_to_param, :to_param
+      alias_method :to_param, :original_to_param_reload
+    end
   end
 
   def test_reload_works_without_prefix_options
