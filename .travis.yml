@@ -3,6 +3,7 @@ sudo: false
 cache: bundler
 
 rvm:
+  - 2.6.3
   - 2.5.3
   - ruby-head
   - jruby-head
