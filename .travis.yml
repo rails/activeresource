@@ -38,12 +38,16 @@ matrix:
       env: BRANCH=5-1-stable
     - rvm: 2.5.5
       env: BRANCH=5-2-stable
+    - rvm: 2.5.5
+      env: BRANCH=6-0-stable
     - rvm: 2.6.3
       env: BRANCH=5-0-stable
     - rvm: 2.6.3
       env: BRANCH=5-1-stable
     - rvm: 2.6.3
       env: BRANCH=5-2-stable
+    - rvm: 2.6.3
+      env: BRANCH=6-0-stable
 
 notifications:
   email: false
