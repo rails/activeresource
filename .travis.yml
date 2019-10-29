@@ -3,8 +3,8 @@ sudo: false
 cache: bundler
 
 rvm:
-  - 2.6.3
-  - 2.5.5
+  - 2.6.5
+  - 2.5.7
   - ruby-head
   - jruby-head
 
@@ -26,27 +26,27 @@ matrix:
       env: BRANCH=5-1-stable
     - rvm: 2.3.8
       env: BRANCH=5-2-stable
-    - rvm: 2.4.5
+    - rvm: 2.4.7
       env: BRANCH=5-0-stable
-    - rvm: 2.4.5
+    - rvm: 2.4.7
       env: BRANCH=5-1-stable
-    - rvm: 2.4.5
+    - rvm: 2.4.7
       env: BRANCH=5-2-stable
-    - rvm: 2.5.5
+    - rvm: 2.5.7
       env: BRANCH=5-0-stable
-    - rvm: 2.5.5
+    - rvm: 2.5.7
       env: BRANCH=5-1-stable
-    - rvm: 2.5.5
+    - rvm: 2.5.7
       env: BRANCH=5-2-stable
-    - rvm: 2.5.5
+    - rvm: 2.5.7
       env: BRANCH=6-0-stable
-    - rvm: 2.6.3
+    - rvm: 2.6.5
       env: BRANCH=5-0-stable
-    - rvm: 2.6.3
+    - rvm: 2.6.5
       env: BRANCH=5-1-stable
-    - rvm: 2.6.3
+    - rvm: 2.6.5
       env: BRANCH=5-2-stable
-    - rvm: 2.6.3
+    - rvm: 2.6.5
       env: BRANCH=6-0-stable
 
 notifications:
