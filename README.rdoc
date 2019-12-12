@@ -232,6 +232,7 @@ class definition below:
   post = Post.find(1)      # issues GET http://blog.io/posts/1.json
   comments = post.comments # issues GET http://blog.io/comments.json?post_id=1
 
+In this case, the `Comment` model would have to be implemented as ActiveResource, too.
 
 If you control the server, you may wish to include nested resources thus avoiding a
 second network request. Given the resource above, if the response includes comments
