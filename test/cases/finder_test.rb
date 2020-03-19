@@ -70,6 +70,12 @@ class FinderTest < ActiveSupport::TestCase
     assert_equal "David", people.first.name
   end
 
+  def test_where_with_clause_in_with_empty_array
+    ActiveResource::HttpMock.respond_to { |m| m.get "/people.json?id%5B%5D=", {}, '[]' }
+    people = Person.where(id: [])
+    assert_equal [], people
+  end
+
   def test_where_with_invalid_clauses
     error = assert_raise(ArgumentError) { Person.where(nil) }
     assert_equal "expected a clauses Hash, got nil", error.message

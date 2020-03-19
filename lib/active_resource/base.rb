@@ -1130,7 +1130,12 @@ module ActiveResource
 
         # Builds the query string for the request.
         def query_string(options)
-          "?#{options.to_query}" unless options.nil? || options.empty?
+          return if options.nil? || options.empty?
+
+          # to_query strips out empty arrays
+          # Adding nil inside of the array fixes this
+          options = options.map { |k, v| v == [] ? [k, [nil]] : [k, v] }.to_h
+          "?#{options.to_query}"
         end
 
         # split an option hash into two hashes, one containing the prefix options,
