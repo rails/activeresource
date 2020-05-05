@@ -688,7 +688,7 @@ class BaseTest < ActiveSupport::TestCase
     assert_equal "/people/1/addresses/1.json", StreetAddress.element_path(1, person_id: 1)
     assert_equal "/people/1/addresses/1.json", StreetAddress.element_path(1, "person_id" => 1)
     assert_equal "/people/Greg/addresses/1.json", StreetAddress.element_path(1, "person_id" => "Greg")
-    assert_equal "/people/ann%20mary/addresses/ann%20mary.json", StreetAddress.element_path(:'ann mary', "person_id" => "ann mary")
+    assert_equal "/people/ann%20mary/addresses/ann+mary.json", StreetAddress.element_path(:'ann mary', "person_id" => "ann mary")
   end
 
   def test_custom_element_path_without_required_prefix_param
