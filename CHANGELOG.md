@@ -1,5 +1,9 @@
 *   Fix railtie logic that adds Active Job serialization support.
 
+## Active Resource 5.1.1 (May 5, 2020) ##
+
+*   Properly encode ID parameters to avoid possible information leak [CVE-2020-8151]
+
 ## Active Resource 5.1.0 (Nov 2, 2018) ##
 
 *   Improve support of Active Resource objects inside fibers.

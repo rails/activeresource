@@ -172,4 +172,20 @@ class FinderTest < ActiveSupport::TestCase
     david = Person.find(:one, from: :leader)
     assert_equal "David", david.name
   end
+
+  def test_find_identifier_encoding
+    ActiveResource::HttpMock.respond_to { |m| m.get "/people/%3F.json", {}, @david }
+
+    david = Person.find("?")
+
+    assert_equal "David", david.name
+  end
+
+  def test_find_identifier_encoding_for_path_traversal
+    ActiveResource::HttpMock.respond_to { |m| m.get "/people/..%2F.json", {}, @david }
+
+    david = Person.find("../")
+
+    assert_equal "David", david.name
+  end
 end

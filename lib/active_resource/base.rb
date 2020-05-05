@@ -774,7 +774,7 @@ module ActiveResource
         check_prefix_options(prefix_options)
 
         prefix_options, query_options = split_options(prefix_options) if query_options.nil?
-        "#{prefix(prefix_options)}#{collection_name}/#{URI.parser.escape id.to_s}#{format_extension}#{query_string(query_options)}"
+        "#{prefix(prefix_options)}#{collection_name}/#{URI.encode_www_form_component(id.to_s)}#{format_extension}#{query_string(query_options)}"
       end
 
       # Gets the element url for the given ID in +id+. If the +query_options+ parameter is omitted, Rails
