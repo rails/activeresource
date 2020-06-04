@@ -75,7 +75,7 @@ git push origin my-feature-branch
 
 #### Make a Pull Request
 
-Go to https://github.com/rails/activeresource and select your feature branch. Click the 'Pull Request' button and fill out the form. Pull requests are usually reviewed within a few days.
+Go to https://github.com/contributor/activeresource and select your feature branch. Click the 'Pull Request' button and fill out the form. Pull requests are usually reviewed within a few days.
 
 #### Rebase
 
