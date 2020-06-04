@@ -13,6 +13,8 @@ require "fixtures/post"
 require "fixtures/comment"
 require "fixtures/product"
 require "fixtures/inventory"
+require "fixtures/order"
+require "fixtures/shipping_label"
 require "active_support/json"
 require "active_support/core_ext/hash/conversions"
 require "mocha/setup"
@@ -810,6 +812,14 @@ class BaseTest < ActiveSupport::TestCase
     assert_equal [:person_id].to_set, StreetAddress.__send__(:prefix_parameters)
   end
 
+  def test_has_one_finder_uses_site_path
+    ShippingLabel.site = "http://37s.sunrise.i:3000/api/v1"
+    Order.site = "http://37s.sunrise.i:3000/api/v1"
+    Order.send(:has_one, :shipping_label)
+    order = Order.find(1)
+    order.expects(:custom_method_element_url).with(:shipping_label).returns("/api/v1/orders/1/shipping_label.json")
+    order.shipping_label
+  end
 
   ########################################################################
   # Tests basic CRUD functions (find/save/create etc)
