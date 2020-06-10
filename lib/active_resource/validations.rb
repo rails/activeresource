@@ -22,7 +22,7 @@ module ActiveResource
             add humanized_attributes[attr_name], message[(attr_name.size + 1)..-1]
           end
         end
-        self[:base] << message if attr_message.nil?
+        add(:base, message) if attr_message.nil?
       end
     end
 
@@ -40,11 +40,11 @@ module ActiveResource
           if @base.known_attributes.include?(key)
             add key, error
           elsif key == "base"
-            self[:base] << error
+            add(:base, error)
           else
             # reporting an error on an attribute not in attributes
             # format and add them to base
-            self[:base] << "#{key.humanize} #{error}"
+            add(:base, "#{key.humanize} #{error}")
           end
         end
       end
