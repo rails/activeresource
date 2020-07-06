@@ -47,6 +47,7 @@ module ActiveResource # :nodoc:
       #   attr_names.each { |name| attribute(name, 'string', options) }
       # end
       class_eval <<-EOV, __FILE__, __LINE__ + 1
+        # frozen_string_literal: true
         def #{attr_type}(*args)
           options = args.extract_options!
           attr_names = args
