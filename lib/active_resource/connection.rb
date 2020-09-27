@@ -237,7 +237,11 @@ module ActiveResource
             { "Authorization" => "Basic " + ["#{@user}:#{@password}"].pack("m").delete("\r\n") }
           end
         elsif @bearer_token
-          { "Authorization" => "Bearer #{@bearer_token}" }
+          if @bearer_token.is_a? Proc
+            { "Authorization" => "Bearer #{@bearer_token.call}" }
+          else
+            { "Authorization" => "Bearer #{@bearer_token}" }
+          end
         else
           {}
         end
