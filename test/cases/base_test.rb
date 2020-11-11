@@ -90,10 +90,20 @@ class BaseTest < ActiveSupport::TestCase
     assert_equal("test123", Forum.connection.password)
   end
 
+  def test_should_accept_setting_bearer_token
+    Forum.bearer_token = "token123"
+    assert_equal("token123", Forum.bearer_token)
+    assert_equal("token123", Forum.connection.bearer_token)
+  end
+
   def test_should_accept_setting_auth_type
     Forum.auth_type = :digest
     assert_equal(:digest, Forum.auth_type)
     assert_equal(:digest, Forum.connection.auth_type)
+
+    Forum.auth_type = :bearer
+    assert_equal(:bearer, Forum.auth_type)
+    assert_equal(:bearer, Forum.connection.auth_type)
   end
 
   def test_should_accept_setting_timeout
@@ -139,6 +149,16 @@ class BaseTest < ActiveSupport::TestCase
     actor.password = nil
     assert_nil actor.password
     assert_nil actor.connection.password
+  end
+
+  def test_bearer_token_variable_can_be_reset
+    actor = Class.new(ActiveResource::Base)
+    actor.site = "http://cinema"
+    assert_nil actor.bearer_token
+    actor.bearer_token = "token"
+    actor.bearer_token = nil
+    assert_nil actor.bearer_token
+    assert_nil actor.connection.bearer_token
   end
 
   def test_timeout_variable_can_be_reset
@@ -358,6 +378,46 @@ class BaseTest < ActiveSupport::TestCase
     assert_equal fruit.password, apple.password, "subclass did not adopt changes from parent class"
   end
 
+  def test_bearer_token_reader_uses_superclass_bearer_token_until_written
+    # Superclass is Object so returns nil.
+    assert_nil ActiveResource::Base.bearer_token
+    assert_nil Class.new(ActiveResource::Base).bearer_token
+    Person.bearer_token = "my-token".dup
+
+    # Subclass uses superclass bearer_token.
+    actor = Class.new(Person)
+    assert_equal Person.bearer_token, actor.bearer_token
+
+    # Subclass returns frozen superclass copy.
+    assert_not Person.bearer_token.frozen?
+    assert actor.bearer_token.frozen?
+
+    # Changing subclass bearer_token doesn't change superclass bearer_token.
+    actor.bearer_token = "token123"
+    assert_not_equal Person.bearer_token, actor.bearer_token
+
+    # Changing superclass bearer_token doesn't overwrite subclass bearer_token.
+    Person.bearer_token = "super-secret-token"
+    assert_not_equal Person.bearer_token, actor.bearer_token
+
+    # Changing superclass bearer_token after subclassing changes subclass bearer_token.
+    jester = Class.new(actor)
+    actor.bearer_token = "super-secret-token123"
+    assert_equal actor.bearer_token, jester.bearer_token
+
+    # Subclasses are always equal to superclass bearer_token when not overridden
+    fruit = Class.new(ActiveResource::Base)
+    apple = Class.new(fruit)
+
+    fruit.bearer_token = "mega-secret-token"
+    assert_equal fruit.bearer_token, apple.bearer_token, "subclass did not adopt changes from parent class"
+
+    fruit.bearer_token = "ok-token"
+    assert_equal fruit.bearer_token, apple.bearer_token, "subclass did not adopt changes from parent class"
+
+    Person.bearer_token = nil
+  end
+
   def test_timeout_reader_uses_superclass_timeout_until_written
     # Superclass is Object so returns nil.
     assert_nil ActiveResource::Base.timeout
@@ -554,6 +614,22 @@ class BaseTest < ActiveSupport::TestCase
 
     fruit.password = "supersecret"
     assert_equal fruit.connection.password, apple.connection.password
+    second_connection = apple.connection.object_id
+    assert_not_equal(first_connection, second_connection, "Connection should be re-created")
+  end
+
+  def test_updating_baseclass_bearer_token_wipes_descendent_cached_connection_objects
+    # Subclasses are always equal to superclass bearer_token when not overridden
+    fruit = Class.new(ActiveResource::Base)
+    apple = Class.new(fruit)
+    fruit.site = "http://market"
+
+    fruit.bearer_token = "my-token"
+    assert_equal fruit.connection.bearer_token, apple.connection.bearer_token
+    first_connection = apple.connection.object_id
+
+    fruit.bearer_token = "another-token"
+    assert_equal fruit.connection.bearer_token, apple.connection.bearer_token
     second_connection = apple.connection.object_id
     assert_not_equal(first_connection, second_connection, "Connection should be re-created")
   end

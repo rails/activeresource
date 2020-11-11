@@ -133,12 +133,19 @@ module ActiveResource
   # doesn't require SSL. However, this doesn't mean the connection is secure!
   # Just the username and password.
   #
+  # Another common way to authenticate requests is via bearer tokens, a scheme
+  # originally created as part of the OAuth 2.0 protocol (see RFC 6750).
+  #
+  # Bearer authentication sends a token, that can maybe only be a short string
+  # of hexadecimal characters or even a JWT Token. Similarly to the Basic
+  # authentication, this scheme should only be used with SSL.
+  #
   # (You really, really want to use SSL. There's little reason not to.)
   #
   # === Picking an authentication scheme
   #
-  # Basic authentication is the default. To switch to digest authentication,
-  # set +auth_type+ to +:digest+:
+  # Basic authentication is the default. To switch to digest or bearer token authentication,
+  # set +auth_type+ to +:digest+ or +:bearer+:
   #
   #    class Person < ActiveResource::Base
   #      self.auth_type = :digest
@@ -155,6 +162,16 @@ module ActiveResource
   #
   #      # Or include them in the site:
   #      self.site = "https://ryan:password@api.people.com"
+  #    end
+  #
+  # === Setting the bearer token
+  #
+  # Set +bearer_token+ on the class:
+  #
+  #    class Person < ActiveResource::Base
+  #      # Set bearer token directly:
+  #      self.auth_type = :bearer
+  #      self.bearer_token = "my-bearer-token"
   #    end
   #
   # === Certificate Authentication
@@ -321,7 +338,7 @@ module ActiveResource
 
     class << self
       include ThreadsafeAttributes
-      threadsafe_attribute :_headers, :_connection, :_user, :_password, :_site, :_proxy
+      threadsafe_attribute :_headers, :_connection, :_user, :_password, :_bearer_token, :_site, :_proxy
 
       # Creates a schema for this resource - setting the attributes that are
       # known prior to fetching an instance from the remote system.
@@ -527,6 +544,22 @@ module ActiveResource
         self._password = password
       end
 
+      # Gets the \bearer_token for REST HTTP authentication.
+      def bearer_token
+        # Not using superclass_delegating_reader. See +site+ for explanation
+        if _bearer_token_defined?
+          _bearer_token
+        elsif superclass != Object && superclass.bearer_token
+          superclass.bearer_token.dup.freeze
+        end
+      end
+
+      # Sets the \bearer_token for REST HTTP authentication.
+      def bearer_token=(bearer_token)
+        self._connection = nil
+        self._bearer_token = bearer_token
+      end
+
       def auth_type
         if defined?(@auth_type)
           @auth_type
@@ -651,6 +684,7 @@ module ActiveResource
           _connection.proxy = proxy if proxy
           _connection.user = user if user
           _connection.password = password if password
+          _connection.bearer_token = bearer_token if bearer_token
           _connection.auth_type = auth_type if auth_type
           _connection.timeout = timeout if timeout
           _connection.open_timeout = open_timeout if open_timeout
