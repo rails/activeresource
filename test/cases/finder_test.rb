@@ -6,6 +6,7 @@ require "fixtures/customer"
 require "fixtures/street_address"
 require "fixtures/beast"
 require "fixtures/proxy"
+require "fixtures/pet"
 require "active_support/core_ext/hash/conversions"
 
 class FinderTest < ActiveSupport::TestCase
@@ -120,6 +121,7 @@ class FinderTest < ActiveSupport::TestCase
     all = StreetAddress.find(:all, params: { person_id: 1 })
     assert_equal 1, all.size
     assert_kind_of StreetAddress, all.first
+    assert_equal ({ person_id: 1 }), all.first.prefix_options
   end
 
   def test_find_all_sub_objects_not_found
@@ -144,12 +146,36 @@ class FinderTest < ActiveSupport::TestCase
     assert_equal "David", people.first.name
   end
 
+  def test_find_all_by_from_with_prefix
+    ActiveResource::HttpMock.respond_to { |m| m.get "/dogs.json", {}, @pets }
+
+    pets = Pet.find(:all, from: '/dogs.json', params: { person_id: 1 })
+    assert_equal 2, pets.size
+    assert_equal "Max", pets.first.name
+    assert_equal ({ person_id: 1 }), pets.first.prefix_options
+
+    assert_equal "Daisy", pets.second.name
+    assert_equal ({ person_id: 1 }), pets.second.prefix_options
+  end
+
   def test_find_all_by_symbol_from
     ActiveResource::HttpMock.respond_to { |m| m.get "/people/managers.json", {}, @people_david }
 
     people = Person.find(:all, from: :managers)
     assert_equal 1, people.size
     assert_equal "David", people.first.name
+  end
+
+  def test_find_all_by_symbol_from_with_prefix
+    ActiveResource::HttpMock.respond_to { |m| m.get "/people/1/pets/dogs.json", {}, @pets }
+
+    pets = Pet.find(:all, from: :dogs, params: { person_id: 1 })
+    assert_equal 2, pets.size
+    assert_equal "Max", pets.first.name
+    assert_equal ({ person_id: 1 }), pets.first.prefix_options
+
+    assert_equal "Daisy", pets.second.name
+    assert_equal ({ person_id: 1 }), pets.second.prefix_options
   end
 
   def test_find_first_or_last_not_found
