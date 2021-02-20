@@ -1063,17 +1063,22 @@ module ActiveResource
         # Find every resource
         def find_every(options)
           begin
-            case from = options[:from]
-            when Symbol
-              instantiate_collection(get(from, options[:params]), options[:params])
-            when String
-              path = "#{from}#{query_string(options[:params])}"
-              instantiate_collection(format.decode(connection.get(path, headers).body) || [], options[:params])
-            else
-              prefix_options, query_options = split_options(options[:params])
-              path = collection_path(prefix_options, query_options)
-              instantiate_collection((format.decode(connection.get(path, headers).body) || []), query_options, prefix_options)
-            end
+            params = options[:params]
+            prefix_options, query_options = split_options(params)
+
+            response =
+              case from = options[:from]
+              when Symbol
+                get(from, params)
+              when String
+                path = "#{from}#{query_string(query_options)}"
+                format.decode(connection.get(path, headers).body)
+              else
+                path = collection_path(prefix_options, query_options)
+                format.decode(connection.get(path, headers).body)
+              end
+
+            instantiate_collection(response || [], query_options, prefix_options)
           rescue ActiveResource::ResourceNotFound
             # Swallowing ResourceNotFound exceptions and return nil - as per
             # ActiveRecord.
