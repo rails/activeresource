@@ -10,6 +10,8 @@ module ActiveResource
     end
 
     def to_s
+      return @message if @message
+
       message = "Failed.".dup
       message << "  Response code = #{response.code}." if response.respond_to?(:code)
       message << "  Response message = #{response.message}." if response.respond_to?(:message)
