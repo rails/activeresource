@@ -1692,9 +1692,11 @@ module ActiveResource
 
       # Create and return a class definition for a resource inside the current resource
       def create_resource_for(resource_name)
-        resource = self.class.const_set(resource_name, Class.new(ActiveResource::Base))
+        resource = Class.new(ActiveResource::Base)
         resource.prefix = self.class.prefix
-        resource.site   = self.class.site
+        resource.site = self.class.site
+        self.class.const_set(resource_name, resource)
+
         resource
       end
 
