@@ -3,6 +3,7 @@ sudo: false
 cache: bundler
 
 rvm:
+  - 2.7.2
   - 2.6.5
   - 2.5.7
   - ruby-head
@@ -48,6 +49,10 @@ matrix:
       env: BRANCH=5-2-stable
     - rvm: 2.6.5
       env: BRANCH=6-0-stable
+    - rvm: 2.7.2
+      env: BRANCH=6-0-stable
+    - rvm: 2.7.2
+      env: BRANCH=6-1-stable
 
 notifications:
   email: false
