@@ -127,7 +127,7 @@ module ActiveResource
   # requests. These sensitive credentials are sent unencrypted, visible to
   # any onlooker, so this scheme should only be used with SSL.
   #
-  # Digest authentication sends a crytographic hash of the username, password,
+  # Digest authentication sends a cryptographic hash of the username, password,
   # HTTP method, URI, and a single-use secret key provided by the server.
   # Sensitive credentials aren't visible to onlookers, so digest authentication
   # doesn't require SSL. However, this doesn't mean the connection is secure!

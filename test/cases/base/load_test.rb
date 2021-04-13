@@ -64,7 +64,7 @@ class BaseLoadTest < ActiveSupport::TestCase
         places: [ "Columbia City", "Unknown" ] } } }
 
 
-    # List of books formated as [{timestamp_of_publication => name}, ...]
+    # List of books formatted as [{timestamp_of_publication => name}, ...]
     @books = { books: [
         { 1009839600 => "Ruby in a Nutshell" },
         { 1199142000 => "The Ruby Programming Language" }
@@ -123,7 +123,7 @@ class BaseLoadTest < ActiveSupport::TestCase
     assert_equal @matz.stringify_keys, @person.load(@matz).attributes
   end
 
-  def test_load_object_with_implict_conversion_to_hash
+  def test_load_object_with_implicit_conversion_to_hash
     assert_equal @matz.stringify_keys, @person.load(FakeParameters.new(@matz)).attributes
   end
 

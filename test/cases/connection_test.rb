@@ -150,7 +150,7 @@ class ConnectionTest < ActiveSupport::TestCase
     assert_equal proxy, @conn.proxy
   end
 
-  def test_proxy_accessor_accepts_uri_or_string_argument_with_spectials_characters
+  def test_proxy_accessor_accepts_uri_or_string_argument_with_special_characters
     user = "proxy_;{(,!$%_user"
     password = "proxy_;:{(,!$%_password"
 

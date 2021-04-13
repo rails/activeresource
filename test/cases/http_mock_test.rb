@@ -142,7 +142,7 @@ class HttpMockTest < ActiveSupport::TestCase
     assert_equal 2, ActiveResource::HttpMock.responses.length
   end
 
-  test "allows you to replace the existing reponse with the same request by calling a block" do
+  test "allows you to replace the existing response with the same request by calling a block" do
     ActiveResource::HttpMock.respond_to do |mock|
       mock.send(:get, "/people/1", {}, "JSON1")
     end
@@ -154,7 +154,7 @@ class HttpMockTest < ActiveSupport::TestCase
     assert_equal 1, ActiveResource::HttpMock.responses.length
   end
 
-  test "allows you to replace the existing reponse with the same request by passing pairs" do
+  test "allows you to replace the existing response with the same request by passing pairs" do
     ActiveResource::HttpMock.respond_to do |mock|
       mock.send(:get, "/people/1", {}, "JSON1")
     end
