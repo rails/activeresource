@@ -70,7 +70,7 @@ class ReduxCollection < ActiveResource::Base
 end
 
 
-class CollectionInheretanceTest < ActiveSupport::TestCase
+class CollectionInheritanceTest < ActiveSupport::TestCase
   def setup
     @post = { id: 1, title: "Awesome" }
     @posts_hash = { "results" => [@post], :next_page => "/paginated_posts.json?page=2" }

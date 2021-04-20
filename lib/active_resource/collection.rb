@@ -15,7 +15,7 @@ module ActiveResource # :nodoc:
     # ActiveResource::Collection is a wrapper to handle parsing index responses that
     # do not directly map to Rails conventions.
     #
-    # You can define a custom class that inherets from ActiveResource::Collection
+    # You can define a custom class that inherits from ActiveResource::Collection
     # in order to to set the elements instance.
     #
     # GET /posts.json delivers following response body:
