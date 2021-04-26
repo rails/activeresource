@@ -39,6 +39,7 @@ module ActiveResource
   autoload :HttpMock
   autoload :Schema
   autoload :Singleton
+  autoload :InheritingHash
   autoload :Validations
   autoload :Collection
 end

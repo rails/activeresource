@@ -706,6 +706,32 @@ class BaseTest < ActiveSupport::TestCase
     assert_nil fruit.headers["key2"]
   end
 
+  def test_header_inheritance_can_override_upstream
+    fruit = Class.new(ActiveResource::Base)
+    apple = Class.new(fruit)
+    fruit.site = "http://market"
+
+    fruit.headers["key"] = "fruit-value"
+    assert_equal "fruit-value", apple.headers["key"]
+
+    apple.headers["key"] = "apple-value"
+    assert_equal "apple-value", apple.headers["key"]
+    assert_equal "fruit-value", fruit.headers["key"]
+  end
+
+
+  def test_header_inheritance_should_not_override_upstream_on_read
+    fruit = Class.new(ActiveResource::Base)
+    apple = Class.new(fruit)
+    fruit.site = "http://market"
+
+    fruit.headers["key"] = "value"
+    assert_equal "value", apple.headers["key"]
+
+    fruit.headers["key"] = "new-value"
+    assert_equal "new-value", apple.headers["key"]
+  end
+
   def test_header_should_be_copied_to_main_thread_if_not_defined
     fruit = Class.new(ActiveResource::Base)
 
