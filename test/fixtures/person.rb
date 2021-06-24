@@ -12,4 +12,12 @@ module External
   class ProfileData < ActiveResource::Base
     self.site = "http://external.profile.data.nl"
   end
+
+  class Post < ActiveResource::Base
+    self.site = "http://external.profile.data.nl"
+  end
+
+  class Comment < ActiveResource::Base
+    self.site = "http://external.profile.data.nl"
+  end
 end

@@ -13,7 +13,6 @@ class AssociationTest < ActiveSupport::TestCase
     @reflection = ActiveResource::Reflection::AssociationReflection.new :belongs_to, :customer, {}
   end
 
-
   def test_validations_for_instance
     object = @klass.new(Person, :customers, {})
     assert_equal({}, object.send(:validate_options))
@@ -55,6 +54,11 @@ class AssociationTest < ActiveSupport::TestCase
   def test_belongs_to
     External::Person.belongs_to(:Customer)
     assert_equal 1, External::Person.reflections.select { |name, reflection| reflection.macro.eql?(:belongs_to) }.count
+  end
+
+  def test_belongs_to_post
+    External::Comment.belongs_to(:post)
+    assert_equal :belongs_to, External::Comment.reflections[:post].macro
   end
 
   def test_defines_belongs_to_finder_method_with_instance_variable_cache
