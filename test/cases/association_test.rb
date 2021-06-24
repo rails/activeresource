@@ -5,6 +5,7 @@ require "abstract_unit"
 require "fixtures/person"
 require "fixtures/beast"
 require "fixtures/customer"
+require "fixtures/blog"
 
 
 class AssociationTest < ActiveSupport::TestCase
@@ -12,7 +13,6 @@ class AssociationTest < ActiveSupport::TestCase
     @klass = ActiveResource::Associations::Builder::Association
     @reflection = ActiveResource::Reflection::AssociationReflection.new :belongs_to, :customer, {}
   end
-
 
   def test_validations_for_instance
     object = @klass.new(Person, :customers, {})
@@ -55,6 +55,23 @@ class AssociationTest < ActiveSupport::TestCase
   def test_belongs_to
     External::Person.belongs_to(:Customer)
     assert_equal 1, External::Person.reflections.select { |name, reflection| reflection.macro.eql?(:belongs_to) }.count
+  end
+
+  def test_belongs_to_post
+    response_body = { title: "some title" }.to_json
+    response_code = 201
+    ActiveResource::HttpMock.respond_to do |mock|
+      mock.post "/comments", {}, response_body, response_code
+    end
+
+    comment = ::Blog::Comment.new
+    comment.title = "other title"
+
+    assert_equal true, comment.save
+
+    response = ActiveResource::HttpMock.responses.flatten.last
+    assert_equal response.body, response_body
+    assert_equal response.code, response_code
   end
 
   def test_defines_belongs_to_finder_method_with_instance_variable_cache
