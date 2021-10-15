@@ -15,11 +15,8 @@ Gem::Specification.new do |s|
   s.email       = "david@loudthinking.com"
   s.homepage    = "http://www.rubyonrails.org"
 
-  s.files = Dir["MIT-LICENSE", "README.rdoc", "lib/**/*"]
+  s.files = Dir["MIT-LICENSE", "README.md", "lib/**/*"]
   s.require_path = "lib"
-
-  s.extra_rdoc_files = %w( README.rdoc )
-  s.rdoc_options.concat ["--main",  "README.rdoc"]
 
   s.required_ruby_version = ">= 2.2.2"
 

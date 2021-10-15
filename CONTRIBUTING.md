@@ -49,7 +49,7 @@ Make sure that `bundle exec rake test` completes without errors.
 
 #### Write Documentation
 
-Document any external behavior in the [README](README.rdoc).
+Document any external behavior in the [README](README.md).
 
 #### Commit Changes
 
