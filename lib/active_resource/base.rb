@@ -13,7 +13,6 @@ require "active_support/core_ext/object/duplicable"
 require "set"
 require "uri"
 
-require "active_support/core_ext/uri"
 require "active_resource/connection"
 require "active_resource/formats"
 require "active_resource/schema"
