@@ -63,8 +63,7 @@ class BaseErrorsTest < ActiveSupport::TestCase
   def test_should_iterate_over_errors
     [ :json, :xml ].each do |format|
       invalid_user_using_format(format) do
-        errors = []
-        @person.errors.each { |attribute, message| errors << [attribute, message] }
+        errors = @person.errors.map { |error| [error.attribute, error.message] }
         assert errors.include?([:name, "can't be blank"])
       end
     end
