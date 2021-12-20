@@ -21,6 +21,10 @@ module ActiveResource::Test
   def self.rails_5_1?
     ActiveSupport.gem_version >= Gem::Version.new("5.1.x")
   end
+
+  def self.rails_6_1?
+    ActiveSupport.gem_version >= Gem::Version.new("6.1.x")
+  end
 end
 
 def setup_response

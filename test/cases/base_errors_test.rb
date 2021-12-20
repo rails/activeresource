@@ -64,7 +64,11 @@ class BaseErrorsTest < ActiveSupport::TestCase
     [ :json, :xml ].each do |format|
       invalid_user_using_format(format) do
         errors = []
-        @person.errors.each { |attribute, message| errors << [attribute, message] }
+        if ActiveResource::Test.rails_6_1?
+          @person.errors.each { |error| errors << [error.attribute, error.message] }
+        else
+          @person.errors.each { |attribute, message| errors << [attribute, message] }
+        end
         assert errors.include?([:name, "can't be blank"])
       end
     end
