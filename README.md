@@ -39,7 +39,7 @@ Source code can be downloaded on GitHub
 Putting Active Resource to use is very similar to Active Record.  It's as simple as creating a model class
 that inherits from ActiveResource::Base and providing a <tt>site</tt> class variable to it:
 
-```
+```rb
 class Person < ActiveResource::Base
   self.site = "http://api.people.com:3000"
 end
@@ -48,7 +48,7 @@ end
 Now the Person class is REST enabled and can invoke REST services very similarly to how Active Record invokes
 life cycle methods that operate against a persistent store.
 
-```
+```rb
 # Find a person with id = 1
 tyler = Person.find(1)
 Person.exists?(1)  # => true
@@ -60,13 +60,14 @@ records.  But rather than dealing directly with a database record, you're dealin
 Connection settings (`site`, `headers`, `user`, `password`, `bearer_token`, `proxy`) and the connections themselves are store in
 thread-local variables to make them thread-safe, so you can also set these dynamically, even in a multi-threaded environment, for instance:
 
-    ActiveResource::Base.site = api_site_for(request)
-
+```rb
+ActiveResource::Base.site = api_site_for(request)
+```
 ### Authentication
 
 Active Resource supports the token based authentication provided by Rails through the <tt>ActionController::HttpAuthentication::Token</tt> class using custom headers.
 
-```
+```rb
 class Person < ActiveResource::Base
   self.headers['Authorization'] = 'Token token="abcd"'
 end
@@ -81,7 +82,7 @@ ActiveResource::Base.headers['Authorization'] = current_session_api_token
 ActiveResource supports 2 options for HTTP authentication today.
 
 1. Basic
-```
+```rb
 class Person < ActiveResource::Base
   self.user = 'my@email.com'
   self.password = '123'
@@ -90,7 +91,7 @@ end
 ```
 
 2. Bearer Token
-```
+```rb
 class Person < ActiveResource::Base
   self.auth_type = :bearer
   self.bearer_token = 'my-token123'
@@ -117,7 +118,7 @@ for more general information on REST web services, see the article here[http://e
 Find requests use the GET method and expect the JSON form of whatever resource/resources is/are being requested.  So,
 for a request for a single element, the JSON of that item is expected in response:
 
-```
+```rb
 # Expects a response of
 #
 # {"id":1,"first":"Tyler","last":"Durden"}
@@ -130,14 +131,14 @@ tyler = Person.find(1)
 The JSON document that is received is used to build a new object of type Person, with each
 JSON element becoming an attribute on the object.
 
-```
+```rb
 tyler.is_a? Person  # => true
 tyler.last  # => 'Durden'
 ```
 
 Any complex element (one that contains other elements) becomes its own object:
 
-```
+```rb
 # With this response:
 # {"id":1,"first":"Tyler","address":{"street":"Paper St.","state":"CA"}}
 #
@@ -150,7 +151,7 @@ tyler.address.street  # => 'Paper St.'
 
 Collections can also be requested in a similar fashion
 
-```
+```rb
 # Expects a response of
 #
 # [
@@ -172,7 +173,7 @@ a 'Location' header in the response with the RESTful URL location of the newly c
 id of the newly created resource is parsed out of the Location response header and automatically set
 as the id of the ARes object.
 
-```
+```rb
 # {"first":"Tyler","last":"Durden"}
 #
 # is submitted as the body on
@@ -200,7 +201,7 @@ tyler.id    # => 2
 with the exception that no response headers are needed -- just an empty response when the update on the
 server side was successful.
 
-```
+```rb
 # {"first":"Tyler"}
 #
 # is submitted as the body on
@@ -223,7 +224,7 @@ tyler.save  # => true
 
 Destruction of a resource can be invoked as a class and instance method of the resource.
 
-```
+```rb
 # A request is made to
 #
 # DELETE http://api.people.com:3000/people/1.json
@@ -244,7 +245,7 @@ Relationships between resources can be declared using the standard association s
 that should be familiar to anyone who uses activerecord. For example, using the
 class definition below:
 
-```
+```rb
 class Post < ActiveResource::Base
   self.site = "http://blog.io"
   has_many :comments
@@ -261,7 +262,7 @@ second network request. Given the resource above, if the response includes comme
 in the response, they will be automatically loaded into the activeresource object.
 The server-side model can be adjusted as follows to include comments in the response.
 
-```
+```rb
 class Post < ActiveRecord::Base
   has_many :comments
 
@@ -276,7 +277,7 @@ end
 Active Resource instruments the event `request.active_resource` when doing a request
 to the remote service. You can subscribe to it by doing:
 
-```
+```rb
 ActiveSupport::Notifications.subscribe('request.active_resource')  do |name, start, finish, id, payload|
 ```
 
