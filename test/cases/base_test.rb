@@ -306,6 +306,7 @@ class BaseTest < ActiveSupport::TestCase
     # Superclass is Object so returns nil.
     assert_nil ActiveResource::Base.user
     assert_nil Class.new(ActiveResource::Base).user
+    person_user = Person.user
     Person.user = "anonymous".dup
 
     # Subclass uses superclass user.
@@ -338,6 +339,8 @@ class BaseTest < ActiveSupport::TestCase
 
     fruit.user = "client"
     assert_equal fruit.user, apple.user, "subclass did not adopt changes from parent class"
+  ensure
+    Person.user = person_user
   end
 
   def test_password_reader_uses_superclass_password_until_written

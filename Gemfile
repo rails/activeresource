@@ -15,6 +15,8 @@ gem "rubocop-packaging"
 gem "rubocop-performance"
 gem "rubocop-rails"
 
+gem "minitest-bisect"
+
 gemspec
 
 platform :mri do
