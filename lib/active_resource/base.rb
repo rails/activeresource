@@ -697,10 +697,10 @@ module ActiveResource
 
       def headers
         self._headers ||= if superclass != Object
-                            InheritingHash.new(superclass.headers)
-                          else
-                            {}
-                          end
+          InheritingHash.new(superclass.headers)
+        else
+          {}
+        end
       end
 
       attr_writer :element_name
