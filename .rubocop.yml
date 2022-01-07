@@ -1,4 +1,4 @@
-inherit_from: https://raw.githubusercontent.com/rails/rails/master/.rubocop.yml
+inherit_from: https://raw.githubusercontent.com/rails/rails/main/.rubocop.yml
 
 AllCops:
   TargetRubyVersion: 2.6

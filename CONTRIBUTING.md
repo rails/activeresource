@@ -1,8 +1,7 @@
 Contributing to Active Resource
 =====================
 
-[![Build Status](https://travis-ci.org/rails/activeresource.svg?branch=master)](https://travis-ci.org/rails/activeresource)
-[![Documentation Status](http://inch-ci.org/github/rails/activeresource.svg?branch=master)](http://inch-ci.org/github/rails/activeresource)
+[![Documentation Status](http://inch-ci.org/github/rails/activeresource.svg?branch=main)](http://inch-ci.org/github/rails/activeresource)
 
 Active Resource is work of [many contributors](https://github.com/rails/activeresource/graphs/contributors). You're encouraged to submit [pull requests](https://github.com/rails/activeresource/pulls), [propose features and discuss issues](https://github.com/rails/activeresource/issues).
 
@@ -21,8 +20,8 @@ git remote add upstream https://github.com/rails/activeresource.git
 Make sure your fork is up-to-date and create a topic branch for your feature or bug fix.
 
 ```
-git checkout master
-git pull upstream master
+git checkout main
+git pull upstream main
 git checkout -b my-feature-branch
 ```
 
@@ -79,11 +78,11 @@ Go to https://github.com/contributor/activeresource and select your feature bran
 
 #### Rebase
 
-If you've been working on a change for a while, rebase with upstream/master.
+If you've been working on a change for a while, rebase with upstream/main.
 
 ```
 git fetch upstream
-git rebase upstream/master
+git rebase upstream/main
 git push origin my-feature-branch -f
 ```
 

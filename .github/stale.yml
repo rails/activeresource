@@ -17,7 +17,7 @@ markComment: |
   This issue has been automatically marked as stale because it has not been commented on for at least three months.
   The resources of the Rails team are limited, and so we are asking for your help.
 
-  If it is an issue and you can still reproduce this error on the `master` branch,
+  If it is an issue and you can still reproduce this error on the `main` branch,
   please reply with all of the information you have about it in order to keep the issue open.
 
   If it is a pull request and you are still interested on having it merged please make sure it can be merged clearly.
