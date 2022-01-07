@@ -696,12 +696,11 @@ module ActiveResource
       end
 
       def headers
-        headers_state = self._headers || {}
-        if superclass != Object
-          self._headers = superclass.headers.merge(headers_state)
-        else
-          headers_state
-        end
+        self._headers ||= if superclass != Object
+                            InheritingHash.new(superclass.headers)
+                          else
+                            {}
+                          end
       end
 
       attr_writer :element_name
