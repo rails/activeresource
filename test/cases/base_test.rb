@@ -15,7 +15,7 @@ require "fixtures/product"
 require "fixtures/inventory"
 require "active_support/json"
 require "active_support/core_ext/hash/conversions"
-require "mocha/setup"
+require "mocha/minitest"
 
 class BaseTest < ActiveSupport::TestCase
   def setup
