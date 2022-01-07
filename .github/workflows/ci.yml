@@ -1,0 +1,58 @@
+name: CI
+on: [push, pull_request]
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - ruby: "2.6"
+            env:
+              BRANCH: 6-0-stable
+          - ruby: "2.7"
+            env:
+              BRANCH: 6-0-stable
+          - ruby: "2.7"
+            env:
+              BRANCH: 6-1-stable
+          - ruby: "3.0"
+            env:
+              BRANCH: 6-1-stable
+          - ruby: "2.7"
+            env:
+              BRANCH: 7-0-stable
+          - ruby: "3.0"
+            env:
+              BRANCH: 7-0-stable
+          - ruby: "3.1"
+            env:
+              BRANCH: 7-0-stable
+          - ruby: "2.7"
+            env:
+              BRANCH: main
+            experimental: true
+          - ruby: "3.0"
+            env:
+              BRANCH: main
+            experimental: true
+          - ruby: "3.1"
+            env:
+              BRANCH: main
+            experimental: true
+          - ruby: head
+            env:
+              BRANCH: main
+            experimental: true
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        env: ${{ matrix.env }}
+        with:
+          ruby-version: ${{ matrix.ruby }}
+          bundler-cache: true
+      - name: Run tests
+        run: bundle exec rake
+        env: ${{ matrix.env }}
+        continue-on-error: ${{ matrix.experimental }}
