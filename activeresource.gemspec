@@ -18,10 +18,10 @@ Gem::Specification.new do |s|
   s.files = Dir["MIT-LICENSE", "README.md", "lib/**/*"]
   s.require_path = "lib"
 
-  s.required_ruby_version = ">= 2.2.2"
+  s.required_ruby_version = ">= 2.6.0"
 
-  s.add_dependency("activesupport", ">= 5.0")
-  s.add_dependency("activemodel", ">= 5.0")
+  s.add_dependency("activesupport", ">= 6.0")
+  s.add_dependency("activemodel", ">= 6.0")
   s.add_dependency("activemodel-serializers-xml", "~> 1.0")
 
   s.add_development_dependency("rake")

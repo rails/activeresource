@@ -7,7 +7,7 @@ require "fixtures/person"
 require "fixtures/product"
 require "active_job"
 require "active_job/arguments"
-require "active_resource/active_job_serializer" if ActiveJob::VERSION::MAJOR >= 6
+require "active_resource/active_job_serializer"
 
 class ActiveJobSerializerTest < ActiveSupport::TestCase
   setup do
@@ -50,4 +50,4 @@ class ActiveJobSerializerTest < ActiveSupport::TestCase
     assert @klass.serialize?(product)
     assert_not @klass.serialize?("not a resource")
   end
-end if ActiveJob::VERSION::MAJOR >= 6
+end

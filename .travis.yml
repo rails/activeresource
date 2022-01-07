@@ -14,41 +14,11 @@ matrix:
     - rvm: ruby-head
     - rvm: jruby-head
   include:
-    - rvm: 2.2.10
-      env: BRANCH=5-0-stable
-    - rvm: 2.2.10
-      env: BRANCH=5-1-stable
-    - rvm: 2.2.10
-      env: BRANCH=5-2-stable
-    - rvm: 2.3.8
-      env: BRANCH=5-0-stable
-    - rvm: 2.2.8
-      env: BRANCH=5-1-stable
-    - rvm: 2.3.8
-      env: BRANCH=5-2-stable
-    - rvm: 2.4.10
-      env: BRANCH=5-0-stable
-    - rvm: 2.4.10
-      env: BRANCH=5-1-stable
-    - rvm: 2.4.10
-      env: BRANCH=5-2-stable
-    - rvm: 2.5.9
-      env: BRANCH=5-0-stable
-    - rvm: 2.5.9
-      env: BRANCH=5-1-stable
-    - rvm: 2.5.9
-      env: BRANCH=5-2-stable
-    - rvm: 2.5.9
-      env: BRANCH=6-0-stable
-    - rvm: 2.6.9
-      env: BRANCH=5-0-stable
-    - rvm: 2.6.9
-      env: BRANCH=5-1-stable
-    - rvm: 2.6.9
-      env: BRANCH=5-2-stable
     - rvm: 2.6.9
       env: BRANCH=6-0-stable
     - rvm: 2.7.5
+      env: BRANCH=6-0-stable
+    - rvm: 2.6.9
       env: BRANCH=6-0-stable
     - rvm: 2.7.5
       env: BRANCH=6-1-stable

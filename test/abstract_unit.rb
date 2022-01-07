@@ -17,12 +17,6 @@ ActiveSupport::TestCase.test_order = :random if ActiveSupport::TestCase.respond_
 ActiveResource::Base.logger = ActiveSupport::Logger.new("#{File.dirname(__FILE__)}/debug.log")
 ActiveResource::Base.include_root_in_json = true
 
-module ActiveResource::Test
-  def self.rails_5_1?
-    ActiveSupport.gem_version >= Gem::Version.new("5.1.x")
-  end
-end
-
 def setup_response
   matz_hash = { "person" => { id: 1, name: "Matz" } }
 
