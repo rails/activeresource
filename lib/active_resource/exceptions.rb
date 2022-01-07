@@ -24,7 +24,7 @@ module ActiveResource
     def initialize(message)
       @message = message
     end
-    def to_s; @message ;end
+    def to_s; @message ; end
   end
 
   # Raised when a OpenSSL::SSL::SSLError occurs.
@@ -32,7 +32,7 @@ module ActiveResource
     def initialize(message)
       @message = message
     end
-    def to_s; @message ;end
+    def to_s; @message ; end
   end
 
   # 3xx Redirection

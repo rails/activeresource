@@ -4,7 +4,7 @@ require "active_support/core_ext/array/wrap"
 require "active_support/core_ext/object/blank"
 
 module ActiveResource
-  class ResourceInvalid < ClientError  #:nodoc:
+  class ResourceInvalid < ClientError  # :nodoc:
   end
 
   # Active Resource validation is reported to and from this object, which is used by Base#save
@@ -15,7 +15,7 @@ module ActiveResource
     # or not (by passing true).
     def from_array(messages, save_cache = false)
       clear unless save_cache
-      humanized_attributes = Hash[@base.known_attributes.map { |attr_name| [attr_name.humanize, attr_name] }]
+      humanized_attributes = @base.known_attributes.index_by { |attr_name| attr_name.humanize }
       messages.each do |message|
         attr_message = humanized_attributes.keys.sort_by { |a| -a.length }.detect do |attr_name|
           if message[0, attr_name.size + 1] == "#{attr_name} "
@@ -133,7 +133,7 @@ module ActiveResource
 
     # Loads the set of remote errors into the object's Errors based on the
     # content-type of the error-block received.
-    def load_remote_errors(remote_errors, save_cache = false) #:nodoc:
+    def load_remote_errors(remote_errors, save_cache = false) # :nodoc:
       case self.class.format
       when ActiveResource::Formats[:xml]
         errors.from_xml(remote_errors.response.body, save_cache)

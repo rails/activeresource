@@ -88,7 +88,6 @@ module ActiveResource
 
 
     protected
-
       # Update the resource on the remote service
       def update
         connection.put(singleton_path(prefix_options), encode, self.class.headers).tap do |response|
@@ -105,7 +104,6 @@ module ActiveResource
       end
 
     private
-
       def singleton_path(options = nil)
         self.class.singleton_path(options || prefix_options)
       end

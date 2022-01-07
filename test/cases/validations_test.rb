@@ -57,7 +57,6 @@ class ValidationsTest < ActiveSupport::TestCase
   end
 
   protected
-
     # quickie helper to create a new project with all the required
     # attributes.
     # Pass in any params you specifically want to override

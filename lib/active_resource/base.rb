@@ -768,10 +768,10 @@ module ActiveResource
         raise
       end
 
-      alias_method :set_prefix, :prefix=  #:nodoc:
+      alias_method :set_prefix, :prefix=  # :nodoc:
 
-      alias_method :set_element_name, :element_name=  #:nodoc:
-      alias_method :set_collection_name, :collection_name=  #:nodoc:
+      alias_method :set_element_name, :element_name=  # :nodoc:
+      alias_method :set_collection_name, :collection_name=  # :nodoc:
 
       def format_extension
         include_format_in_path ? ".#{format.extension}" : ""
@@ -887,7 +887,7 @@ module ActiveResource
         "#{prefix(prefix_options)}#{collection_name}#{format_extension}#{query_string(query_options)}"
       end
 
-      alias_method :set_primary_key, :primary_key=  #:nodoc:
+      alias_method :set_primary_key, :primary_key=  # :nodoc:
 
       # Builds a new, unsaved record using the default values from the remote server so
       # that it can be used with RESTful forms.
@@ -1085,7 +1085,6 @@ module ActiveResource
       end
 
       private
-
         def check_prefix_options(prefix_options)
           p_options = HashWithIndifferentAccess.new(prefix_options)
           prefix_parameters.each do |p|
@@ -1095,28 +1094,26 @@ module ActiveResource
 
         # Find every resource
         def find_every(options)
-          begin
-            params = options[:params]
-            prefix_options, query_options = split_options(params)
+          params = options[:params]
+          prefix_options, query_options = split_options(params)
 
-            response =
-              case from = options[:from]
-              when Symbol
-                get(from, params)
-              when String
-                path = "#{from}#{query_string(query_options)}"
-                format.decode(connection.get(path, headers).body)
-              else
-                path = collection_path(prefix_options, query_options)
-                format.decode(connection.get(path, headers).body)
-              end
+          response =
+            case from = options[:from]
+            when Symbol
+              get(from, params)
+            when String
+              path = "#{from}#{query_string(query_options)}"
+              format.decode(connection.get(path, headers).body)
+            else
+              path = collection_path(prefix_options, query_options)
+              format.decode(connection.get(path, headers).body)
+            end
 
-            instantiate_collection(response || [], query_options, prefix_options)
-          rescue ActiveResource::ResourceNotFound
-            # Swallowing ResourceNotFound exceptions and return nil - as per
-            # ActiveRecord.
-            nil
-          end
+          instantiate_collection(response || [], query_options, prefix_options)
+        rescue ActiveResource::ResourceNotFound
+          # Swallowing ResourceNotFound exceptions and return nil - as per
+          # ActiveRecord.
+          nil
         end
 
         # Find a single resource from a one-off URL
@@ -1185,8 +1182,8 @@ module ActiveResource
         end
     end
 
-    attr_accessor :attributes #:nodoc:
-    attr_accessor :prefix_options #:nodoc:
+    attr_accessor :attributes # :nodoc:
+    attr_accessor :prefix_options # :nodoc:
 
     # If no schema has been defined for the class (see
     # <tt>ActiveResource::schema=</tt>), the default automatic schema is
@@ -1629,7 +1626,6 @@ module ActiveResource
       end
 
     private
-
       # Determine whether the response is allowed to have a body per HTTP 1.1 spec section 4.4.1
       def response_code_allows_body?(c)
         !((100..199).include?(c) || [204, 304].include?(c))
@@ -1703,7 +1699,7 @@ module ActiveResource
         self.class.__send__(:split_options, options)
       end
 
-      def method_missing(method_symbol, *arguments) #:nodoc:
+      def method_missing(method_symbol, *arguments) # :nodoc:
         method_name = method_symbol.to_s
 
         if method_name =~ /(=|\?)$/

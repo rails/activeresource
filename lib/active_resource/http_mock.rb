@@ -4,7 +4,7 @@ require "active_support/core_ext/kernel/reporting"
 require "active_support/core_ext/object/inclusion"
 
 module ActiveResource
-  class InvalidRequestError < StandardError; end #:nodoc:
+  class InvalidRequestError < StandardError; end # :nodoc:
 
   # One thing that has always been a pain with remote web services is testing. The HttpMock
   # class makes it easy to test your Active Resource models by creating a set of mock responses to specific
@@ -52,7 +52,7 @@ module ActiveResource
   #   end
   #
   class HttpMock
-    class Responder #:nodoc:
+    class Responder # :nodoc:
       def initialize(responses)
         @responses = responses
       end
@@ -74,7 +74,6 @@ module ActiveResource
       end
 
     private
-
       def delete_duplicate_responses(request)
         @responses.delete_if { |r| r[0] == request }
       end
@@ -190,7 +189,7 @@ module ActiveResource
       #   ActiveResource::HttpMock.respond_to(pairs, false)
       #   ActiveResource::HttpMock.responses.length #=> 2
       #
-      def respond_to(*args) #:yields: mock
+      def respond_to(*args) # :yields: mock
         pairs = args.first || {}
         reset! if args.last.class != FalseClass
 
@@ -268,11 +267,11 @@ module ActiveResource
       end
     end
 
-    def initialize(site) #:nodoc:
+    def initialize(site) # :nodoc:
       @site = site
     end
 
-    def inspect_responses #:nodoc:
+    def inspect_responses # :nodoc:
       self.class.responses.map { |r| r[0].to_s }.inspect
     end
   end
@@ -293,7 +292,6 @@ module ActiveResource
     end
 
     private
-
       def headers_match?(req)
         # Ignore format header on equality if it's not defined
         format_header = ActiveResource::Connection::HTTP_FORMAT_HEADER_NAMES[method]

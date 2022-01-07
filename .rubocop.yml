@@ -1,5 +1,5 @@
 inherit_from: https://raw.githubusercontent.com/rails/rails/master/.rubocop.yml
 
 AllCops:
-  TargetRubyVersion: 2.2
+  TargetRubyVersion: 2.6
   DisabledByDefault: true

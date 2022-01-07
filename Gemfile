@@ -9,6 +9,12 @@ gem "activesupport", github: "rails/rails", branch: branch
 gem "activemodel", github: "rails/rails", branch: branch
 gem "activejob", github: "rails/rails", branch: branch
 
+gem "rubocop"
+gem "rubocop-minitest"
+gem "rubocop-packaging"
+gem "rubocop-performance"
+gem "rubocop-rails"
+
 gemspec
 
 platform :mri do

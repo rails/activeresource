@@ -149,7 +149,7 @@ class FinderTest < ActiveSupport::TestCase
   def test_find_all_by_from_with_prefix
     ActiveResource::HttpMock.respond_to { |m| m.get "/dogs.json", {}, @pets }
 
-    pets = Pet.find(:all, from: '/dogs.json', params: { person_id: 1 })
+    pets = Pet.find(:all, from: "/dogs.json", params: { person_id: 1 })
     assert_equal 2, pets.size
     assert_equal "Max", pets.first.name
     assert_equal ({ person_id: 1 }), pets.first.prefix_options

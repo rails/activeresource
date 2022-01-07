@@ -31,7 +31,7 @@ class LogSubscriberTest < ActiveSupport::TestCase
     wait
     assert_equal 2, @logger.logged(:info).size
     assert_equal "GET http://37s.sunrise.i:3000/people/1.json", @logger.logged(:info)[0]
-    assert_match(/\-\-\> 200 200 33/, @logger.logged(:info)[1])
+    assert_match(/--> 200 200 33/, @logger.logged(:info)[1])
   end
 
   def test_failure_error_log
@@ -40,7 +40,7 @@ class LogSubscriberTest < ActiveSupport::TestCase
     wait
     assert_equal 2, @logger.logged(:error).size
     assert_equal "GET http://37s.sunrise.i:3000/people/2.json", @logger.logged(:error)[0]
-    assert_match(/\-\-\> 404 404 0/, @logger.logged(:error)[1])
+    assert_match(/--> 404 404 0/, @logger.logged(:error)[1])
   end
 
   def test_server_error_log
@@ -49,7 +49,7 @@ class LogSubscriberTest < ActiveSupport::TestCase
     wait
     assert_equal 2, @logger.logged(:error).size
     assert_equal "GET http://37s.sunrise.i:3000/people/3.json", @logger.logged(:error)[0]
-    assert_match(/\-\-\> 502 502 0/, @logger.logged(:error)[1])
+    assert_match(/--> 502 502 0/, @logger.logged(:error)[1])
   end
 
   def test_connection_failure
@@ -58,6 +58,6 @@ class LogSubscriberTest < ActiveSupport::TestCase
     wait
     assert_equal 2, @logger.logged(:error).size
     assert_equal "GET http://37s.sunrise.i:3000/people/99.json", @logger.logged(:error)[0]
-    assert_match(/\-\-\> 523 ActiveResource connection error 0/, @logger.logged(:error)[1])
+    assert_match(/--> 523 ActiveResource connection error 0/, @logger.logged(:error)[1])
   end
 end

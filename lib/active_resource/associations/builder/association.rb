@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module ActiveResource::Associations::Builder
-  class Association #:nodoc:
+  class Association # :nodoc:
     # providing a Class-Variable, which will have a different store of subclasses
     class_attribute :valid_options
     self.valid_options = [:class_name]
@@ -25,7 +25,6 @@ module ActiveResource::Associations::Builder
     end
 
     private
-
       def validate_options
         options.assert_valid_keys(self.class.valid_options)
       end

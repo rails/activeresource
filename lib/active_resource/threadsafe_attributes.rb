@@ -28,7 +28,6 @@ module ThreadsafeAttributes
   end
 
   private
-
     def get_threadsafe_attribute(name, main_thread)
       if threadsafe_attribute_defined_by_thread?(name, Thread.current)
         get_threadsafe_attribute_by_thread(name, Thread.current)

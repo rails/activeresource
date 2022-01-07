@@ -31,13 +31,13 @@ task :lines do
   lines, codelines, total_lines, total_codelines = 0, 0, 0, 0
 
   FileList["lib/active_resource/**/*.rb"].each do |file_name|
-    next if file_name =~ /vendor/
+    next if /vendor/.match?(file_name)
     f = File.open(file_name)
 
     while line = f.gets
       lines += 1
-      next if line =~ /^\s*$/
-      next if line =~ /^\s*#/
+      next if /^\s*$/.match?(line)
+      next if /^\s*#/.match?(line)
       codelines += 1
     end
     puts "L: #{sprintf("%4d", lines)}, LOC #{sprintf("%4d", codelines)} | #{file_name}"

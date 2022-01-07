@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module ActiveResource
-  module VERSION #:nodoc:
+  module VERSION # :nodoc:
     MAJOR = 6
     MINOR = 0
     TINY  = 0

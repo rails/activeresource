@@ -34,7 +34,7 @@ def setup_response
   @post  = { id: 1, title: "Hello World", body: "Lorem Ipsum" }.to_json
   @posts = [{ id: 1, title: "Hello World", body: "Lorem Ipsum" }, { id: 2, title: "Second Post", body: "Lorem Ipsum" }].to_json
   @comments = [{ id: 1, post_id: 1, content: "Interesting post" }, { id: 2, post_id: 1, content: "I agree" }].to_json
-  @pets = [{ id: 1, name: 'Max'}, { id: 2, name: 'Daisy'}].to_json
+  @pets = [{ id: 1, name: "Max" }, { id: 2, name: "Daisy" }].to_json
 
   # - deep nested resource -
   # - Luis (Customer)
@@ -143,7 +143,7 @@ def setup_response
     # products
     mock.get "/products/1.json", {}, @product
     mock.get "/products/1/inventory.json", {}, @inventory
-    #pets
+    # pets
     mock.get "/people/1/pets.json", {}, @pets
   end
 
