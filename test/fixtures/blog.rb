@@ -13,4 +13,11 @@ module Blog
   class Comment < ApplicationResource
     belongs_to :post
   end
+
+  class CommentWithCustomMethodsIncluded < ApplicationResource
+    self.element_name = "comment"
+    self.collection_name = "comments"
+
+    include ActiveResource::CustomMethods
+  end
 end

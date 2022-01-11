@@ -122,7 +122,11 @@ module ActiveResource::Associations
     method_name = reflection.name
     ivar_name = :"@#{method_name}"
 
-    defined_methods = self.methods - ActiveResource::CustomMethods.instance_methods(false)
+    defined_methods = self.methods
+    if self.ancestors.include?(ActiveResource::CustomMethods)
+      defined_methods = defined_methods - ActiveResource::CustomMethods.instance_methods(false)
+    end
+
     if defined_methods.include?(method_name)
       instance_variable_set(ivar_name, nil)
       remove_method(method_name)

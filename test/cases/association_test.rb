@@ -57,7 +57,7 @@ class AssociationTest < ActiveSupport::TestCase
     assert_equal 1, External::Person.reflections.select { |name, reflection| reflection.macro.eql?(:belongs_to) }.count
   end
 
-  def test_belongs_to_post
+  def test_belongs_to_with_overridden_custom_method_post
     response_body = { title: "some title" }.to_json
     response_code = 201
     ActiveResource::HttpMock.respond_to do |mock|
@@ -72,6 +72,22 @@ class AssociationTest < ActiveSupport::TestCase
     response = ActiveResource::HttpMock.responses.flatten.last
     assert_equal response.body, response_body
     assert_equal response.code, response_code
+    assert_raise(ArgumentError) { comment.post(:like) }
+  end
+
+  def test_belongs_to_post_with_custom_methods_included_without_override
+    post_attributes = { id: 1, title: "some title" }
+    ActiveResource::HttpMock.respond_to do |mock|
+      mock.post "/comments", {}, post_attributes.to_json, 201
+      mock.post "/comments/1/like", {}, nil, 200
+    end
+
+    comment = ::Blog::CommentWithCustomMethodsIncluded.new(post_attributes)
+    assert_equal true, comment.save
+
+    like_response = comment.post(:like)
+    assert_equal like_response.code, 200
+    assert like_response.body.empty?
   end
 
   def test_defines_belongs_to_finder_method_with_instance_variable_cache
