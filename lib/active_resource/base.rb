@@ -1078,7 +1078,6 @@ module ActiveResource
           response = connection.head(path, headers)
           (200..206).include? response.code.to_i
         end
-        # id && !find_single(id, options).nil?
       rescue ActiveResource::ResourceNotFound, ActiveResource::ResourceGone
         false
       end
