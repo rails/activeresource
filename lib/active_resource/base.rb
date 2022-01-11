@@ -1072,12 +1072,13 @@ module ActiveResource
       #
       #   Note.exists(1349) # => false
       def exists?(id, options = {})
-        if id
-          prefix_options, query_options = split_options(options[:params])
-          path = element_path(id, prefix_options, query_options)
-          response = connection.head(path, headers)
-          (200..206).include? response.code.to_i
-        end
+        return false unless id
+
+        prefix_options, query_options = split_options(options[:params])
+        path = element_path(id, prefix_options, query_options)
+        response = connection.head(path, headers)
+
+        (200..206).include?(response.code.to_i)
       rescue ActiveResource::ResourceNotFound, ActiveResource::ResourceGone
         false
       end

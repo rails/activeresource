@@ -1288,24 +1288,24 @@ class BaseTest < ActiveSupport::TestCase
   ########################################################################
   def test_exists
     # Class method.
-    assert_not Person.exists?(nil)
-    assert Person.exists?(1)
-    assert_not Person.exists?(99)
+    assert_equal false, Person.exists?(nil)
+    assert_equal true, Person.exists?(1)
+    assert_equal false, Person.exists?(99)
 
     # Instance method.
-    assert_not Person.new.exists?
-    assert Person.find(1).exists?
-    assert_not Person.new(id: 99).exists?
+    assert_equal false, Person.new.exists?
+    assert_equal true, Person.find(1).exists?
+    assert_equal false, Person.new(id: 99).exists?
 
     # Nested class method.
-    assert StreetAddress.exists?(1,  params: { person_id: 1 })
-    assert_not StreetAddress.exists?(1, params: { person_id: 2 })
-    assert_not StreetAddress.exists?(2, params: { person_id: 1 })
+    assert_equal true, StreetAddress.exists?(1,  params: { person_id: 1 })
+    assert_equal false, StreetAddress.exists?(1, params: { person_id: 2 })
+    assert_equal false, StreetAddress.exists?(2, params: { person_id: 1 })
 
     # Nested instance method.
-    assert StreetAddress.find(1, params: { person_id: 1 }).exists?
-    assert_not StreetAddress.new(id: 1, person_id: 2).exists?
-    assert_not StreetAddress.new(id: 2, person_id: 1).exists?
+    assert_equal true, StreetAddress.find(1, params: { person_id: 1 }).exists?
+    assert_equal false, StreetAddress.new(id: 1, person_id: 2).exists?
+    assert_equal false, StreetAddress.new(id: 2, person_id: 1).exists?
   end
 
   def test_exists_with_redefined_to_param
