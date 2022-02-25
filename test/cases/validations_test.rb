@@ -56,6 +56,18 @@ class ValidationsTest < ActiveSupport::TestCase
     assert_equal ["is too long (maximum is 10 characters)"], project.errors[:description]
   end
 
+  def test_invalid_method
+    p = new_project
+
+    assert_not p.invalid?
+  end
+
+  def test_validate_bang_method
+    p = new_project(name: nil)
+
+    assert_raise(ActiveModel::ValidationError) { p.validate! }
+  end
+
   protected
     # quickie helper to create a new project with all the required
     # attributes.
