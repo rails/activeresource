@@ -402,10 +402,12 @@ module ActiveResource
 
           @schema ||= {}.with_indifferent_access
           @known_attributes ||= []
+          @attributes_castable_types ||= {}
 
           schema_definition.attrs.each do |k, v|
             @schema[k] = v
             @known_attributes << k
+            @attributes_castable_types[k] = ActiveModel::Type.lookup(v.to_sym) rescue nil
           end
 
           @schema
@@ -436,6 +438,7 @@ module ActiveResource
           # purposefully nulling out the schema
           @schema = nil
           @known_attributes = []
+          @attributes_castable_types = {}
           return
         end
 
@@ -455,6 +458,10 @@ module ActiveResource
       # without a getter-method.
       def known_attributes
         @known_attributes ||= []
+      end
+
+      def attributes_castable_types
+        @attributes_castable_types ||= {}
       end
 
       # Gets the URI of the REST resources to map for this class. The site variable is required for
@@ -1497,7 +1504,7 @@ module ActiveResource
             resource = find_or_create_resource_for(key)
             resource.new(value, persisted)
           else
-            value.duplicable? ? value.dup : value
+            type_cast_value(key, value.duplicable? ? value.dup : value)
           end
       end
       self
@@ -1698,13 +1705,21 @@ module ActiveResource
         self.class.__send__(:split_options, options)
       end
 
+      def type_cast_value(attribute_name, value)
+        if castable_type = self.class.attributes_castable_types[attribute_name.to_s]
+          castable_type.cast(value)
+        else
+          value
+        end
+      end
+
       def method_missing(method_symbol, *arguments) # :nodoc:
         method_name = method_symbol.to_s
 
         if method_name =~ /(=|\?)$/
           case $1
           when "="
-            attributes[$`] = arguments.first
+            attributes[$`] = type_cast_value($`, arguments.first)
           when "?"
             attributes[$`]
           end

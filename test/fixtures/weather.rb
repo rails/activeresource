@@ -6,7 +6,7 @@ class Weather < ActiveResource::Base
 
   schema do
     string  :status
-    string  :temperature
+    integer :temperature
   end
 end
 

@@ -425,4 +425,35 @@ class SchemaTest < ActiveSupport::TestCase
     Person.schema = new_schema
     assert_equal Person.new(age: 20, name: "Matz").known_attributes, ["age", "name"]
   end
+
+  test "casting types" do
+    new_schema = {
+      "integer_field" => "integer",
+      "string_field" => "string",
+      "decimal_field" => "decimal",
+      "date_field" => "date",
+      "boolean_field" => "boolean"
+    }
+    Person.schema = new_schema
+
+    person = Person.new(
+      integer_field: "2.3",
+      string_field: "Rails FTW",
+      decimal_field: "12.3",
+      date_field: "2016-01-01",
+      boolean_field: "0"
+    )
+
+    assert_equal 2, person.integer_field
+    assert_equal "Rails FTW", person.string_field
+    assert_equal BigDecimal("12.3"), person.decimal_field
+    assert_equal Date.new(2016, 1, 1), person.date_field
+    assert_equal false, person.boolean_field
+
+    person.integer_field = 10
+    person.boolean_field = "1"
+
+    assert_equal 10, person.integer_field
+    assert_equal true, person.boolean_field
+  end
 end
