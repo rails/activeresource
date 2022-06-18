@@ -402,12 +402,10 @@ module ActiveResource
 
           @schema ||= {}.with_indifferent_access
           @known_attributes ||= []
-          @attributes_castable_types ||= {}
 
           schema_definition.attrs.each do |k, v|
             @schema[k] = v
             @known_attributes << k
-            @attributes_castable_types[k] = ActiveModel::Type.lookup(v.to_sym) rescue nil
           end
 
           @schema
@@ -438,7 +436,6 @@ module ActiveResource
           # purposefully nulling out the schema
           @schema = nil
           @known_attributes = []
-          @attributes_castable_types = {}
           return
         end
 
@@ -458,10 +455,6 @@ module ActiveResource
       # without a getter-method.
       def known_attributes
         @known_attributes ||= []
-      end
-
-      def attributes_castable_types
-        @attributes_castable_types ||= {}
       end
 
       # Gets the URI of the REST resources to map for this class. The site variable is required for
@@ -1706,11 +1699,13 @@ module ActiveResource
       end
 
       def type_cast_value(attribute_name, value)
-        if castable_type = self.class.attributes_castable_types[attribute_name.to_s]
-          castable_type.cast(value)
-        else
-          value
+        if the_type = self.class.schema&.fetch(attribute_name.to_s, nil)
+          castable_type = ActiveModel::Type.lookup(the_type.to_sym) rescue nil
+          if castable_type
+            return castable_type.cast(value)
+          end
         end
+        value
       end
 
       def method_missing(method_symbol, *arguments) # :nodoc:
