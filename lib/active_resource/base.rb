@@ -1699,11 +1699,9 @@ module ActiveResource
       end
 
       def type_cast_value(attribute_name, value)
-        if the_type = self.class.schema&.fetch(attribute_name.to_s, nil)
-          castable_type = ActiveModel::Type.lookup(the_type.to_sym) rescue nil
-          if castable_type
-            return castable_type.cast(value)
-          end
+        if schema_type = self.class.schema&.fetch(attribute_name, nil)
+          castable_type = ActiveModel::Type.lookup(schema_type.to_sym) rescue nil
+          return castable_type.cast(value) if castable_type
         end
         value
       end
