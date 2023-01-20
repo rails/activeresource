@@ -37,6 +37,10 @@ jobs:
             env:
               BRANCH: 7-0-stable
             experimental: false
+          - ruby: "3.2"
+            env:
+              BRANCH: 7-0-stable
+            experimental: false
           - ruby: "2.7"
             env:
               BRANCH: main
@@ -46,6 +50,10 @@ jobs:
               BRANCH: main
             experimental: true
           - ruby: "3.1"
+            env:
+              BRANCH: main
+            experimental: true
+          - ruby: "3.2"
             env:
               BRANCH: main
             experimental: true
