@@ -15,13 +15,13 @@ module ActiveResource
     # Merges the flattened parent hash (if it's an InheritingHash)
     # with ourself
     def to_hash
-       @parent_hash.to_hash.merge(self)
+      @parent_hash.to_hash.merge(self)
     end
-    
+
     # So we can see the merged object in IRB or the Rails console
     def pretty_print(pp)
       pp.pp_hash to_hash
-    end  
+    end
 
     def inspect
       to_hash.inspect
