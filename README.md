@@ -112,7 +112,7 @@ end
 Active Resource is built on a standard JSON or XML format for requesting and submitting resources
 over HTTP. It mirrors the RESTful routing built into Action Controller but will also work with any
 other REST service that properly implements the protocol. REST uses HTTP, but unlike "typical" web
-applications, it makes use of all the verubys available in the HTTP specification:
+applications, it makes use of all the verbs available in the HTTP specification:
 
 * GET requests are used for finding and retrieving resources.
 * POST requests are used to create new resources.
