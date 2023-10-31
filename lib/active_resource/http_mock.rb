@@ -58,12 +58,12 @@ module ActiveResource
       end
 
       [ :post, :patch, :put, :get, :delete, :head ].each do |method|
-        # def post(path, request_headers = {}, body = nil, status = 200, response_headers = {})
-        #   @responses[Request.new(:post, path, nil, request_headers)] = Response.new(body || "", status, response_headers)
+        # def post(path, request_headers = {}, body = nil, status = 200, response_headers = {}, options: {})
+        #   @responses[Request.new(:post, path, nil, request_headers, options)] = Response.new(body || "", status, response_headers)
         # end
         module_eval <<-EOE, __FILE__, __LINE__ + 1
-          def #{method}(path, request_headers = {}, body = nil, status = 200, response_headers = {})
-            request  = Request.new(:#{method}, path, nil, request_headers)
+          def #{method}(path, request_headers = {}, body = nil, status = 200, response_headers = {}, options: {})
+            request  = Request.new(:#{method}, path, nil, request_headers, options)
             response = Response.new(body || "", status, response_headers)
 
             delete_duplicate_responses(request)
@@ -244,8 +244,8 @@ module ActiveResource
     { true  => %w(post patch put),
       false => %w(get delete head) }.each do |has_body, methods|
       methods.each do |method|
-        # def post(path, body, headers)
-        #   request = ActiveResource::Request.new(:post, path, body, headers)
+        # def post(path, body, headers, options = {})
+        #   request = ActiveResource::Request.new(:post, path, body, headers, options)
         #   self.class.requests << request
         #   if response = self.class.responses.assoc(request)
         #     response[1]
@@ -254,8 +254,8 @@ module ActiveResource
         #   end
         # end
         module_eval <<-EOE, __FILE__, __LINE__ + 1
-          def #{method}(path, #{'body, ' if has_body}headers)
-            request = ActiveResource::Request.new(:#{method}, path, #{has_body ? 'body, ' : 'nil, '}headers)
+          def #{method}(path, #{'body, ' if has_body}headers, options = {})
+            request = ActiveResource::Request.new(:#{method}, path, #{has_body ? 'body, ' : 'nil, '}headers, options)
             self.class.requests << request
             if response = self.class.responses.assoc(request)
               response[1]
@@ -279,16 +279,24 @@ module ActiveResource
   class Request
     attr_accessor :path, :method, :body, :headers
 
-    def initialize(method, path, body = nil, headers = {})
-      @method, @path, @body, @headers = method, path, body, headers
+    def initialize(method, path, body = nil, headers = {}, options = {})
+      @method, @path, @body, @headers, @options = method, path, body, headers, options
     end
 
     def ==(req)
-      path == req.path && method == req.method && headers_match?(req)
+      if @options && @options[:omit_query_in_path]
+        clean_path == req.clean_path && method == req.method && headers_match?(req)
+      else
+        path == req.path && method == req.method && headers_match?(req)
+      end
     end
 
     def to_s
       "<#{method.to_s.upcase}: #{path} [#{headers}] (#{body})>"
+    end
+
+    def clean_path
+      path.split("?").first # Removes query parameters from the path
     end
 
     private
