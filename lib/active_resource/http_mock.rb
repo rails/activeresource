@@ -62,7 +62,7 @@ module ActiveResource
         #   @responses[Request.new(:post, path, nil, request_headers, options)] = Response.new(body || "", status, response_headers)
         # end
         module_eval <<-EOE, __FILE__, __LINE__ + 1
-          def #{method}(path, request_headers = {}, body = nil, status = 200, response_headers = {}, options: {})
+          def #{method}(path, request_headers = {}, body = nil, status = 200, response_headers = {}, options = {})
             request  = Request.new(:#{method}, path, nil, request_headers, options)
             response = Response.new(body || "", status, response_headers)
 

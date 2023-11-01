@@ -195,7 +195,7 @@ class HttpMockTest < ActiveSupport::TestCase
 
   test "omits query parameters from the URL when options[:omit_query_params] is true" do
     ActiveResource::HttpMock.respond_to do |mock|
-      mock.get("/endpoint", {}, "Response", options: { omit_query_in_path: true })
+      mock.get("/endpoint", {}, "Response", 200, {}, { omit_query_in_path: true })
     end
 
     response = request(:get, "/endpoint?param1=value1&param2=value2")
