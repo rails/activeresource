@@ -285,7 +285,7 @@ module ActiveResource
 
     def ==(req)
       if @options && @options[:omit_query_in_path]
-        clean_path == req.clean_path && method == req.method && headers_match?(req)
+        remove_query_params_from_path == req.remove_query_params_from_path && method == req.method && headers_match?(req)
       else
         path == req.path && method == req.method && headers_match?(req)
       end
@@ -295,8 +295,11 @@ module ActiveResource
       "<#{method.to_s.upcase}: #{path} [#{headers}] (#{body})>"
     end
 
-    def clean_path
-      path.split("?").first # Removes query parameters from the path
+    # Removes query parameters from the path.
+    #
+    # @return [String] the path without query parameters
+    def remove_query_params_from_path
+      path.split("?").first
     end
 
     private
