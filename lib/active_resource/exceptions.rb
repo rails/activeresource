@@ -35,6 +35,14 @@ module ActiveResource
     def to_s; @message ; end
   end
 
+  # Raised when a Errno::ECONNREFUSED occurs.
+  class ConnectionRefusedError < ConnectionError
+    def initialize(message)
+      @message = message
+    end
+    def to_s; @message ; end
+  end
+
   # 3xx Redirection
   class Redirection < ConnectionError # :nodoc:
     def to_s
