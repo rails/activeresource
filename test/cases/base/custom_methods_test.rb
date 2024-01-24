@@ -141,4 +141,15 @@ class CustomMethodsTest < ActiveSupport::TestCase
   ensure
     ActiveResource::Base.include_format_in_path = true
   end
+
+  def test_custom_element_method_identifier_encoding
+    luis = { person: { id: "luís", name: "Luís" } }.to_json
+
+    ActiveResource::HttpMock.respond_to do |mock|
+      mock.get "/people/lu%C3%ADs.json", {}, luis
+      mock.put "/people/lu%C3%ADs/deactivate.json", {}, luis, 204
+    end
+
+    assert_equal ActiveResource::Response.new(luis, 204), Person.find("luís").put(:deactivate)
+  end
 end
