@@ -142,7 +142,7 @@ def setup_response
     mock.get    "/posts/1.json",                 {}, @post
     mock.get    "/posts/1/comments.json",        {}, @comments
     # products
-    mock.get "/products/1.json", {}, @product
+    mock.get "/products/1.json", { "Accept" => "application/json", "X-Inherited-Header" => "present" }, @product
     mock.get "/products/1/inventory.json", {}, @inventory
     # pets
     mock.get "/people/1/pets.json", {}, @pets
