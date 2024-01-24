@@ -331,10 +331,6 @@ class ConnectionTest < ActiveSupport::TestCase
     end
   end
 
-  def new_connection
-    ActiveResource::Connection.new("http://localhost")
-  end
-
   protected
     def assert_response_raises(klass, code)
       assert_raise(klass, "Expected response code #{code} to raise #{klass}") do
