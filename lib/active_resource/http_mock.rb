@@ -299,7 +299,7 @@ module ActiveResource
     end
 
     private
-      def same_path(req)
+      def same_path?(req)
         if @options && @options[:omit_query_in_path]
           remove_query_params_from_path == req.remove_query_params_from_path
         else
