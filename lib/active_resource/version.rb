@@ -3,7 +3,7 @@
 module ActiveResource
   module VERSION # :nodoc:
     MAJOR = 6
-    MINOR = 0
+    MINOR = 1
     TINY  = 0
     PRE   = nil
 
