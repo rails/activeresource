@@ -284,11 +284,7 @@ module ActiveResource
     end
 
     def ==(req)
-      if @options && @options[:omit_query_in_path]
-        remove_query_params_from_path == req.remove_query_params_from_path && method == req.method && headers_match?(req)
-      else
-        path == req.path && method == req.method && headers_match?(req)
-      end
+      same_path?(req) && method == req.method && headers_match?(req)
     end
 
     def to_s
@@ -303,6 +299,14 @@ module ActiveResource
     end
 
     private
+      def same_path(req)
+        if @options && @options[:omit_query_in_path]
+          remove_query_params_from_path == req.remove_query_params_from_path
+        else
+          path == req.path
+        end
+      end
+
       def headers_match?(req)
         # Ignore format header on equality if it's not defined
         format_header = ActiveResource::Connection::HTTP_FORMAT_HEADER_NAMES[method]
