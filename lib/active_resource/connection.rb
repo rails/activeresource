@@ -118,9 +118,10 @@ module ActiveResource
       # Makes a request to the remote service.
       def request(method, path, *arguments)
         result = ActiveSupport::Notifications.instrument("request.active_resource") do |payload|
-          payload[:method]      = method
-          payload[:request_uri] = "#{site.scheme}://#{site.host}:#{site.port}#{path}"
-          payload[:result]      = http.send(method, path, *arguments)
+          payload[:method]       = method
+          payload[:request_uri]  = "#{site.scheme}://#{site.host}:#{site.port}#{path}"
+          payload[:request_body] = arguments[0] if Object.const_get("Net::HTTP::#{method.capitalize}::REQUEST_HAS_BODY")
+          payload[:result]       = http.send(method, path, *arguments)
         end
         handle_response(result)
       rescue Timeout::Error => e
