@@ -57,6 +57,10 @@ module ActiveResource
   class UnauthorizedAccess < ClientError # :nodoc:
   end
 
+  # 402 Payment Required
+  class PaymentRequired < ClientError # :nodoc:
+  end
+
   # 403 Forbidden
   class ForbiddenAccess < ClientError # :nodoc:
   end

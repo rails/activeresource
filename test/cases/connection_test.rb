@@ -74,6 +74,9 @@ class ConnectionTest < ActiveSupport::TestCase
     # 401 is an unauthorized request
     assert_response_raises ActiveResource::UnauthorizedAccess, 401
 
+    # 402 is a payment required error.
+    assert_response_raises ActiveResource::PaymentRequired, 402
+
     # 403 is a forbidden request (and authorizing will not help)
     assert_response_raises ActiveResource::ForbiddenAccess, 403
 
