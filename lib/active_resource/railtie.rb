@@ -21,5 +21,11 @@ module ActiveResource
         app.config.active_job.custom_serializers << ActiveResource::ActiveJobSerializer
       end
     end
+
+    initializer "active_resource.patch_active_record" do |app|
+      ActiveSupport.on_load(:active_record) do
+        ActiveRecord::Base.extend(ActiveResource::Associations::ActiveRecord)
+      end
+    end
   end
 end
