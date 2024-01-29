@@ -289,6 +289,13 @@ class ConnectionTest < ActiveSupport::TestCase
     assert_raise(ActiveResource::ConnectionRefusedError) { @conn.get("/people/1.json") }
   end
 
+  def test_handle_econnrefused_with_backwards_compatible_error
+    http = Net::HTTP.new("")
+    @conn.expects(:http).returns(http)
+    http.expects(:get).raises(Errno::ECONNREFUSED, "Failed to open TCP connection")
+    assert_raise(Errno::ECONNREFUSED) { @conn.get("/people/1.json") }
+  end
+
   def test_auth_type_can_be_string
     @conn.auth_type = "digest"
     assert_equal(:digest, @conn.auth_type)
