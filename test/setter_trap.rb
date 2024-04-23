@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class SetterTrap < ActiveSupport::ProxyObject
+class SetterTrap < BasicObject
   class << self
     def rollback_sets(obj)
       trapped = new(obj)
