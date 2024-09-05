@@ -21,5 +21,9 @@ module ActiveResource
         app.config.active_job.custom_serializers << ActiveResource::ActiveJobSerializer
       end
     end
+
+    initializer "active_resource.deprecator" do |app|
+      app.deprecators[:active_resource] = ActiveResource.deprecator
+    end
   end
 end

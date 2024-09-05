@@ -57,7 +57,7 @@ module ActiveResource
         errors = decoded["errors"] || {}
         if errors.kind_of?(Array)
           # 3.2.1-style with array of strings
-          ActiveSupport::Deprecation.warn("Returning errors as an array of strings is deprecated.")
+          ActiveResource.deprecator.warn("Returning errors as an array of strings is deprecated.")
           from_array errors, save_cache
         else
           # 3.2.2+ style
@@ -65,7 +65,7 @@ module ActiveResource
         end
       else
         # <3.2-style respond_with - lacks 'errors' key
-        ActiveSupport::Deprecation.warn('Returning errors as a hash without a root "errors" key is deprecated.')
+        ActiveResource.deprecator.warn('Returning errors as a hash without a root "errors" key is deprecated.')
         from_hash decoded, save_cache
       end
     end
