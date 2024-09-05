@@ -46,6 +46,16 @@ module ActiveResource
   autoload :InheritingHash
   autoload :Validations
   autoload :Collection
+
+  if ActiveSupport::VERSION::STRING >= "7.2"
+    def self.deprecator
+      @deprecator ||= ActiveSupport::Deprecation.new(VERSION::STRING, "ActiveResource")
+    end
+  else
+    def self.deprecator
+      ActiveSupport::Deprecation
+    end
+  end
 end
 
 require "active_resource/railtie" if defined?(Rails.application)

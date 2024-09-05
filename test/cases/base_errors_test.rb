@@ -116,7 +116,7 @@ class BaseErrorsTest < ActiveSupport::TestCase
       mock.post "/people.json", {}, %q({"errors":["Age can't be blank", "Name can't be blank", "Name must start with a letter", "Person quota full for today.", "Phone work can't be blank", "Phone is not valid"]}), 422, "Content-Type" => "application/json; charset=utf-8"
     end
 
-    assert_deprecated(/as an array/) do
+    assert_deprecated(/as an array/, ActiveResource.deprecator) do
       invalid_user_using_format(:json) do
         assert @person.errors[:name].any?
         assert_equal ["can't be blank"], @person.errors[:age]
@@ -133,7 +133,7 @@ class BaseErrorsTest < ActiveSupport::TestCase
       mock.post "/people.json", {}, %q({"age":["can't be blank"],"name":["can't be blank", "must start with a letter"],"person":["quota full for today."],"phone_work":["can't be blank"],"phone":["is not valid"]}), 422, "Content-Type" => "application/json; charset=utf-8"
     end
 
-    assert_deprecated(/without a root/) do
+    assert_deprecated(/without a root/, ActiveResource.deprecator) do
       invalid_user_using_format(:json) do
         assert @person.errors[:name].any?
         assert_equal ["can't be blank"], @person.errors[:age]
