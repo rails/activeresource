@@ -48,8 +48,8 @@ module ActiveResource
   autoload :Collection
 
   def self.deprecator
-    @deprecator ||= if ActiveSupport::VERSION::STRING >= '7.2'
-      ActiveSupport::Deprecation.new(VERSION::STRING, 'ActiveResource')
+    @deprecator ||= if ActiveSupport::VERSION::STRING >= "7.2"
+      ActiveSupport::Deprecation.new(VERSION::STRING, "ActiveResource")
     else
       ActiveSupport::Deprecation
     end
