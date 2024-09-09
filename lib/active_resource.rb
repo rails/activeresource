@@ -23,6 +23,8 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #++
 
+require "uri"
+
 require "active_support"
 require "active_model"
 require "active_resource/exceptions"
@@ -30,6 +32,8 @@ require "active_resource/version"
 
 module ActiveResource
   extend ActiveSupport::Autoload
+
+  URI_PARSER = defined?(URI::RFC2396_PARSER) ? URI::RFC2396_PARSER : URI::RFC2396_Parser.new
 
   autoload :Base
   autoload :Callbacks

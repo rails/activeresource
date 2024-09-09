@@ -11,7 +11,6 @@ require "active_support/core_ext/object/blank"
 require "active_support/core_ext/object/to_query"
 require "active_support/core_ext/object/duplicable"
 require "set"
-require "uri"
 
 require "active_resource/connection"
 require "active_resource/formats"
@@ -490,8 +489,8 @@ module ActiveResource
           self._site = nil
         else
           self._site = create_site_uri_from(site)
-          self._user = URI::DEFAULT_PARSER.unescape(_site.user) if _site.user
-          self._password = URI::DEFAULT_PARSER.unescape(_site.password) if _site.password
+          self._user = URI_PARSER.unescape(_site.user) if _site.user
+          self._password = URI_PARSER.unescape(_site.password) if _site.password
         end
       end
 
@@ -750,7 +749,7 @@ module ActiveResource
       # Default value is <tt>site.path</tt>.
       def prefix=(value = "/")
         # Replace :placeholders with '#{embedded options[:lookups]}'
-        prefix_call = value.gsub(/:\w+/) { |key| "\#{URI::DEFAULT_PARSER.escape options[#{key}].to_s}" }
+        prefix_call = value.gsub(/:\w+/) { |key| "\#{URI_PARSER.escape options[#{key}].to_s}" }
 
         # Clear prefix parameters in case they have been cached
         @prefix_parameters = nil
