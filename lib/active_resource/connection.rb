@@ -5,7 +5,6 @@ require "active_support/core_ext/object/inclusion"
 require "net/https"
 require "date"
 require "time"
-require "uri"
 
 module ActiveResource
   # Class to handle connections to remote web services.
@@ -43,8 +42,8 @@ module ActiveResource
     def site=(site)
       @site = site.is_a?(URI) ? site : URI.parse(site)
       @ssl_options ||= {} if @site.is_a?(URI::HTTPS)
-      @user = URI::DEFAULT_PARSER.unescape(@site.user) if @site.user
-      @password = URI::DEFAULT_PARSER.unescape(@site.password) if @site.password
+      @user = URI_PARSER.unescape(@site.user) if @site.user
+      @password = URI_PARSER.unescape(@site.password) if @site.password
     end
 
     # Set the proxy for remote service.
@@ -173,8 +172,8 @@ module ActiveResource
 
       def new_http
         if @proxy
-          user = URI::DEFAULT_PARSER.unescape(@proxy.user) if @proxy.user
-          password = URI::DEFAULT_PARSER.unescape(@proxy.password) if @proxy.password
+          user = URI_PARSER.unescape(@proxy.user) if @proxy.user
+          password = URI_PARSER.unescape(@proxy.password) if @proxy.password
           Net::HTTP.new(@site.host, @site.port, @proxy.host, @proxy.port, user, password)
         else
           Net::HTTP.new(@site.host, @site.port)
