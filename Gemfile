@@ -8,6 +8,8 @@ branch = ENV.fetch("BRANCH", "main")
 gem "activesupport", github: "rails/rails", branch: branch
 gem "activemodel", github: "rails/rails", branch: branch
 gem "activejob", github: "rails/rails", branch: branch
+gem "activerecord", github: "rails/rails", branch: branch
+gem "sqlite3"
 
 gem "rubocop"
 gem "rubocop-minitest"
