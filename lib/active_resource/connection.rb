@@ -139,6 +139,8 @@ module ActiveResource
           raise(BadRequest.new(response))
         when 401
           raise(UnauthorizedAccess.new(response))
+        when 402
+          raise(PaymentRequired.new(response))
         when 403
           raise(ForbiddenAccess.new(response))
         when 404

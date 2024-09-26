@@ -212,6 +212,7 @@ module ActiveResource
   # * 301, 302, 303, 307 - ActiveResource::Redirection
   # * 400 - ActiveResource::BadRequest
   # * 401 - ActiveResource::UnauthorizedAccess
+  # * 402 - ActiveResource::PaymentRequired
   # * 403 - ActiveResource::ForbiddenAccess
   # * 404 - ActiveResource::ResourceNotFound
   # * 405 - ActiveResource::MethodNotAllowed
