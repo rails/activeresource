@@ -23,7 +23,9 @@ module ActiveResource
     end
 
     initializer "active_resource.deprecator" do |app|
-      app.deprecators[:active_resource] = ActiveResource.deprecator
+      if app.respond_to?(:deprecators)
+        app.deprecators[:active_resource] = ActiveResource.deprecator
+      end
     end
   end
 end
