@@ -47,7 +47,7 @@ module ActiveResource
   autoload :Validations
   autoload :Collection
 
-  if ActiveSupport::VERSION::STRING >= "7.2"
+  if ActiveSupport::VERSION::STRING >= "7.1"
     def self.deprecator
       @deprecator ||= ActiveSupport::Deprecation.new(VERSION::STRING, "ActiveResource")
     end
