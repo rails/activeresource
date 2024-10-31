@@ -9,22 +9,6 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - ruby: "2.6"
-            env:
-              BRANCH: 6-0-stable
-            experimental: false
-          - ruby: "2.7"
-            env:
-              BRANCH: 6-0-stable
-            experimental: false
-          - ruby: "2.7"
-            env:
-              BRANCH: 6-1-stable
-            experimental: false
-          - ruby: "3.0"
-            env:
-              BRANCH: 6-1-stable
-            experimental: false
           - ruby: "2.7"
             env:
               BRANCH: 7-0-stable
