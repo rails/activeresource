@@ -28,9 +28,10 @@ jobs:
           - ruby: "3.3"
             env:
               BRANCH: 7-0-stable
+
           - ruby: "2.7"
             env:
-              BRANCH: 7-0-stable
+              BRANCH: 7-1-stable
             experimental: false
           - ruby: "3.0"
             env:
@@ -47,6 +48,7 @@ jobs:
           - ruby: "3.3"
             env:
               BRANCH: 7-1-stable
+
           - ruby: "3.1"
             env:
               BRANCH: 7-2-stable
@@ -58,10 +60,15 @@ jobs:
           - ruby: "3.3"
             env:
               BRANCH: 7-2-stable
-          - ruby: "3.1"
+
+          - ruby: "3.2"
             env:
-              BRANCH: main
-            experimental: true
+              BRANCH: 8-0-stable
+            experimental: false
+          - ruby: "3.3"
+            env:
+              BRANCH: 8-0-stable
+
           - ruby: "3.2"
             env:
               BRANCH: main
