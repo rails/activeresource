@@ -5,12 +5,14 @@ require "active_support/inflector"
 
 module ActiveResource # :nodoc:
   class Collection # :nodoc:
-    SELF_DEFINE_METHODS = [:to_a, :collect!, :map!, :all?]
+    SELF_DEFINE_METHODS = [:to_a, :all?]
     include Enumerable
     delegate :to_yaml, :all?, *(Array.instance_methods(false) - SELF_DEFINE_METHODS), to: :to_a
 
     # The array of actual elements returned by index actions
-    attr_accessor :elements, :resource_class, :original_params
+    attr_accessor :elements, :resource_class, :original_params, :path_params
+    attr_writer :prefix_options
+    attr_reader :from
 
     # ActiveResource::Collection is a wrapper to handle parsing index responses that
     # do not directly map to Rails conventions.
@@ -41,7 +43,7 @@ module ActiveResource # :nodoc:
     #
     #   class PostCollection < ActiveResource::Collection
     #     attr_accessor :next_page
-    #     def initialize(parsed = {})
+    #     def parse_response(parsed = {})
     #       @elements = parsed['posts']
     #       @next_page = parsed['next_page']
     #     end
@@ -54,24 +56,52 @@ module ActiveResource # :nodoc:
     #    @posts.next_page         # => "/posts.json?page=2"
     #    @posts.map(&:id)         # =>[1, 3, 5 ...]
     #
-    # The initialize method will receive the ActiveResource::Formats parsed result
+    # The ActiveResource::Collection#parse_response method will receive the ActiveResource::Formats parsed result
     # and should set @elements.
-    def initialize(elements = [])
+    def initialize(elements = [], from = nil)
+      @from = from
       @elements = elements
+      # This can get called without a response, so parse only if response is present
+      parse_response(@elements) if @elements.present?
+    end
+
+    def parse_response(elements)
+      @elements = elements || []
+    end
+
+    def prefix_options
+      @prefix_options || {}
+    end
+
+    # Makes network request to get the elements and returns self
+    def call
+      to_a
+      self
     end
 
     def to_a
-      elements
-    end
+      response =
+        case from
+        when Symbol
+          resource_class.get(from, path_params)
+        when String
+          path = "#{from}#{query_string(original_params)}"
+          resource_class.format.decode(resource_class.connection.get(path, resource_class.headers).body)
+        else
+          path = resource_class.collection_path(prefix_options, original_params)
+          resource_class.format.decode(resource_class.connection.get(path, resource_class.headers).body)
+        end
 
-    def collect!
-      return elements unless block_given?
-      set = []
-      each { |o| set << yield(o) }
-      @elements = set
-      self
+      # Update the elements
+      parse_response(response)
+      @elements = @elements.map do |element|
+        resource_class.instantiate_record(element, prefix_options)
+      end
+    rescue ActiveResource::ResourceNotFound
+      # Swallowing ResourceNotFound exceptions and return nothing - as per ActiveRecord.
+      # Needs to be empty array as Array methods are delegated
+      []
     end
-    alias map! collect!
 
     def first_or_create(attributes = {})
       first || resource_class.create(original_params.update(attributes))
@@ -90,5 +120,10 @@ module ActiveResource # :nodoc:
       new_clauses = original_params.merge(clauses)
       resource_class.where(new_clauses)
     end
+
+    private
+      def query_string(options)
+        "?#{options.to_query}" unless options.nil? || options.empty?
+      end
   end
 end

@@ -9,14 +9,6 @@ class CollectionTest < ActiveSupport::TestCase
 end
 
 class BasicCollectionTest < CollectionTest
-  def test_collection_respond_to_collect!
-    assert @collection.respond_to?(:collect!)
-  end
-
-  def test_collection_respond_to_map!
-    assert @collection.respond_to?(:map!)
-  end
-
   def test_collection_respond_to_first_or_create
     assert @collection.respond_to?(:first_or_create)
   end
@@ -33,19 +25,6 @@ class BasicCollectionTest < CollectionTest
     assert_raise(RuntimeError) { @collection.first_or_initialize }
   end
 
-  def test_collect_bang_modifies_elements
-    elements = %w(a b c)
-    @collection.elements = elements
-    results = @collection.collect! { |i| i + "!" }
-    assert_equal results.to_a, elements.collect! { |i| i + "!" }
-  end
-
-  def test_collect_bang_returns_collection
-    @collection.elements = %w(a)
-    results = @collection.collect! { |i| i + "!" }
-    assert_kind_of ActiveResource::Collection, results
-  end
-
   def respond_to_where
     assert @collection.respond_to?(:where)
   end
@@ -53,7 +32,7 @@ end
 
 class PaginatedCollection < ActiveResource::Collection
   attr_accessor :next_page
-  def initialize(parsed = {})
+  def parse_response(parsed)
     @elements = parsed["results"]
     @next_page = parsed["next_page"]
   end
@@ -102,7 +81,7 @@ class CollectionInheritanceTest < ActiveSupport::TestCase
   end
 
   def test_custom_accessor
-    assert_equal PaginatedPost.find(:all).next_page, @posts_hash[:next_page]
+    assert_equal PaginatedPost.find(:all).call.next_page, @posts_hash[:next_page]
   end
 
   def test_first_or_create

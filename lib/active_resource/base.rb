@@ -776,6 +776,33 @@ module ActiveResource
         include_format_in_path ? ".#{format.extension}" : ""
       end
 
+      # Instantiates a new record with the given options.
+      #
+      # This method creates a new instance of the class with the provided record and sets its `prefix_options` attribute.
+      #
+      # ==== Options
+      #
+      # +record+ [Object] The record to be instantiated.
+      # +prefix_options+ [Hash, nil] Optional hash containing prefix options for the resource. Defaults to an empty hash.
+      #
+      # ==== Returns
+      #
+      # [Object] The newly instantiated resource.
+      #
+      # ==== Examples
+      #
+      #   MyResource.instantiate_record(record)
+      #   # Creates a new MyResource instance with default prefix options.
+      #
+      #   MyResource.instantiate_record(record, { prefix: "admin" })
+      #   # Creates a new MyResource instance with prefix set to "admin".
+      #
+      def instantiate_record(record, prefix_options = {})
+        new(record, true).tap do |resource|
+          resource.prefix_options = prefix_options
+        end
+      end
+
       # Gets the element path for the given ID in +id+. If the +query_options+ parameter is omitted, Rails
       # will split from the \prefix options.
       #
@@ -1096,23 +1123,12 @@ module ActiveResource
           params = options[:params]
           prefix_options, query_options = split_options(params)
 
-          response =
-            case from = options[:from]
-            when Symbol
-              get(from, params)
-            when String
-              path = "#{from}#{query_string(query_options)}"
-              format.decode(connection.get(path, headers).body)
-            else
-              path = collection_path(prefix_options, query_options)
-              format.decode(connection.get(path, headers).body)
-            end
-
-          instantiate_collection(response || [], query_options, prefix_options)
-        rescue ActiveResource::ResourceNotFound
-          # Swallowing ResourceNotFound exceptions and return nil - as per
-          # ActiveRecord.
-          nil
+          collection_parser.new([], options[:from]).tap do |parser|
+            parser.resource_class = self
+            parser.original_params = query_options
+            parser.prefix_options = prefix_options
+            parser.path_params = params
+          end
         end
 
         # Find a single resource from a one-off URL
@@ -1139,13 +1155,6 @@ module ActiveResource
             parser.original_params = original_params
           end.collect! { |record| instantiate_record(record, prefix_options) }
         end
-
-        def instantiate_record(record, prefix_options = {})
-          new(record, true).tap do |resource|
-            resource.prefix_options = prefix_options
-          end
-        end
-
 
         # Accepts a URI and creates the site URI from that.
         def create_site_uri_from(site)

@@ -43,8 +43,8 @@ class AssociationTest < ActiveSupport::TestCase
 
   def test_has_many_on_new_record
     Post.send(:has_many, :topics)
-    Topic.stubs(:find).returns([:unexpected_response])
-    assert_equal [], Post.new.topics.to_a
+
+    assert_kind_of ActiveResource::Collection, Post.new.topics
   end
 
   def test_has_one

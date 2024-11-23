@@ -150,7 +150,7 @@ module ActiveResource::Associations
       elsif !new_record?
         instance_variable_set(ivar_name, reflection.klass.find(:all, params: { "#{self.class.element_name}_id": self.id }))
       else
-        instance_variable_set(ivar_name, self.class.collection_parser.new)
+        instance_variable_set(ivar_name, reflection.klass.find(:all))
       end
     end
   end
