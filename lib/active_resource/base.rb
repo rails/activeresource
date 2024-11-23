@@ -1125,7 +1125,7 @@ module ActiveResource
 
           collection_parser.new([], options[:from]).tap do |parser|
             parser.resource_class = self
-            parser.original_params = query_options
+            parser.query_params = query_options
             parser.prefix_options = prefix_options
             parser.path_params = params
           end

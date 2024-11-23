@@ -10,7 +10,7 @@ module ActiveResource # :nodoc:
     delegate :to_yaml, :all?, *(Array.instance_methods(false) - SELF_DEFINE_METHODS), to: :to_a
 
     # The array of actual elements returned by index actions
-    attr_accessor :elements, :resource_class, :original_params, :path_params
+    attr_accessor :elements, :resource_class, :query_params, :path_params
     attr_writer :prefix_options
     attr_reader :from
 
@@ -85,10 +85,10 @@ module ActiveResource # :nodoc:
         when Symbol
           resource_class.get(from, path_params)
         when String
-          path = "#{from}#{query_string(original_params)}"
+          path = "#{from}#{query_string(query_params)}"
           resource_class.format.decode(resource_class.connection.get(path, resource_class.headers).body)
         else
-          path = resource_class.collection_path(prefix_options, original_params)
+          path = resource_class.collection_path(prefix_options, query_params)
           resource_class.format.decode(resource_class.connection.get(path, resource_class.headers).body)
         end
 
@@ -104,20 +104,20 @@ module ActiveResource # :nodoc:
     end
 
     def first_or_create(attributes = {})
-      first || resource_class.create(original_params.update(attributes))
+      first || resource_class.create(query_params.update(attributes))
     rescue NoMethodError
       raise "Cannot create resource from resource type: #{resource_class.inspect}"
     end
 
     def first_or_initialize(attributes = {})
-      first || resource_class.new(original_params.update(attributes))
+      first || resource_class.new(query_params.update(attributes))
     rescue NoMethodError
       raise "Cannot build resource from resource type: #{resource_class.inspect}"
     end
 
     def where(clauses = {})
       raise ArgumentError, "expected a clauses Hash, got #{clauses.inspect}" unless clauses.is_a? Hash
-      new_clauses = original_params.merge(clauses)
+      new_clauses = query_params.merge(clauses)
       resource_class.where(new_clauses)
     end
 

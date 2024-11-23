@@ -76,8 +76,8 @@ class CollectionInheritanceTest < ActiveSupport::TestCase
     assert_equal PaginatedPost, PaginatedPost.where(page: 2).resource_class
   end
 
-  def test_setting_collection_parser_original_params
-    assert_equal({ page: 2 }, PaginatedPost.where(page: 2).original_params)
+  def test_setting_collection_parser_query_params
+    assert_equal({ page: 2 }, PaginatedPost.where(page: 2).query_params)
   end
 
   def test_custom_accessor
