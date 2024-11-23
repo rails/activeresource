@@ -52,6 +52,7 @@ end
 class CollectionInheritanceTest < ActiveSupport::TestCase
   def setup
     @post = { id: 1, title: "Awesome" }
+    @post_even_more = { id: 1, title: "Awesome", subtitle: "EvenMore" }
     @posts_hash = { "results" => [@post], :next_page => "/paginated_posts.json?page=2" }
     @posts = @posts_hash.to_json
     @posts2 = { "results" => [@post.merge(id: 2)], :next_page => nil }.to_json
@@ -64,6 +65,7 @@ class CollectionInheritanceTest < ActiveSupport::TestCase
       mock.get    "/paginated_posts.json?page=2", {}, @posts
       mock.get    "/paginated_posts.json?title=test", {}, @empty_posts
       mock.get    "/paginated_posts.json?page=2&title=Awesome", {}, @posts
+      mock.get    "/paginated_posts.json?subtitle=EvenMore&title=Awesome", {}, @posts
       mock.post   "/paginated_posts.json", {}, nil
     end
   end
@@ -98,5 +100,18 @@ class CollectionInheritanceTest < ActiveSupport::TestCase
     posts = PaginatedPost.where(page: 2)
     next_posts = posts.where(title: "Awesome")
     assert_kind_of PaginatedCollection, next_posts
+  end
+
+  def test_where_lazy_chain
+    expected_request = ActiveResource::Request.new(
+      :get,
+      "/paginated_posts.json?subtitle=EvenMore&title=Awesome",
+      nil,
+      { "Accept" => "application/json" }
+    )
+    posts = PaginatedPost.where(title: "Awesome").where(subtitle: "EvenMore")
+    assert_equal 0, ActiveResource::HttpMock.requests.count { |r| r == expected_request }
+    posts.to_a
+    assert_equal 1, ActiveResource::HttpMock.requests.count { |r| r == expected_request }
   end
 end
