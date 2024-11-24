@@ -66,6 +66,8 @@ class CollectionInheritanceTest < ActiveSupport::TestCase
       mock.get    "/paginated_posts.json?title=test", {}, @empty_posts
       mock.get    "/paginated_posts.json?page=2&title=Awesome", {}, @posts
       mock.get    "/paginated_posts.json?subtitle=EvenMore&title=Awesome", {}, @posts
+      mock.get    "/paginated_posts.json?title=notfound", {}, nil, 404
+      mock.get    "/paginated_posts.json?title=internalservererror", {}, nil, 500
       mock.post   "/paginated_posts.json", {}, nil
     end
   end
@@ -110,8 +112,61 @@ class CollectionInheritanceTest < ActiveSupport::TestCase
       { "Accept" => "application/json" }
     )
     posts = PaginatedPost.where(title: "Awesome").where(subtitle: "EvenMore")
+    assert_not posts.requested?
     assert_equal 0, ActiveResource::HttpMock.requests.count { |r| r == expected_request }
+    # Call twice to ensure the request is only made once
     posts.to_a
+    posts.to_a
+    assert_equal 1, ActiveResource::HttpMock.requests.count { |r| r == expected_request }
+    assert posts.requested?
+  end
+
+  def test_where_lazy_chain_with_no_results
+    posts = PaginatedPost.where(title: "notfound")
+    assert_not posts.requested?
+    assert_equal [], posts.to_a
+    assert posts.requested?
+  end
+
+  def test_where_lazy_chain_internal_server_error
+    posts = PaginatedPost.where(title: "internalservererror")
+    assert_not posts.requested?
+    assert_raise ActiveResource::ServerError do
+      posts.to_a
+    end
+    assert posts.requested?
+  end
+
+  def test_refresh
+    expected_request = ActiveResource::Request.new(
+      :get,
+      "/paginated_posts.json?page=2",
+      @posts,
+      { "Accept" => "application/json" }
+    )
+    posts = PaginatedPost.where(page: 2)
+
+    assert_not posts.requested?
+    posts.to_a
+    assert posts.requested?
+    assert_equal 1, ActiveResource::HttpMock.requests.count { |r| r == expected_request }
+    posts.refresh
+    assert_equal 2, ActiveResource::HttpMock.requests.count { |r| r == expected_request }
+    assert posts.requested?
+  end
+
+  def test_call
+    expected_request = ActiveResource::Request.new(
+      :get,
+      "/paginated_posts.json?page=2",
+      @posts,
+      { "Accept" => "application/json" }
+    )
+    posts = PaginatedPost.where(page: 2)
+
+    assert_not posts.requested?
+    assert_kind_of PaginatedCollection, posts.call
+    assert posts.requested?
     assert_equal 1, ActiveResource::HttpMock.requests.count { |r| r == expected_request }
   end
 end

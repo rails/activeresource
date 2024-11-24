@@ -6,9 +6,9 @@ require "active_support/inflector"
 module ActiveResource # :nodoc:
   class Collection # :nodoc:
     include Enumerable
-    delegate :to_yaml, *Array.public_instance_methods(false), to: :fetch_resources!
+    delegate :to_yaml, *Array.public_instance_methods(false), to: :request_resources!
 
-    attr_accessor :elements, :resource_class, :query_params, :path_params
+    attr_accessor :resource_class, :query_params, :path_params
     attr_writer :prefix_options
     attr_reader :from
 
@@ -59,6 +59,7 @@ module ActiveResource # :nodoc:
     def initialize(elements = [], from = nil)
       @from = from
       @elements = elements
+      @requested = false
       # This can get called without a response, so parse only if response is present
       parse_response(@elements) if @elements.present?
     end
@@ -86,14 +87,33 @@ module ActiveResource # :nodoc:
       @prefix_options || {}
     end
 
+    # Refreshes the collection by re-fetching the resources from the API.
+    #
+    # ==== Returns
+    #
+    # [Array<Object>] The collection of resources retrieved from the API.
+    def refresh
+      @requested = false
+      request_resources!
+    end
+
     # Executes the request to fetch the collection of resources from the API and returns the collection.
     #
     # ==== Returns
     #
     # [ActiveResource::Collection] The collection of resources.
     def call
-      fetch_resources!
+      request_resources!
       self
+    end
+
+    # Checks if the collection has been requested.
+    #
+    # ==== Returns
+    #
+    # [Boolean] true if the collection has been requested, false otherwise.
+    def requested?
+      @requested
     end
 
     # Returns the first resource in the collection, or creates a new resource using the provided
@@ -160,13 +180,14 @@ module ActiveResource # :nodoc:
         "?#{options.to_query}" unless options.nil? || options.empty?
       end
 
-      # Fetches resources from the API and parses the response. The resources are then mapped to their respective
+      # Requests resources from the API and parses the response. The resources are then mapped to their respective
       # resource class instances.
       #
       # ==== Returns
       #
       # [Array<Object>] The collection of resources retrieved from the API.
-      def fetch_resources!
+      def request_resources!
+        return @elements if requested?
         response =
           case from
           when Symbol
@@ -186,6 +207,8 @@ module ActiveResource # :nodoc:
         # Swallowing ResourceNotFound exceptions and return nothing - as per ActiveRecord.
         # Needs to be empty array as Array methods are delegated
         []
+      ensure
+        @requested = true
       end
   end
 end
