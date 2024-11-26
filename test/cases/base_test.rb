@@ -1510,6 +1510,42 @@ class BaseTest < ActiveSupport::TestCase
     assert Person.exists?(1)
   end
 
+  def test_serializable_hash
+    Person.schema do
+      attribute :name, :string
+      attribute :likes_hats, :boolean
+    end
+    resource = Person.new(id: 1, name: "Joe", likes_hats: true, non_attribute_field: "foo")
+
+    serializable_hash = resource.serializable_hash
+
+    assert_equal [ "id", "name", "likes_hats", "non_attribute_field" ].sort, serializable_hash.keys.sort
+    assert_equal 1, serializable_hash["id"]
+    assert_equal "Joe", serializable_hash["name"]
+    assert_equal true, serializable_hash["likes_hats"]
+    assert_equal "foo", serializable_hash["non_attribute_field"]
+  ensure
+    Person.schema = nil
+  end
+
+  def test_serializable_hash_with_options
+    Person.schema do
+      attribute :name, :string
+      attribute :likes_hats, :boolean
+    end
+    resource = Person.new(id: 1, name: "Joe", likes_hats: true, non_attribute_field: "foo")
+
+    serializable_hash = resource.serializable_hash(only: [ :id, :name, :non_attribute_field ])
+
+    assert_equal [ "id", "name", "non_attribute_field" ].sort, serializable_hash.keys.sort
+    assert_equal 1, serializable_hash["id"]
+    assert_equal "Joe", serializable_hash["name"]
+    assert_equal "foo", serializable_hash["non_attribute_field"]
+    assert_nil serializable_hash["likes_hats"]
+  ensure
+    Person.schema = nil
+  end
+
   def test_read_attribute_for_serialization
     joe = Person.find(6)
     joe.singleton_class.class_eval do
