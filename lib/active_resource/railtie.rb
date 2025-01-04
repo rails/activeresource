@@ -27,5 +27,9 @@ module ActiveResource
         app.deprecators[:active_resource] = ActiveResource.deprecator
       end
     end
+
+    initializer "active_resource.logger" do
+      ActiveSupport.on_load(:active_resource) { self.logger ||= ::Rails.logger }
+    end
   end
 end
