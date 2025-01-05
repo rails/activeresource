@@ -24,5 +24,7 @@ module ActiveResource
         Formats.remove_root(ActiveSupport::JSON.decode(json))
       end
     end
+
+    JSONFormat = JsonFormat
   end
 end

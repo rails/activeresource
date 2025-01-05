@@ -23,5 +23,7 @@ module ActiveResource
         Formats.remove_root(Hash.from_xml(xml))
       end
     end
+
+    XMLFormat = XmlFormat
   end
 end
