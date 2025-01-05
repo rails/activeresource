@@ -116,9 +116,13 @@ module ActiveResource
     private
       # Makes a request to the remote service.
       def request(method, path, *arguments)
+        body, headers = arguments
+        headers, body = body, nil if headers.nil?
         result = ActiveSupport::Notifications.instrument("request.active_resource") do |payload|
           payload[:method]      = method
           payload[:request_uri] = "#{site.scheme}://#{site.host}:#{site.port}#{path}"
+          payload[:headers]     = headers
+          payload[:body]        = body
           payload[:result]      = http.send(method, path, *arguments)
         end
         handle_response(result)
