@@ -14,6 +14,7 @@ module ActiveResource
 
       around_save :handle_exceptions
       around_destroy :handle_exceptions
+      around_reload :handle_exceptions
     end
 
     private
