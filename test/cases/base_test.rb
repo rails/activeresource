@@ -1471,6 +1471,16 @@ class BaseTest < ActiveSupport::TestCase
     Person.element_name = old_elem_name
   end
 
+  def test_to_json_with_camelcase
+    joe_camel = Camelcase::Person.new(name: "Joe", likes_hats: true)
+    encode = joe_camel.encode
+    json = joe_camel.to_json
+
+    assert_equal encode, json
+    assert_match %r{"name":"Joe"}, json
+    assert_match %r{"likesHats":true}, json
+  end
+
   def test_to_param_quacks_like_active_record
     new_person = Person.new
     assert_nil new_person.to_param

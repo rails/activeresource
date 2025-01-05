@@ -123,6 +123,18 @@ class BaseLoadTest < ActiveSupport::TestCase
     assert_equal @matz.stringify_keys, @person.load(@matz).attributes
   end
 
+  def test_load_simple_camelcase_hash
+    camelcase_person = Camelcase::Person.new(likesHats: true)
+
+    assert_predicate camelcase_person, :likes_hats?
+  end
+
+  def test_load_nested_camelcase_hash
+    camelcase_person = Camelcase::Person.new(address: { streetName: "12345 Street" })
+
+    assert_equal "12345 Street", camelcase_person.address.street_name
+  end
+
   def test_load_object_with_implicit_conversion_to_hash
     assert_equal @matz.stringify_keys, @person.load(FakeParameters.new(@matz)).attributes
   end

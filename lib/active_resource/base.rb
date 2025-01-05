@@ -54,6 +54,48 @@ module ActiveResource
   #     self.proxy = "https://user:password@proxy.people.com:8080"
   #   end
   #
+  # == Attribute Schema
+  #
+  # Active Resource objects respond to attributes returned by +known_attributes+.
+  # Resource instances populate the +known_attributes+ array during calls to +initialize+ and +load,
+  # or when data is fetched from the remote system.
+  #
+  # Instances will not respond to attribute methods until they are loaded.
+  #
+  # Resource classes can define the set of +known_attributes+ by defining a +schema+:
+  #
+  #   class Person < ActiveResource::Base
+  #     schema do
+  #       # define each attribute separately
+  #       attribute :name, :string
+  #       attribute :age, :integer
+  #     end
+  #   end
+  #
+  #   p = Person.new
+  #   p.respond_to? :name   # => true
+  #   p.respond_to? :name=  # => true
+  #   p.respond_to? :age    # => true
+  #   p.respond_to? :age=   # => true
+  #   p.name                # => nil
+  #   p.age                 # => nil
+  #
+  # Attribute-types must be one of: <tt>string, text, integer, float, decimal, datetime, timestamp, time, date, binary, boolean</tt>
+  #
+  # To transform data fetched from the remote system prior to attribute
+  # assignment, override the +load+ method:
+  #
+  #   class Person < ActiveResource::Base
+  #     def load(attributes, remove_root = false, persisted = false)
+  #       attributes = attributes.deep_transform_keys { |key| key.to_s.underscore }
+  #
+  #       super
+  #     end
+  #   end
+  #
+  #   p = Person.new(:firstName => 'Ryan', :lastName => 'Daigle')
+  #   p.first_name # => 'Ryan'
+  #   p.last_name  # => 'Daigle'
   #
   # == Life cycle methods
   #
@@ -1425,7 +1467,23 @@ module ActiveResource
 
     # Returns the serialized string representation of the resource in the configured
     # serialization format specified in ActiveResource::Base.format. The options
-    # applicable depend on the configured encoding format.
+    # applicable depend on the configured encoding format, and are forwarded to
+    # the corresponding serializer method.
+    #
+    # ActiveResource::Formats::XmlFormat will forward options <tt>#to_xml</tt> and
+    # ActiveResource::Formats::JsonFormat will forward options <tt>#to_json</tt>.
+    #
+    # Override the +serializable_hash+ method to customize how the
+    # attribute keys and values are encoded to a JSON or XML string.
+    #
+    #   class Person < ActiveResource::Base
+    #     def serializable_hash(options = {})
+    #       super.deep_transform_keys! { |key| key.camelcase(:lower) }
+    #     end
+    #   end
+    #
+    # A resource that relies on a custom format must respond to a serializer method
+    # that corresponds to the format's +extension+ method.
     def encode(options = {})
       send("to_#{self.class.format.extension}", options)
     end
@@ -1466,6 +1524,23 @@ module ActiveResource
     #   your_supplier = Supplier.new
     #   your_supplier.load(my_attrs)
     #   your_supplier.save
+    #
+    # Override +load+ to transform the attributes prior to loading.
+    #
+    #   class Person < ActiveResource::Base
+    #     def load(attributes, remove_root = false, persisted = false)
+    #       attributes = attributes.deep_transform_keys { |key| key.to_s.underscore }
+    #
+    #       super
+    #     end
+    #   end
+    #
+    #   camelcase_attrs = { :firstName => 'Marty', :favorite_colors => ['red', 'green', 'blue'] }
+    #
+    #   person = Person.new
+    #   person.load(camelcase_attrs)
+    #   person.first_name # => 'Marty'
+    #   person.favorite_colors # => ['red', 'green', 'blue']
     def load(attributes, remove_root = false, persisted = false)
       unless attributes.respond_to?(:to_hash)
         raise ArgumentError, "expected attributes to be able to convert to Hash, got #{attributes.inspect}"
