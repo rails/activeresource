@@ -15,8 +15,8 @@ module ActiveResource
         "application/json"
       end
 
-      def encode(hash, options = nil)
-        ActiveSupport::JSON.encode(hash, options)
+      def encode(resource, options = nil)
+        resource.to_json(options)
       end
 
       def decode(json)
