@@ -10,7 +10,11 @@ module ActiveResource
     #   ActiveResource::Formats[:xml]  # => ActiveResource::Formats::XmlFormat
     #   ActiveResource::Formats[:json] # => ActiveResource::Formats::JsonFormat
     def self.[](mime_type_reference)
-      ActiveResource::Formats.const_get(ActiveSupport::Inflector.camelize(mime_type_reference.to_s) + "Format")
+      case mime_type_reference.to_s
+      when "xml" then XmlFormat
+      when "json" then JsonFormat
+      else ActiveResource::Formats.const_get(ActiveSupport::Inflector.camelize(mime_type_reference.to_s) + "Format")
+      end
     end
 
     def self.remove_root(data)
