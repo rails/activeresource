@@ -101,6 +101,21 @@ class CallbacksTest < ActiveSupport::TestCase
     ], developer.history
   end
 
+  def test_reload
+    developer = Developer.find(1)
+    developer.reload
+    assert_equal [
+      [ :before_reload,               :method ],
+      [ :before_reload,               :proc   ],
+      [ :before_reload,               :object ],
+      [ :before_reload,               :block  ],
+      [ :after_reload,                :method ],
+      [ :after_reload,                :proc   ],
+      [ :after_reload,                :object ],
+      [ :after_reload,                :block  ]
+    ], developer.history
+  end
+
   def test_update
     developer = Developer.find(1)
     developer.save

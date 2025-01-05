@@ -1442,7 +1442,9 @@ module ActiveResource
     #   my_branch.reload
     #   my_branch.name # => "Wilson Road"
     def reload
-      self.load(self.class.find(to_param, params: @prefix_options).attributes, false, true)
+      run_callbacks :reload do
+        self.load(self.class.find(to_param, params: @prefix_options).attributes, false, true)
+      end
     end
 
     # A method to manually load attributes from a \hash. Recursively loads collections of
