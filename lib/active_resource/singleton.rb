@@ -1,8 +1,41 @@
 # frozen_string_literal: true
 
 module ActiveResource
+  # === Custom REST methods
+  #
+  # Since simple CRUD/life cycle methods can't accomplish every task, Singleton Resources can also support
+  # defining custom REST methods. To invoke them, Active Resource provides the <tt>get</tt>,
+  # <tt>post</tt>, <tt>put</tt> and <tt>delete</tt> methods where you can specify a custom REST method
+  # name to invoke.
+  #
+  # Singleton resources use their <tt>singleton_name</tt> value as their default
+  # <tt>collection_name</tt> value when constructing the request's path.
+  #
+  #   # GET to report on the Inventory, i.e. GET /products/1/inventory/report.json.
+  #   Inventory.get(:report, product_id: 1)
+  #   # => [{:count => 'Manager'}, {:name => 'Clerk'}]
+  #
+  #   # DELETE to 'reset' an inventory, i.e. DELETE /products/1/inventory/reset.json.
+  #   Inventory.find(params: { product_id: 1 }).delete(:reset)
+  #
+  # For more information on using custom REST methods, see the
+  # ActiveResource::CustomMethods documentation.
   module Singleton
     extend ActiveSupport::Concern
+
+    module CustomMethods
+      extend ActiveSupport::Concern
+
+      module ClassMethods
+        def collection_name
+          @collection_name || singleton_name
+        end
+      end
+
+      def custom_method_element_url(method_name, options = {})
+        "#{self.class.prefix(prefix_options)}#{self.class.collection_name}/#{method_name}#{self.class.format_extension}#{self.class.__send__(:query_string, options)}"
+      end
+    end
 
     module ClassMethods
       attr_writer :singleton_name
