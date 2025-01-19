@@ -1008,6 +1008,28 @@ class BaseTest < ActiveSupport::TestCase
     assert_not_predicate post, :unknown_attribute?
   end
 
+  def test_assign_attributes_to_known_attributes
+    previous_schema = Person.schema
+    Person.schema = { name: "string" }
+
+    matz = Person.new
+
+    matz.assign_attributes "id" => 1, :name => "Matz"
+
+    assert_equal 1, matz.id
+    assert_equal "Matz", matz.name
+  ensure
+    Person.schema = previous_schema
+  end
+
+  def test_assign_attributes_assigns_to_loaded_attributes
+    matz = Person.new(name: "matz")
+
+    assert_changes -> { matz.name }, from: "matz", to: "Matz" do
+      matz.assign_attributes(name: "Matz")
+    end
+  end
+
   def test_custom_header
     Person.headers["key"] = "value"
     assert_raise(ActiveResource::ResourceNotFound) { Person.find(4) }
