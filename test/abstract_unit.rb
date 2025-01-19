@@ -11,6 +11,7 @@ require "active_resource"
 require "active_support"
 require "active_support/test_case"
 require "setter_trap"
+require "strong_parameters"
 require "active_support/logger"
 require "base64"
 

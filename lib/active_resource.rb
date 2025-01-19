@@ -39,6 +39,7 @@ module ActiveResource
   autoload :Callbacks
   autoload :Connection
   autoload :CustomMethods
+  autoload :ForbiddenAttributesProtection
   autoload :Formats
   autoload :HttpMock
   autoload :Schema

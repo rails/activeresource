@@ -1041,6 +1041,7 @@ module ActiveResource
       end
 
       def where(clauses = {})
+        clauses = sanitize_for_mass_assignment(clauses)
         raise ArgumentError, "expected a clauses Hash, got #{clauses.inspect}" unless clauses.is_a? Hash
         find(:all, params: clauses)
       end
@@ -1471,7 +1472,7 @@ module ActiveResource
         raise ArgumentError, "expected attributes to be able to convert to Hash, got #{attributes.inspect}"
       end
 
-      attributes = attributes.to_hash
+      attributes = sanitize_for_mass_assignment(attributes).to_hash
       @prefix_options, attributes = split_options(attributes)
 
       if attributes.keys.size == 1
@@ -1720,7 +1721,9 @@ module ActiveResource
   class Base
     extend ActiveModel::Naming
     extend ActiveResource::Associations
+    extend ForbiddenAttributesProtection
 
+    include ForbiddenAttributesProtection
     include Callbacks, CustomMethods, Validations
     include ActiveModel::Conversion
     include ActiveModel::Serializers::JSON
