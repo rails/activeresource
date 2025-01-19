@@ -127,6 +127,16 @@ class BaseLoadTest < ActiveSupport::TestCase
     assert_equal @matz.stringify_keys, @person.load(FakeParameters.new(@matz)).attributes
   end
 
+  def test_load_object_with_unpermitted_strong_parameters
+    params = StrongParameters.new(@matz)
+    assert_raises(ActiveModel::ForbiddenAttributesError) { @person.load(params) }
+  end
+
+  def test_load_object_with_permitted_strong_parameters
+    params = StrongParameters.new(@matz).tap(&:permit!)
+    assert_equal @matz.stringify_keys, @person.load(params).attributes
+  end
+
   def test_after_load_attributes_are_accessible
     assert_equal Hash.new, @person.attributes
     assert_equal @matz.stringify_keys, @person.load(@matz).attributes

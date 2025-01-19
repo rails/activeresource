@@ -63,6 +63,18 @@ class FinderTest < ActiveSupport::TestCase
     assert_kind_of StreetAddress, addresses.first
   end
 
+  def test_where_clause_with_unpermitted_params
+    params = StrongParameters.new(person_id: "1")
+    assert_raises(ActiveModel::ForbiddenAttributesError) { StreetAddress.where(params) }
+  end
+
+  def test_where_clause_with_permitted_params
+    params = StrongParameters.new(person_id: "1").tap(&:permit!)
+    addresses = StreetAddress.where(params)
+    assert_equal 1, addresses.size
+    assert_kind_of StreetAddress, addresses.first
+  end
+
   def test_where_with_clause_in
     ActiveResource::HttpMock.respond_to { |m| m.get "/people.json?id%5B%5D=2", {}, @people_david }
     people = Person.where(id: [ 2 ])
