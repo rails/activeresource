@@ -3,7 +3,95 @@
 require "abstract_unit"
 require "fixtures/person"
 
+require "active_record"
+
+ENV["DATABASE_URL"] = "sqlite3::memory:"
+
+ActiveRecord::Base.establish_connection
+
+ActiveRecord::Schema.define do
+  create_table :users, force: true do |t|
+    t.text :person_text
+    t.json :person_json
+
+    t.check_constraint <<~SQL, name: "person_json_is_object"
+      JSON_TYPE(person_json) = 'object'
+    SQL
+  end
+
+  create_table :teams, force: true do |t|
+    t.text :people_text
+    t.text :paginated_people_text
+    t.json :people_json
+    t.json :paginated_people_json
+
+    t.check_constraint <<~SQL, name: "people_json_is_object"
+      JSON_TYPE(people_json) = 'array'
+    SQL
+    t.check_constraint <<~SQL, name: "paginated_people_json_is_object"
+      JSON_TYPE(paginated_people_json) = 'object'
+    SQL
+  end
+end
+
+class User < ActiveRecord::Base
+  if ActiveSupport::VERSION::MAJOR < 8 && ActiveSupport::VERSION::MINOR < 1
+    serialize :person_text, Person
+    serialize :person_json, ActiveResource::Coder.new(Person, :serializable_hash)
+  else
+    serialize :person_text, coder: Person
+    serialize :person_json, coder: ActiveResource::Coder.new(Person, :serializable_hash)
+  end
+end
+
 class SerializationTest < ActiveSupport::TestCase
+  include ActiveRecord::TestFixtures
+
+  test "dumps to a text column" do
+    resource = Person.new({ id: 1, name: "Matz" }, true)
+
+    User.create!(person_text: resource)
+
+    user = User.sole
+    assert_equal resource.to_json, user.person_text_before_type_cast
+  end
+
+  test "dumps to a json column" do
+    resource = Person.new({ id: 1, name: "Matz" }, true)
+
+    User.create!(person_json: resource)
+
+    user = User.sole
+    assert_equal resource.serializable_hash.to_json, user.person_json_before_type_cast
+  end
+
+  test "loads from a text column" do
+    resource = Person.new(id: 1, name: "Matz")
+
+    User.connection.execute(<<~SQL)
+      INSERT INTO users(person_text)
+      VALUES ('#{resource.encode}')
+    SQL
+
+    user = User.sole
+    assert_predicate user.person_text, :persisted?
+    assert_equal resource, user.person_text
+    assert_equal resource.attributes, user.person_text.attributes
+  end
+
+  test "loads from a json column" do
+    resource = Person.new(id: 1, name: "Matz")
+
+    User.connection.execute(<<~SQL)
+      INSERT INTO users(person_json)
+      VALUES ('#{resource.encode}')
+    SQL
+
+    user = User.sole
+    assert_predicate user.person_json, :persisted?
+    assert_equal resource, user.person_json
+    assert_equal resource.attributes, user.person_json.attributes
+  end
   test ".load delegates to the .coder" do
     resource = Person.new(id: 1, name: "Matz")
 
