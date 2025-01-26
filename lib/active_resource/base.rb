@@ -328,6 +328,7 @@ module ActiveResource
     end
 
     class_attribute :_format
+    class_attribute :_casing
     class_attribute :_collection_parser
     class_attribute :include_format_in_path
     self.include_format_in_path = true
@@ -590,6 +591,55 @@ module ActiveResource
       # Returns the current format, default is ActiveResource::Formats::JsonFormat.
       def format
         self._format || ActiveResource::Formats::JsonFormat
+      end
+
+      # Set the <tt>casing</tt> configuration to control how resource classes
+      # handle API responses with cases that differ from Ruby's camel_case
+      # idioms
+      def casing=(value)
+        self._casing = value.is_a?(Symbol) ? Casings[value].new : value
+      end
+
+      # The <tt>casing</tt> configuration controls how resource classes handle API
+      # responses with cases that differ from Ruby's camel_case idioms.
+      #
+      # For example, setting <tt>casing = :camelcase</tt> will configure the
+      # resource to transform inbound camelCase JSON to under_score when loading
+      # API data:
+      #
+      #   person = Person.load id: 1, firstName: "Matz"
+      #   person.first_name # => "Matz"
+      #
+      # Similarly, the casing configures the resource to transform outbound
+      # attributes from the intermediate under_score idiomatic Ruby names to
+      # the original camelCase names:
+      #
+      #   person.first_name # => "Matz"
+      #   person.encode     # => "{\"id\":1, \"firstName\":\"Matz\"}"
+      #
+      # By default, resources are configured with <tt>casing = :none</tt>, which
+      # does not transform keys. In addition to <tt>:none</tt> and
+      # <tt>:camelcase</tt>, the <tt>:underscore</tt> configuration ensures
+      # idiomatic Ruby names throughout.
+      #
+      # When left unconfigured, <tt>casing = :camelcase</tt> will transform keys
+      # with a lower case first letter. To transform with upper case letters,
+      # construct an instance of ActiveResource::Casings::CamelcaseCasing:
+      #
+      #   Person.casing = ActiveResource::Casings::CamelcaseCasing.new(:upper)
+      #
+      #   person = Person.load Id: 1, FirstName: "Matz"
+      #   person.first_name # => "Matz"
+      #   person.encode     # => "{\"Id\":1,\"FirstName\":\"Matz\"}"
+      #
+      # Casing transformations are also applied to query parameters built from
+      # <tt>.where</tt> clauses:
+      #
+      #   Person.casing = :camelcase
+      #
+      #   Person.where first_name: "Matz" # => GET /people.json?firstName=Matz
+      def casing
+        self._casing || Casings[:none].new
       end
 
       # Sets the parser to use when a collection is returned.  The parser must be Enumerable.
@@ -1108,6 +1158,8 @@ module ActiveResource
               format.decode(connection.get(path, headers).body)
             end
 
+          response = response.deep_transform_keys! { |key| casing.decode(key) } if response.is_a?(Hash)
+
           instantiate_collection(response || [], query_options, prefix_options)
         rescue ActiveResource::ResourceNotFound
           # Swallowing ResourceNotFound exceptions and return nil - as per
@@ -1164,7 +1216,7 @@ module ActiveResource
 
         # Builds the query string for the request.
         def query_string(options)
-          "?#{options.to_query}" unless options.nil? || options.empty?
+          "?#{options.deep_transform_keys { |key| casing.encode(key) }.to_query}" unless options.nil? || options.empty?
         end
 
         # split an option hash into two hashes, one containing the prefix options,
@@ -1471,7 +1523,7 @@ module ActiveResource
         raise ArgumentError, "expected attributes to be able to convert to Hash, got #{attributes.inspect}"
       end
 
-      attributes = attributes.to_hash
+      attributes = attributes.to_hash.deep_transform_keys! { |key| self.class.casing.decode(key) }
       @prefix_options, attributes = split_options(attributes)
 
       if attributes.keys.size == 1
@@ -1555,11 +1607,15 @@ module ActiveResource
     end
 
     def to_json(options = {})
-      super(include_root_in_json ? { root: self.class.element_name }.merge(options) : options)
+      super(include_root_in_json ? { root: self.class.casing.encode(self.class.element_name) }.merge(options) : options)
     end
 
     def to_xml(options = {})
       super({ root: self.class.element_name }.merge(options))
+    end
+
+    def serializable_hash(options = nil)
+      super.deep_transform_keys! { |key| self.class.casing.encode(key) }
     end
 
     def read_attribute_for_serialization(n)

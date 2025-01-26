@@ -63,6 +63,26 @@ class FinderTest < ActiveSupport::TestCase
     assert_kind_of StreetAddress, addresses.first
   end
 
+  def test_where_with_clauses_and_camelcase_casing
+    Person.casing = :camelcase
+    ActiveResource::HttpMock.respond_to { |m| m.get "/people.json?firstName=david", {}, @people_david }
+    people = Person.where(first_name: "david")
+    assert_equal 1, people.size
+    assert_kind_of Person, people.first
+  ensure
+    Person.casing = nil
+  end
+
+  def test_where_with_clauses_and_underscore_casing
+    Person.casing = :underscore
+    ActiveResource::HttpMock.respond_to { |m| m.get "/people.json?first_name=david", {}, @people_david }
+    people = Person.where(first_name: "david")
+    assert_equal 1, people.size
+    assert_kind_of Person, people.first
+  ensure
+    Person.casing = nil
+  end
+
   def test_where_with_clause_in
     ActiveResource::HttpMock.respond_to { |m| m.get "/people.json?id%5B%5D=2", {}, @people_david }
     people = Person.where(id: [2])

@@ -51,6 +51,7 @@ class BaseLoadTest < ActiveSupport::TestCase
     @first_address = { address: { id: 1, street: "12345 Street" } }
     @addresses = [@first_address, { address: { id: 2, street: "67890 Street" } }]
     @addresses_from_json = { street_addresses: @addresses }
+    @addresses_from_camelcase_json = { streetAddresses: @addresses }
     @addresses_from_json_single = { street_addresses: [ @first_address ] }
 
     @deep  = { id: 1, street: {
@@ -123,6 +124,30 @@ class BaseLoadTest < ActiveSupport::TestCase
     assert_equal @matz.stringify_keys, @person.load(@matz).attributes
   end
 
+  def test_load_simple_camelcase_hash
+    Person.casing = :camelcase
+    encoded = { firstName: "Matz" }
+    decoded = { first_name: "Matz" }
+
+    assert_equal Hash.new, @person.attributes
+    assert_equal decoded.stringify_keys, @person.load(encoded).attributes
+    assert_equal decoded.stringify_keys, @person.load(decoded).attributes
+  ensure
+    Person.casing = nil
+  end
+
+  def test_load_simple_underscore_hash
+    Person.casing = :underscore
+    encoded = { firstName: "Matz" }
+    decoded = { first_name: "Matz" }
+
+    assert_equal Hash.new, @person.attributes
+    assert_equal decoded.stringify_keys, @person.load(encoded).attributes
+    assert_equal decoded.stringify_keys, @person.load(decoded).attributes
+  ensure
+    Person.casing = nil
+  end
+
   def test_load_object_with_implicit_conversion_to_hash
     assert_equal @matz.stringify_keys, @person.load(FakeParameters.new(@matz)).attributes
   end
@@ -163,6 +188,26 @@ class BaseLoadTest < ActiveSupport::TestCase
     assert_kind_of Array, addresses
     addresses.each { |address| assert_kind_of StreetAddress, address }
     assert_equal @addresses.map { |a| a[:address].stringify_keys }, addresses.map(&:attributes)
+  end
+
+  def test_load_underscore_collection_with_existing_resource
+    Person.casing = :underscore
+    addresses = @person.load(@addresses_from_json).street_addresses
+    assert_kind_of Array, addresses
+    addresses.each { |address| assert_kind_of StreetAddress, address }
+    assert_equal @addresses.map { |a| a[:address].stringify_keys }, addresses.map(&:attributes)
+  ensure
+    Person.casing = nil
+  end
+
+  def test_load_camelcase_collection_with_existing_resource
+    Person.casing = :camelcase
+    addresses = @person.load(@addresses_from_camelcase_json).street_addresses
+    assert_kind_of Array, addresses
+    addresses.each { |address| assert_kind_of StreetAddress, address }
+    assert_equal @addresses.map { |a| a[:address].stringify_keys }, addresses.map(&:attributes)
+  ensure
+    Person.casing = nil
   end
 
   def test_load_collection_with_unknown_resource

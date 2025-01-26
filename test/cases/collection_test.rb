@@ -105,6 +105,23 @@ class CollectionInheritanceTest < ActiveSupport::TestCase
     assert_equal PaginatedPost.find(:all).next_page, @posts_hash[:next_page]
   end
 
+  def test_with_camelcase
+    PaginatedPost.casing = :camelcase
+    posts_hash = { "results" => [@post], "nextPage" => "/paginated_posts.json?page=2" }
+    ActiveResource::HttpMock.respond_to.get "/paginated_posts.json", {}, posts_hash.to_json
+
+    assert_equal PaginatedPost.find(:all).next_page, posts_hash["nextPage"]
+  ensure
+    PaginatedPost.casing = nil
+  end
+
+  def test_with_underscore
+    PaginatedPost.casing = :underscore
+    assert_equal PaginatedPost.find(:all).next_page, @posts_hash[:next_page]
+  ensure
+    PaginatedPost.casing = nil
+  end
+
   def test_first_or_create
     post = PaginatedPost.where(title: "test").first_or_create
     assert post.valid?
