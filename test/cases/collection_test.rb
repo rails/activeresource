@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "abstract_unit"
+require "fixtures/paginated_collection"
 
 class CollectionTest < ActiveSupport::TestCase
   def setup
@@ -48,14 +49,6 @@ class BasicCollectionTest < CollectionTest
 
   def respond_to_where
     assert @collection.respond_to?(:where)
-  end
-end
-
-class PaginatedCollection < ActiveResource::Collection
-  attr_accessor :next_page
-  def initialize(parsed = {})
-    @elements = parsed["results"]
-    @next_page = parsed["next_page"]
   end
 end
 

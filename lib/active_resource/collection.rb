@@ -10,7 +10,7 @@ module ActiveResource # :nodoc:
     delegate :to_yaml, :all?, *(Array.instance_methods(false) - SELF_DEFINE_METHODS), to: :to_a
 
     # The array of actual elements returned by index actions
-    attr_accessor :elements, :resource_class, :original_params
+    attr_accessor :elements, :resource_class, :original_params, :original_parsed
 
     # ActiveResource::Collection is a wrapper to handle parsing index responses that
     # do not directly map to Rails conventions.
@@ -89,6 +89,10 @@ module ActiveResource # :nodoc:
       raise ArgumentError, "expected a clauses Hash, got #{clauses.inspect}" unless clauses.is_a? Hash
       new_clauses = original_params.merge(clauses)
       resource_class.where(new_clauses)
+    end
+
+    def encode
+      resource_class.format.encode(original_parsed)
     end
   end
 end
