@@ -100,7 +100,7 @@ class SerializationTest < ActiveSupport::TestCase
   test "#load decodes a Hash into an instance" do
     resource = Person.new(id: 1, name: "Matz")
 
-    decoded = Person.coder.load(resource.serializable_hash)
+    decoded = Person.coder.load(JSON.parse(resource.encode))
 
     assert_equal resource.id, decoded.id
     assert_equal resource.name, decoded.name
@@ -110,21 +110,25 @@ class SerializationTest < ActiveSupport::TestCase
   test "#load builds the instance as persisted when the default primary key is present" do
     resource = Person.new(id: 1, name: "Matz")
 
-    decoded = Person.coder.load(resource.encode)
+    [ resource.encode, JSON.parse(resource.encode) ].each do |encoded|
+      decoded = Person.coder.load(encoded)
 
-    assert_predicate decoded, :persisted?
-    assert_not_predicate decoded, :new_record?
+      assert_predicate decoded, :persisted?
+      assert_not_predicate decoded, :new_record?
+    end
   end
 
   test "#load builds the instance as persisted when the configured primary key is present" do
     previous_value, Person.primary_key = Person.primary_key, "pk"
     resource = Person.new(pk: 1, name: "Matz")
 
-    decoded = Person.coder.load(resource.encode)
+    [ resource.encode, JSON.parse(resource.encode) ].each do |encoded|
+      decoded = Person.coder.load(encoded)
 
-    assert_equal 1, decoded.id
-    assert_predicate decoded, :persisted?
-    assert_not_predicate decoded, :new_record?
+      assert_equal 1, decoded.id
+      assert_predicate decoded, :persisted?
+      assert_not_predicate decoded, :new_record?
+    end
   ensure
     Person.primary_key = previous_value
   end
@@ -132,23 +136,26 @@ class SerializationTest < ActiveSupport::TestCase
   test "#load builds the instance as a new record when the default primary key is absent" do
     resource = Person.new(name: "Matz")
 
-    decoded = Person.coder.load(resource.encode)
+    [ resource.encode, JSON.parse(resource.encode) ].each do |encoded|
+      decoded = Person.coder.load(encoded)
 
-    assert_nil decoded.id
-    assert_not_predicate decoded, :persisted?
-    assert_predicate decoded, :new_record?
+      assert_nil decoded.id
+      assert_not_predicate decoded, :persisted?
+      assert_predicate decoded, :new_record?
+    end
   end
 
   test "#load builds the instance as a new record when the configured primary key is absent" do
     previous_value, Person.primary_key = Person.primary_key, "pk"
-
     resource = Person.new(name: "Matz")
 
-    decoded = Person.coder.load(resource.encode)
+    [ resource.encode, JSON.parse(resource.encode) ].each do |encoded|
+      decoded = Person.coder.load(encoded)
 
-    assert_nil decoded.id
-    assert_not_predicate decoded, :persisted?
-    assert_predicate decoded, :new_record?
+      assert_nil decoded.id
+      assert_not_predicate decoded, :persisted?
+      assert_predicate decoded, :new_record?
+    end
   ensure
     Person.primary_key = previous_value
   end
@@ -161,6 +168,14 @@ class SerializationTest < ActiveSupport::TestCase
     assert_equal resource, Person.coder.load(string_value)
     assert_equal resource, Person.coder.load(hash_value)
     assert_raises(ArgumentError, match: "expected value to be Hash, but was Integer") { Person.coder.load(1) }
+  end
+
+  test "#load does not remove a non-root key from a single-key Hash" do
+    payload = { "friends" => [ { "id" => 1 } ] }
+
+    decoded = Person.coder.load(payload)
+
+    assert_equal [ 1 ], decoded.friends.map(&:id)
   end
 
   test "#dump encodes resources" do
