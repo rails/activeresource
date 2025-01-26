@@ -1393,6 +1393,21 @@ class BaseTest < ActiveSupport::TestCase
     Person.format = :json
   end
 
+  def test_to_xml_with_camelcase_casing
+    Person.format = :xml
+    Person.casing = :camelcase
+    matz = Person.new id: 1, firstName: "Matz"
+    encode = matz.encode
+    xml = matz.to_xml
+
+    assert_equal encode, xml
+    assert xml.include?('<?xml version="1.0" encoding="UTF-8"?>')
+    assert xml.include?("<firstName>Matz</firstName>")
+    assert xml.include?('<id type="integer">1</id>')
+  ensure
+    Person.format = Person.casing = nil
+  end
+
   def test_to_xml_with_element_name
     Person.format = :xml
     old_elem_name = Person.element_name
@@ -1439,6 +1454,51 @@ class BaseTest < ActiveSupport::TestCase
     assert_match %r{"id":6}, json
     assert_match %r{"name":"Joe"}, json
     assert_match %r{\}\}$}, json
+  end
+
+  def test_to_json_with_camelcase_casing
+    Person.casing = :camelcase
+    joe = Person.new id: 6, firstName: "Joe"
+    encode = joe.encode
+    json = joe.to_json
+
+    assert_equal encode, json
+    assert_match %r{^\{"person":\{}, json
+    assert_match %r{"id":6}, json
+    assert_match %r{"firstName":"Joe"}, json
+    assert_match %r{\}\}$}, json
+  ensure
+    Person.casing = nil
+  end
+
+  def test_to_json_with_upper_camelcase_casing
+    Person.casing = ActiveResource::Casings::CamelcaseCasing.new(:upper)
+    joe = Person.new id: 6, FirstName: "Joe"
+    encode = joe.encode
+    json = joe.to_json
+
+    assert_equal encode, json
+    assert_match %r{^\{"Person":\{}, json
+    assert_match %r{"Id":6}, json
+    assert_match %r{"FirstName":"Joe"}, json
+    assert_match %r{\}\}$}, json
+  ensure
+    Person.casing = nil
+  end
+
+  def test_to_json_with_underscore_casing
+    Person.casing = :underscore
+    joe = Person.new id: 6, first_name: "Joe"
+    encode = joe.encode
+    json = joe.to_json
+
+    assert_equal encode, json
+    assert_match %r{^\{"person":\{}, json
+    assert_match %r{"id":6}, json
+    assert_match %r{"first_name":"Joe"}, json
+    assert_match %r{\}\}$}, json
+  ensure
+    Person.casing = nil
   end
 
   def test_to_json_without_root

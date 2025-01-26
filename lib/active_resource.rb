@@ -37,6 +37,7 @@ module ActiveResource
 
   autoload :Base
   autoload :Callbacks
+  autoload :Casings
   autoload :Connection
   autoload :CustomMethods
   autoload :Formats
