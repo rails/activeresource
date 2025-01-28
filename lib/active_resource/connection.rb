@@ -19,6 +19,14 @@ module ActiveResource
       delete: "Accept",
       head: "Accept"
     }
+    HTTP_METHODS = {
+      get: Net::HTTP::Get,
+      put: Net::HTTP::Put,
+      post: Net::HTTP::Post,
+      patch: Net::HTTP::Patch,
+      delete: Net::HTTP::Delete,
+      head: Net::HTTP::Head
+    }.freeze # :nodoc:
 
     attr_reader :site, :user, :password, :bearer_token, :auth_type, :timeout, :open_timeout, :read_timeout, :proxy, :ssl_options
     attr_accessor :format, :logger
@@ -81,37 +89,37 @@ module ActiveResource
     # Executes a GET request.
     # Used to get (find) resources.
     def get(path, headers = {})
-      with_auth { request(:get, path, build_request_headers(headers, :get, self.site.merge(path))) }
+      with_auth { request(:get, path, headers) }
     end
 
     # Executes a DELETE request (see HTTP protocol documentation if unfamiliar).
     # Used to delete resources.
     def delete(path, headers = {})
-      with_auth { request(:delete, path, build_request_headers(headers, :delete, self.site.merge(path))) }
+      with_auth { request(:delete, path, headers) }
     end
 
     # Executes a PATCH request (see HTTP protocol documentation if unfamiliar).
     # Used to update resources.
     def patch(path, body = "", headers = {})
-      with_auth { request(:patch, path, body.to_s, build_request_headers(headers, :patch, self.site.merge(path))) }
+      with_auth { request(:patch, path, body.to_s, headers) }
     end
 
     # Executes a PUT request (see HTTP protocol documentation if unfamiliar).
     # Used to update resources.
     def put(path, body = "", headers = {})
-      with_auth { request(:put, path, body.to_s, build_request_headers(headers, :put, self.site.merge(path))) }
+      with_auth { request(:put, path, body.to_s, headers) }
     end
 
     # Executes a POST request.
     # Used to create new resources.
     def post(path, body = "", headers = {})
-      with_auth { request(:post, path, body.to_s, build_request_headers(headers, :post, self.site.merge(path))) }
+      with_auth { request(:post, path, body.to_s, headers) }
     end
 
     # Executes a HEAD request.
     # Used to obtain meta-information about resources, such as whether they exist and their size (via response headers).
     def head(path, headers = {})
-      with_auth { request(:head, path, build_request_headers(headers, :head, self.site.merge(path))) }
+      with_auth { request(:head, path, headers) }
     end
 
     private
@@ -119,12 +127,14 @@ module ActiveResource
       def request(method, path, *arguments)
         body, headers = arguments
         headers, body = body, nil if headers.nil?
+        request       = build_request(method, path, headers)
+        request.body  = body
         result = ActiveSupport::Notifications.instrument("request.active_resource") do |payload|
           payload[:method]      = method
-          payload[:request_uri] = "#{site.scheme}://#{site.host}:#{site.port}#{path}"
-          payload[:headers]     = headers
+          payload[:request_uri] = request.uri.to_s
+          payload[:headers]     = request.each_capitalized.to_h
           payload[:body]        = body
-          payload[:result]      = http.send(method, path, *arguments)
+          payload[:result]      = http.request(request)
         end
         handle_response(result)
       rescue Timeout::Error => e
@@ -217,6 +227,15 @@ module ActiveResource
 
       def default_header
         @default_header ||= {}
+      end
+
+      def build_request(http_method, path, headers)
+        HTTP_METHODS[http_method].new(site.merge(path)).tap do |request|
+          headers = build_request_headers(headers, http_method, request.uri)
+
+          request.each_name { |name| request.delete(name) }
+          headers.each_pair { |name, value| request[name] = value }
+        end
       end
 
       # Builds headers for request to remote service.

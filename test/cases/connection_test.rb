@@ -242,7 +242,7 @@ class ConnectionTest < ActiveSupport::TestCase
   def test_timeout
     @http = mock("new Net::HTTP")
     @conn.expects(:http).returns(@http)
-    @http.expects(:get).raises(Timeout::Error, "execution expired")
+    @http.expects(:request).raises(Timeout::Error, "execution expired")
     assert_raise(ActiveResource::TimeoutError) { @conn.get("/people_timeout.json") }
   end
 
@@ -261,7 +261,7 @@ class ConnectionTest < ActiveSupport::TestCase
     @http = mock("new Net::HTTP")
     @conn.expects(:http).returns(@http)
     path = "/people/1.xml"
-    @http.expects(:get).with(path, { "Accept" => "application/xhtml+xml" }).returns(ActiveResource::Response.new(@matz, 200, "Content-Type" => "text/xhtml"))
+    @http.expects(:request).with { |get| get.path == path && get["Accept"] == "application/xhtml+xml" }.returns(ActiveResource::Response.new(@matz, 200, "Content-Type" => "text/xhtml"))
     assert_nothing_raised { @conn.get(path, "Accept" => "application/xhtml+xml") }
   end
 
@@ -284,21 +284,21 @@ class ConnectionTest < ActiveSupport::TestCase
   def test_ssl_error
     http = Net::HTTP.new("")
     @conn.expects(:http).returns(http)
-    http.expects(:get).raises(OpenSSL::SSL::SSLError, "Expired certificate")
+    http.expects(:request).raises(OpenSSL::SSL::SSLError, "Expired certificate")
     assert_raise(ActiveResource::SSLError) { @conn.get("/people/1.json") }
   end
 
   def test_handle_econnrefused
     http = Net::HTTP.new("")
     @conn.expects(:http).returns(http)
-    http.expects(:get).raises(Errno::ECONNREFUSED, "Failed to open TCP connection")
+    http.expects(:request).raises(Errno::ECONNREFUSED, "Failed to open TCP connection")
     assert_raise(ActiveResource::ConnectionRefusedError) { @conn.get("/people/1.json") }
   end
 
   def test_handle_econnrefused_with_backwards_compatible_error
     http = Net::HTTP.new("")
     @conn.expects(:http).returns(http)
-    http.expects(:get).raises(Errno::ECONNREFUSED, "Failed to open TCP connection")
+    http.expects(:request).raises(Errno::ECONNREFUSED, "Failed to open TCP connection")
     assert_raise(Errno::ECONNREFUSED) { @conn.get("/people/1.json") }
   end
 

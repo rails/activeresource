@@ -75,6 +75,8 @@ module ActiveResource
   #
   # When a block is passed to the mock, it ignores the +body+, +status+, and +response_headers+ arguments.
   class HttpMock
+    HTTP_METHODS = Connection::HTTP_METHODS.invert.freeze # :nodoc:
+
     class Responder # :nodoc:
       def initialize(responses)
         @responses = responses
@@ -270,30 +272,35 @@ module ActiveResource
       methods.each do |method|
         # def post(path, body, headers, options = {})
         #   request = ActiveResource::Request.new(:post, path, body, headers, options)
-        #   self.class.requests << request
-        #   if response = self.class.responses.assoc(request)
-        #     response = response[1]
-        #     response = response.call(request) if response.respond_to?(:call)
         #
-        #     Response.wrap(response)
-        #   else
-        #     raise InvalidRequestError.new("Could not find a response recorded for #{request.to_s} - Responses recorded are: - #{inspect_responses}")
-        #   end
+        #   process(request)
         # end
         module_eval <<-EOE, __FILE__, __LINE__ + 1
           def #{method}(path, #{'body, ' if has_body}headers, options = {})
             request = ActiveResource::Request.new(:#{method}, path, #{has_body ? 'body, ' : 'nil, '}headers, options)
-            self.class.requests << request
-            if response = self.class.responses.assoc(request)
-              response = response[1]
-              response = response.call(request) if response.respond_to?(:call)
 
-              Response.wrap(response)
-            else
-              raise InvalidRequestError.new("Could not find a response recorded for \#{request.to_s} - Responses recorded are: \#{inspect_responses}")
-            end
+            process(request)
           end
         EOE
+      end
+    end
+
+    def request(http) # :nodoc:
+      request = Request.new(HTTP_METHODS[http.class], http.path, nil, http.each_capitalized.to_h)
+      request.body = http.body if http.request_body_permitted?
+
+      process(request)
+    end
+
+    def process(request) # :nodoc:
+      self.class.requests << request
+      if response = self.class.responses.assoc(request)
+        response = response[1]
+        response = response.call(request) if response.respond_to?(:call)
+
+        Response.wrap(response)
+      else
+        raise InvalidRequestError.new("Could not find a response recorded for #{request} - Responses recorded are: #{inspect_responses}")
       end
     end
 
@@ -310,7 +317,7 @@ module ActiveResource
     attr_accessor :path, :method, :body, :headers
 
     def initialize(method, path, body = nil, headers = {}, options = {})
-      @method, @path, @body, @headers, @options = method, path, body, headers, options
+      @method, @path, @body, @headers, @options = method, path, body, headers.transform_keys(&:downcase), options
     end
 
     def ==(req)
@@ -339,7 +346,7 @@ module ActiveResource
 
       def headers_match?(req)
         # Ignore format header on equality if it's not defined
-        format_header = ActiveResource::Connection::HTTP_FORMAT_HEADER_NAMES[method]
+        format_header = ActiveResource::Connection::HTTP_FORMAT_HEADER_NAMES[method].downcase
         if headers[format_header].present? || req.headers[format_header].blank?
           headers == req.headers
         else
