@@ -10,6 +10,30 @@ class HttpMockTest < ActiveSupport::TestCase
 
   FORMAT_HEADER = ActiveResource::Connection::HTTP_FORMAT_HEADER_NAMES
 
+  test "Response.wrap returns the same Response instance" do
+    response = ActiveResource::Response.new("hello")
+
+    assert_same response, ActiveResource::Response.wrap(response)
+  end
+
+  test "Response.wrap returns a Response instance from a String" do
+    response = ActiveResource::Response.wrap("hello")
+
+    assert_equal 200, response.code
+    assert_equal "hello", response.body
+    assert_equal "hello".size, response["Content-Length"].to_i
+  end
+
+  test "Response.wrap returns a Response instance from other values" do
+    [ nil, Object.new ].each do |value|
+      response = ActiveResource::Response.wrap(value)
+
+      assert_equal 200, response.code
+      assert_nil response.body
+      assert_equal 0, response["Content-Length"].to_i
+    end
+  end
+
   [ :post, :patch, :put, :get, :delete, :head ].each do |method|
     test "responds to simple #{method} request" do
       ActiveResource::HttpMock.respond_to do |mock|
@@ -71,6 +95,38 @@ class HttpMockTest < ActiveSupport::TestCase
       assert_raise(::ActiveResource::InvalidRequestError) do
         request(method, "/people/1", FORMAT_HEADER[method] => "application/xml")
       end
+    end
+
+    test "responds to #{method} request with a block that returns a String" do
+      ActiveResource::HttpMock.respond_to do |mock|
+        mock.send(method, "/people/1", { FORMAT_HEADER[method] => "application/json" }) do
+          "Response"
+        end
+      end
+
+      assert_equal "Response", request(method, "/people/1", { FORMAT_HEADER[method] => "application/json" }, "Request").body
+    end
+
+    test "responds to #{method} request with a block that returns an ActiveResource::Response" do
+      ActiveResource::HttpMock.respond_to do |mock|
+        mock.send(method, "/people/1", { FORMAT_HEADER[method] => "application/json" }) do
+          ActiveResource::Response.new("Response")
+        end
+      end
+
+      assert_equal "Response", request(method, "/people/1", { FORMAT_HEADER[method] => "application/json" }, "Request").body
+    end
+
+    test "yields request to the #{method} mock block" do
+      ActiveResource::HttpMock.respond_to do |mock|
+        mock.send(method, "/people/1") do |request|
+          assert_kind_of ActiveResource::Request, request
+
+          ActiveResource::Response.new("Response")
+        end
+      end
+
+      assert_equal "Response", request(method, "/people/1").body
     end
   end
 
@@ -152,6 +208,27 @@ class HttpMockTest < ActiveSupport::TestCase
       mock.send(:get, "/people/1", {}, "JSON2")
     end
     assert_equal 1, ActiveResource::HttpMock.responses.length
+  end
+
+  test "can ignore query params when yielding get request to the block" do
+    ActiveResource::HttpMock.respond_to do |mock|
+      mock.get "/people/1", {}, omit_query_in_path: true do |request|
+        assert_kind_of ActiveResource::Request, request
+
+        ActiveResource::Response.new(request.path)
+      end
+    end
+
+    assert_equal "/people/1?key=value", request(:get, "/people/1?key=value").body
+  end
+
+  test "can map a request to a block" do
+    request = ActiveResource::Request.new(:get, "/people/1", nil, {}, omit_query_in_path: true)
+    response = ->(req) { ActiveResource::Response.new(req.path) }
+
+    ActiveResource::HttpMock.respond_to(request => response)
+
+    assert_equal "/people/1?key=value", request(:get, "/people/1?key=value").body
   end
 
   test "allows you to replace the existing response with the same request by passing pairs" do

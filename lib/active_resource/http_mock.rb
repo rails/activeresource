@@ -51,6 +51,29 @@ module ActiveResource
   #     assert_equal "Matz", person.name
   #   end
   #
+  # Each method can also accept a block. The mock will yield an
+  # ActiveResource::Request instance to the block it handles a matching request.
+  #
+  #   def setup
+  #     @matz = { person: { id: 1, name: "Matz" } }
+  #
+  #     ActiveResource::HttpMock.respond_to do |mock|
+  #       mock.get "/people.json", omit_query_params: true do |request|
+  #         if request.path.split("?").includes?("name=Matz")
+  #           { people: [ @matz ] }.to_json
+  #         else
+  #           { people: [] }.to_json
+  #         end
+  #       end
+  #     end
+  #   end
+  #
+  #   def test_get_matz
+  #     people = Person.where(name: "Matz")
+  #     assert_equal [ "Matz" ], people.map(&:name)
+  #   end
+  #
+  # When a block is passed to the mock, it ignores the +body+, +status+, and +response_headers+ arguments.
   class HttpMock
     class Responder # :nodoc:
       def initialize(responses)
@@ -62,9 +85,10 @@ module ActiveResource
         #   @responses[Request.new(:post, path, nil, request_headers, options)] = Response.new(body || "", status, response_headers)
         # end
         module_eval <<-EOE, __FILE__, __LINE__ + 1
-          def #{method}(path, request_headers = {}, body = nil, status = 200, response_headers = {}, options = {})
+          def #{method}(path, request_headers = {}, body = nil, status = 200, response_headers = {}, options = {}, &response)
+            options  = body if response
             request  = Request.new(:#{method}, path, nil, request_headers, options)
-            response = Response.new(body || "", status, response_headers)
+            response = Response.new(body || "", status, response_headers) unless response
 
             delete_duplicate_responses(request)
 
@@ -154,12 +178,12 @@ module ActiveResource
       # === Example
       #
       #   ActiveResource::HttpMock.respond_to do |mock|
-      #     mock.send(:get, "/people/1", {}, "JSON1")
+      #     mock.get("/people/1", {}, "JSON1")
       #   end
       #   ActiveResource::HttpMock.responses.length #=> 1
       #
       #   ActiveResource::HttpMock.respond_to(false) do |mock|
-      #     mock.send(:get, "/people/2", {}, "JSON2")
+      #     mock.get("/people/2", {}, "JSON2")
       #   end
       #   ActiveResource::HttpMock.responses.length #=> 2
       #
@@ -169,7 +193,7 @@ module ActiveResource
       # === Example
       #
       #   ActiveResource::HttpMock.respond_to do |mock|
-      #     mock.send(:get, "/people/1", {}, "JSON1")
+      #     mock.get("/people/1", {}, "JSON1")
       #   end
       #   ActiveResource::HttpMock.responses.length #=> 1
       #
@@ -248,7 +272,10 @@ module ActiveResource
         #   request = ActiveResource::Request.new(:post, path, body, headers, options)
         #   self.class.requests << request
         #   if response = self.class.responses.assoc(request)
-        #     response[1]
+        #     response = response[1]
+        #     response = response.call(request) if response.respond_to?(:call)
+        #
+        #     Response.wrap(response)
         #   else
         #     raise InvalidRequestError.new("Could not find a response recorded for #{request.to_s} - Responses recorded are: - #{inspect_responses}")
         #   end
@@ -258,7 +285,10 @@ module ActiveResource
             request = ActiveResource::Request.new(:#{method}, path, #{has_body ? 'body, ' : 'nil, '}headers, options)
             self.class.requests << request
             if response = self.class.responses.assoc(request)
-              response[1]
+              response = response[1]
+              response = response.call(request) if response.respond_to?(:call)
+
+              Response.wrap(response)
             else
               raise InvalidRequestError.new("Could not find a response recorded for \#{request.to_s} - Responses recorded are: \#{inspect_responses}")
             end
@@ -320,6 +350,14 @@ module ActiveResource
 
   class Response
     attr_accessor :body, :message, :code, :headers
+
+    def self.wrap(response) # :nodoc:
+      case response
+      when self then response
+      when String then new(response)
+      else new(nil)
+      end
+    end
 
     def initialize(body, message = 200, headers = {})
       @body, @message, @headers = body, message.to_s, headers
