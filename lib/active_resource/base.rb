@@ -886,6 +886,31 @@ module ActiveResource
         "#{prefix(prefix_options)}#{collection_name}#{format_extension}#{query_string(query_options)}"
       end
 
+      # Gets the collection URL for the REST resources. If the +query_options+ parameter is omitted, Rails
+      # will split from the +prefix_options+.
+      #
+      # ==== Options
+      # * +prefix_options+ - A hash to add a prefix to the request for nested URLs (e.g., <tt>:account_id => 19</tt>
+      #   would yield a URL like <tt>/accounts/19/purchases.json</tt>).
+      # * +query_options+ - A hash to add items to the query string for the request.
+      #
+      # ==== Examples
+      #   Post.collection_url
+      #   # => https://example.com/posts.json
+      #
+      #   Comment.collection_url(:post_id => 5)
+      #   # => https://example.com/posts/5/comments.json
+      #
+      #   Comment.collection_url(:post_id => 5, :active => 1)
+      #   # => https://example.com/posts/5/comments.json?active=1
+      #
+      #   Comment.collection_url({:post_id => 5}, {:active => 1})
+      #   # => https://example.com/posts/5/comments.json?active=1
+      #
+      def collection_url(prefix_options = {}, query_options = nil)
+        URI.join(site, collection_path(prefix_options, query_options)).to_s
+      end
+
       alias_method :set_primary_key, :primary_key=  # :nodoc:
 
       # Builds a new, unsaved record using the default values from the remote server so
