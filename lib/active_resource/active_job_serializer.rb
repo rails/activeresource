@@ -18,9 +18,8 @@ module ActiveResource
       end
     end
 
-    private
-      def klass
-        ActiveResource::Base
-      end
+    def klass
+      ActiveResource::Base
+    end
   end
 end
