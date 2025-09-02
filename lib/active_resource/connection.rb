@@ -126,6 +126,8 @@ module ActiveResource
         raise TimeoutError.new(e.message)
       rescue OpenSSL::SSL::SSLError => e
         raise SSLError.new(e.message)
+      rescue Errno::ECONNREFUSED => e
+        raise ConnectionRefusedError.new(e.message)
       end
 
       # Handles response and error codes from the remote service.
