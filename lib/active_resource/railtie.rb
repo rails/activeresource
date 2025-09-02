@@ -27,5 +27,11 @@ module ActiveResource
         app.deprecators[:active_resource] = ActiveResource.deprecator
       end
     end
+
+    initializer "active_resource.http_mock" do
+      ActiveSupport.on_load(:active_support_test_case) do
+        teardown { ActiveResource::HttpMock.reset! }
+      end
+    end
   end
 end
