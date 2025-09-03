@@ -773,6 +773,10 @@ class BaseTest < ActiveSupport::TestCase
     assert_equal "/people.json", Person.collection_path
   end
 
+  def test_collection_url
+    assert_equal "http://37s.sunrise.i:3000/people.json", Person.collection_url
+  end
+
   def test_collection_path_with_parameters
     assert_equal "/people.json?gender=male", Person.collection_path(gender: "male")
     assert_equal "/people.json?gender=false", Person.collection_path(gender: false)
@@ -787,6 +791,22 @@ class BaseTest < ActiveSupport::TestCase
 
     assert_equal "/people.json?name%5B%5D=bob&name%5B%5D=your+uncle%2Bme&name%5B%5D=&name%5B%5D=false", Person.collection_path(name: ["bob", "your uncle+me", nil, false])
     assert_equal "/people.json?struct%5Ba%5D%5B%5D=2&struct%5Ba%5D%5B%5D=1&struct%5Bb%5D=fred", Person.collection_path(struct: { :a => [2, 1], "b" => "fred" })
+  end
+
+  def test_collection_url_with_parameters
+    assert_equal "http://37s.sunrise.i:3000/people.json?name=Test", Person.collection_url(name: "Test")
+    assert_equal "http://37s.sunrise.i:3000/people.json?name=false", Person.collection_url(name: false)
+    assert_equal "http://37s.sunrise.i:3000/people.json?name=", Person.collection_url(name: nil)
+
+    assert_equal "http://37s.sunrise.i:3000/people.json?name=Test", Person.collection_url("name" => "Test")
+
+    # Use includes? because ordering of param hash is not guaranteed
+    assert Person.collection_url(name: "Test", student: true).include?("/people.json?")
+    assert Person.collection_url(name: "Test", student: true).include?("name=Test")
+    assert Person.collection_url(name: "Test", student: true).include?("student=true")
+
+    assert_equal "http://37s.sunrise.i:3000/people.json?name%5B%5D=bob&name%5B%5D=your+uncle%2Bme&name%5B%5D=&name%5B%5D=false", Person.collection_url(name: ["bob", "your uncle+me", nil, false])
+    assert_equal "http://37s.sunrise.i:3000/people.json?struct%5Ba%5D%5B%5D=2&struct%5Ba%5D%5B%5D=1&struct%5Bb%5D=fred", Person.collection_url(struct: { :a => [2, 1], "b" => "fred" })
   end
 
   def test_custom_element_path
