@@ -776,7 +776,11 @@ class BaseTest < ActiveSupport::TestCase
   def test_collection_path_with_parameters
     assert_equal "/people.json?gender=male", Person.collection_path(gender: "male")
     assert_equal "/people.json?gender=false", Person.collection_path(gender: false)
-    assert_equal "/people.json?gender=", Person.collection_path(gender: nil)
+    if ActiveSupport::VERSION::MAJOR < 8 || ActiveSupport::VERSION::MINOR < 1
+      assert_equal "/people.json?gender=", Person.collection_path(gender: nil)
+    else
+      assert_equal "/people.json?gender", Person.collection_path(gender: nil)
+    end
 
     assert_equal "/people.json?gender=male", Person.collection_path("gender" => "male")
 
@@ -785,7 +789,11 @@ class BaseTest < ActiveSupport::TestCase
     assert Person.collection_path(gender: "male", student: true).include?("gender=male")
     assert Person.collection_path(gender: "male", student: true).include?("student=true")
 
-    assert_equal "/people.json?name%5B%5D=bob&name%5B%5D=your+uncle%2Bme&name%5B%5D=&name%5B%5D=false", Person.collection_path(name: ["bob", "your uncle+me", nil, false])
+    if ActiveSupport::VERSION::MAJOR < 8 || ActiveSupport::VERSION::MINOR < 1
+      assert_equal "/people.json?name%5B%5D=bob&name%5B%5D=your+uncle%2Bme&name%5B%5D=&name%5B%5D=false", Person.collection_path(name: ["bob", "your uncle+me", nil, false])
+    else
+      assert_equal "/people.json?name%5B%5D=bob&name%5B%5D=your+uncle%2Bme&name%5B%5D&name%5B%5D=false", Person.collection_path(name: ["bob", "your uncle+me", nil, false])
+    end
     assert_equal "/people.json?struct%5Ba%5D%5B%5D=2&struct%5Ba%5D%5B%5D=1&struct%5Bb%5D=fred", Person.collection_path(struct: { :a => [2, 1], "b" => "fred" })
   end
 
