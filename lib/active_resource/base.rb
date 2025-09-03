@@ -1037,12 +1037,12 @@ module ActiveResource
       # This is an alias for find(:all). You can pass in all the same
       # arguments to this method as you can to <tt>find(:all)</tt>
       def all(*args)
-        find(:all, *args)
+        WhereClause.new(self, *args)
       end
 
       def where(clauses = {})
         raise ArgumentError, "expected a clauses Hash, got #{clauses.inspect}" unless clauses.is_a? Hash
-        find(:all, params: clauses)
+        all(params: clauses)
       end
 
 

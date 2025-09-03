@@ -63,6 +63,66 @@ class FinderTest < ActiveSupport::TestCase
     assert_kind_of StreetAddress, addresses.first
   end
 
+  def test_where_with_multiple_where_clauses
+    ActiveResource::HttpMock.respond_to.get "/people.json?id=2&name=david", {}, @people_david
+
+    people = Person.where(id: 2).where(name: "david")
+    assert_equal 1, people.size
+    assert_kind_of Person, people.first
+    assert_equal 2, people.first.id
+    assert_equal "David", people.first.name
+  end
+
+  def test_where_chained_from_all
+    ActiveResource::HttpMock.respond_to.get "/records.json?id=2", {}, @people_david
+
+    people = Person.all(from: "/records.json").where(id: 2)
+    assert_equal 1, people.size
+    assert_kind_of Person, people.first
+    assert_equal 2, people.first.id
+    assert_equal "David", people.first.name
+  end
+
+  def test_where_with_chained_into_all
+    ActiveResource::HttpMock.respond_to.get "/records.json?id=2&name=david", {}, @people_david
+
+    people = Person.where(id: 2).all(from: "/records.json", params: { name: "david" })
+    assert_equal 1, people.size
+    assert_kind_of Person, people.first
+    assert_equal 2, people.first.id
+    assert_equal "David", people.first.name
+  end
+
+  def test_where_loading
+    ActiveResource::HttpMock.respond_to.get "/people.json?id=2", {}, @people_david
+    people = Person.where(id: 2)
+
+    assert_changes -> { ActiveResource::HttpMock.requests.count }, from: 0, to: 1 do
+      people.load
+    end
+    assert_no_changes -> { ActiveResource::HttpMock.requests.count }, from: 1 do
+      10.times { people.load }
+    end
+  end
+
+  def test_where_reloading
+    ActiveResource::HttpMock.respond_to.get "/people.json?id=2", {}, @people_david
+    people = Person.where(id: 2)
+
+    assert_changes -> { ActiveResource::HttpMock.requests.count }, from: 0, to: 1 do
+      assert_equal 1, people.size
+    end
+    assert_no_changes -> { ActiveResource::HttpMock.requests.count }, from: 1 do
+      assert_equal 1, people.size
+    end
+    assert_changes -> { ActiveResource::HttpMock.requests.count }, from: 1, to: 2 do
+      people.reload
+    end
+    assert_no_changes -> { ActiveResource::HttpMock.requests.count }, from: 2 do
+      assert_equal 1, people.size
+    end
+  end
+
   def test_where_with_clause_in
     ActiveResource::HttpMock.respond_to { |m| m.get "/people.json?id%5B%5D=2", {}, @people_david }
     people = Person.where(id: [2])
