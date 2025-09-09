@@ -18,6 +18,7 @@ module ActiveResource
       end
     end
 
+    # Rails now expects this method to be public
     def klass
       ActiveResource::Base
     end
