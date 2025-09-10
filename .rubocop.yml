@@ -8,13 +8,9 @@ plugins:
   - rubocop-rails
 
 AllCops:
-  TargetRubyVersion: 2.6
+  TargetRubyVersion: 2.7
   DisabledByDefault: true
 
-Rails/IndexBy:
-  Enabled: false # until we support Rails version 6.0
-
-# Prefer assert_not over assert !
 Rails/AssertNot:
   Include:
     - '**/test/**/*'
