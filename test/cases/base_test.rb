@@ -804,7 +804,11 @@ class BaseTest < ActiveSupport::TestCase
   def test_collection_url_with_parameters
     assert_equal "http://37s.sunrise.i:3000/people.json?name=Test", Person.collection_url(name: "Test")
     assert_equal "http://37s.sunrise.i:3000/people.json?name=false", Person.collection_url(name: false)
-    assert_equal "http://37s.sunrise.i:3000/people.json?name=", Person.collection_url(name: nil)
+    if ActiveSupport::VERSION::MAJOR < 8 || ActiveSupport::VERSION::MINOR < 1
+      assert_equal "http://37s.sunrise.i:3000/people.json?name=", Person.collection_url(name: nil)
+    else
+      assert_equal "http://37s.sunrise.i:3000/people.json?name", Person.collection_url(name: nil)
+    end
 
     assert_equal "http://37s.sunrise.i:3000/people.json?name=Test", Person.collection_url("name" => "Test")
 
