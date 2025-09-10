@@ -296,6 +296,8 @@ The `payload` is a `Hash` with the following keys:
 
 * `method` as a `Symbol`
 * `request_uri` as a `String`
+* `headers` as a `Hash`
+* `body` as a `String` when available
 * `result` as an `Net::HTTPResponse`
 
 ## License
