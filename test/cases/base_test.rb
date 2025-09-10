@@ -794,11 +794,11 @@ class BaseTest < ActiveSupport::TestCase
     assert Person.collection_path(gender: "male", student: true).include?("student=true")
 
     if ActiveSupport::VERSION::MAJOR < 8 || ActiveSupport::VERSION::MINOR < 1
-      assert_equal "/people.json?name%5B%5D=bob&name%5B%5D=your+uncle%2Bme&name%5B%5D=&name%5B%5D=false", Person.collection_path(name: ["bob", "your uncle+me", nil, false])
+      assert_equal "/people.json?name%5B%5D=bob&name%5B%5D=your+uncle%2Bme&name%5B%5D=&name%5B%5D=false", Person.collection_path(name: [ "bob", "your uncle+me", nil, false ])
     else
-      assert_equal "/people.json?name%5B%5D=bob&name%5B%5D=your+uncle%2Bme&name%5B%5D&name%5B%5D=false", Person.collection_path(name: ["bob", "your uncle+me", nil, false])
+      assert_equal "/people.json?name%5B%5D=bob&name%5B%5D=your+uncle%2Bme&name%5B%5D&name%5B%5D=false", Person.collection_path(name: [ "bob", "your uncle+me", nil, false ])
     end
-    assert_equal "/people.json?struct%5Ba%5D%5B%5D=2&struct%5Ba%5D%5B%5D=1&struct%5Bb%5D=fred", Person.collection_path(struct: { :a => [2, 1], "b" => "fred" })
+    assert_equal "/people.json?struct%5Ba%5D%5B%5D=2&struct%5Ba%5D%5B%5D=1&struct%5Bb%5D=fred", Person.collection_path(struct: { :a => [ 2, 1 ], "b" => "fred" })
   end
 
   def test_collection_url_with_parameters
@@ -817,8 +817,8 @@ class BaseTest < ActiveSupport::TestCase
     assert Person.collection_url(name: "Test", student: true).include?("name=Test")
     assert Person.collection_url(name: "Test", student: true).include?("student=true")
 
-    assert_equal "http://37s.sunrise.i:3000/people.json?name%5B%5D=bob&name%5B%5D=your+uncle%2Bme&name%5B%5D=&name%5B%5D=false", Person.collection_url(name: ["bob", "your uncle+me", nil, false])
-    assert_equal "http://37s.sunrise.i:3000/people.json?struct%5Ba%5D%5B%5D=2&struct%5Ba%5D%5B%5D=1&struct%5Bb%5D=fred", Person.collection_url(struct: { :a => [2, 1], "b" => "fred" })
+    assert_equal "http://37s.sunrise.i:3000/people.json?name%5B%5D=bob&name%5B%5D=your+uncle%2Bme&name%5B%5D=&name%5B%5D=false", Person.collection_url(name: [ "bob", "your uncle+me", nil, false ])
+    assert_equal "http://37s.sunrise.i:3000/people.json?struct%5Ba%5D%5B%5D=2&struct%5Ba%5D%5B%5D=1&struct%5Bb%5D=fred", Person.collection_url(struct: { :a => [ 2, 1 ], "b" => "fred" })
   end
 
   def test_custom_element_path
@@ -869,7 +869,7 @@ class BaseTest < ActiveSupport::TestCase
     assert_equal "/people/1/addresses/1.json?type=work", StreetAddress.element_path(1, person_id: 1, type: "work")
     assert_equal "/people/1/addresses/1.json?type=work", StreetAddress.element_path(1, "person_id" => 1, :type => "work")
     assert_equal "/people/1/addresses/1.json?type=work", StreetAddress.element_path(1, type: "work", person_id: 1)
-    assert_equal "/people/1/addresses/1.json?type%5B%5D=work&type%5B%5D=play+time", StreetAddress.element_path(1, person_id: 1, type: ["work", "play time"])
+    assert_equal "/people/1/addresses/1.json?type%5B%5D=work&type%5B%5D=play+time", StreetAddress.element_path(1, person_id: 1, type: [ "work", "play time" ])
   end
 
   def test_custom_element_path_with_prefix_and_parameters
@@ -926,11 +926,11 @@ class BaseTest < ActiveSupport::TestCase
   def test_set_prefix_twice_should_clear_params
     SetterTrap.rollback_sets(Person) do |person_class|
       person_class.prefix = "the_prefix/:the_param1"
-      assert_equal Set.new([:the_param1]), person_class.prefix_parameters
+      assert_equal Set.new([ :the_param1 ]), person_class.prefix_parameters
       person_class.prefix = "the_prefix/:the_param2"
-      assert_equal Set.new([:the_param2]), person_class.prefix_parameters
+      assert_equal Set.new([ :the_param2 ]), person_class.prefix_parameters
       person_class.prefix = "the_prefix/:the_param1/other_prefix/:the_param2"
-      assert_equal Set.new([:the_param2, :the_param1]), person_class.prefix_parameters
+      assert_equal Set.new([ :the_param2, :the_param1 ]), person_class.prefix_parameters
     end
   end
 
@@ -944,7 +944,7 @@ class BaseTest < ActiveSupport::TestCase
   def test_custom_prefix
     assert_equal "/people//", StreetAddress.prefix
     assert_equal "/people/1/", StreetAddress.prefix(person_id: 1)
-    assert_equal [:person_id].to_set, StreetAddress.__send__(:prefix_parameters)
+    assert_equal [ :person_id ].to_set, StreetAddress.__send__(:prefix_parameters)
   end
 
 
@@ -1044,7 +1044,7 @@ class BaseTest < ActiveSupport::TestCase
 
   # These response codes aren't allowed to have bodies per HTTP spec
   def test_not_persisted_with_empty_response_codes
-    [100, 101, 204, 304].each do |status_code|
+    [ 100, 101, 204, 304 ].each do |status_code|
       resp = ActiveResource::Response.new(@rick, status_code)
       Person.connection.expects(:post).returns(resp)
       assert_not Person.create.persisted?
@@ -1163,7 +1163,7 @@ class BaseTest < ActiveSupport::TestCase
     matz = Person.find(1)
     matz.address = StreetAddress.find(1, params: { person_id: matz.id })
     matz.non_ar_hash = { not: "an ARes instance" }
-    matz.non_ar_arr = ["not", "ARes"]
+    matz.non_ar_arr = [ "not", "ARes" ]
     matz_c = matz.clone
     assert matz_c.new?
     assert_raise(NoMethodError) { matz_c.address }
@@ -1514,7 +1514,7 @@ class BaseTest < ActiveSupport::TestCase
     new_person = Person.new
     assert_nil new_person.to_key
     matz = Person.find(1)
-    assert_equal [1], matz.to_key
+    assert_equal [ 1 ], matz.to_key
   end
 
   def test_parse_deep_nested_resources
@@ -1585,7 +1585,7 @@ class BaseTest < ActiveSupport::TestCase
   end
 
   def test_with_custom_formatter
-    addresses = [{ id: "1", street: "1 Infinite Loop", city: "Cupertino", state: "CA" }].to_xml(root: :addresses)
+    addresses = [ { id: "1", street: "1 Infinite Loop", city: "Cupertino", state: "CA" } ].to_xml(root: :addresses)
 
     ActiveResource::HttpMock.respond_to do |mock|
       mock.get "/addresses.xml", {}, addresses, 200

@@ -49,7 +49,7 @@ class BaseLoadTest < ActiveSupport::TestCase
     @matz = { id: 1, name: "Matz" }
 
     @first_address = { address: { id: 1, street: "12345 Street" } }
-    @addresses = [@first_address, { address: { id: 2, street: "67890 Street" } }]
+    @addresses = [ @first_address, { address: { id: 2, street: "67890 Street" } } ]
     @addresses_from_json = { street_addresses: @addresses }
     @addresses_from_json_single = { street_addresses: [ @first_address ] }
 
@@ -57,7 +57,7 @@ class BaseLoadTest < ActiveSupport::TestCase
       id: 1, state: { id: 1, name: "Oregon",
         notable_rivers: [
           { id: 1, name: "Willamette" },
-          { id: 2, name: "Columbia", rafted_by: @matz }],
+          { id: 2, name: "Columbia", rafted_by: @matz } ],
         postal_codes: [ 97018, 1234567890 ],
         dates: [ Time.now ],
         votes: [ true, false, true ],
@@ -233,17 +233,17 @@ class BaseLoadTest < ActiveSupport::TestCase
   end
 
   def test_nested_collections_within_the_same_namespace
-    n = Highrise::Note.new(comments: [{ comment: { name: "1" } }])
+    n = Highrise::Note.new(comments: [ { comment: { name: "1" } } ])
     assert_kind_of Highrise::Comment, n.comments.first
   end
 
   def test_nested_collections_within_deeply_nested_namespace
-    n = Highrise::Deeply::Nested::Note.new(comments: [{ name: "1" }])
+    n = Highrise::Deeply::Nested::Note.new(comments: [ { name: "1" } ])
     assert_kind_of Highrise::Deeply::Nested::Comment, n.comments.first
   end
 
   def test_nested_collections_in_different_levels_of_namespaces
-    n = Highrise::Deeply::Nested::TestDifferentLevels::Note.new(comments: [{ name: "1" }])
+    n = Highrise::Deeply::Nested::TestDifferentLevels::Note.new(comments: [ { name: "1" } ])
     assert_kind_of Highrise::Deeply::Nested::Comment, n.comments.first
   end
 end

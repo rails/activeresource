@@ -55,7 +55,7 @@ class SingletonTest < ActiveSupport::TestCase
     assert path.include?("degrees=fahrenheit")
     assert path.include?("lunar=true")
 
-    path = Weather.singleton_path(days: ["monday", "saturday and sunday", nil, false])
+    path = Weather.singleton_path(days: [ "monday", "saturday and sunday", nil, false ])
     if ActiveSupport::VERSION::MAJOR < 8 || ActiveSupport::VERSION::MINOR < 1
       assert_equal "/weather.json?days%5B%5D=monday&days%5B%5D=saturday+and+sunday&days%5B%5D=&days%5B%5D=false", path
     else

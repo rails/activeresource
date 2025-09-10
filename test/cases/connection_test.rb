@@ -12,7 +12,7 @@ class ConnectionTest < ActiveSupport::TestCase
     david = { person: { id: 2, name: "David" } }
     @people = { people: [ matz, david ] }.to_json
     @people_single = { "people-single-elements" => [ matz ] }.to_json
-    @people_empty = { "people-empty-elements" => [ ] }.to_json
+    @people_empty = { "people-empty-elements" => [] }.to_json
     @matz  = matz.to_json
     @david = david.to_json
     @header = { "key" => "value" }.freeze
@@ -51,7 +51,7 @@ class ConnectionTest < ActiveSupport::TestCase
 
   def test_handle_response
     # 2xx and 3xx are valid responses.
-    [200, 299, 300, 399].each do |code|
+    [ 200, 299, 300, 399 ].each do |code|
       expected = ResponseCodeStub.new(code)
       assert_equal expected, handle_response(expected)
     end
@@ -102,17 +102,17 @@ class ConnectionTest < ActiveSupport::TestCase
     assert_response_raises ActiveResource::TooManyRequests, 429
 
     # 4xx are client errors.
-    [402, 499].each do |code|
+    [ 402, 499 ].each do |code|
       assert_response_raises ActiveResource::ClientError, code
     end
 
     # 5xx are server errors.
-    [500, 599].each do |code|
+    [ 500, 599 ].each do |code|
       assert_response_raises ActiveResource::ServerError, code
     end
 
     # Others are unknown.
-    [199, 600].each do |code|
+    [ 199, 600 ].each do |code|
       assert_response_raises ActiveResource::ConnectionError, code
     end
   end
@@ -122,7 +122,7 @@ class ConnectionTest < ActiveSupport::TestCase
     handle_response ResponseHeaderStub.new(405, "HTTP Failed...", "GET, POST")
   rescue ActiveResource::MethodNotAllowed => e
     assert_equal "Failed.  Response code = 405.  Response message = HTTP Failed....", e.message
-    assert_equal [:get, :post], e.allowed_methods
+    assert_equal [ :get, :post ], e.allowed_methods
   end
 
   def test_initialize_raises_argument_error_on_missing_site
@@ -246,7 +246,7 @@ class ConnectionTest < ActiveSupport::TestCase
   def test_setting_timeout
     http = Net::HTTP.new("")
 
-    [10, 20].each do |timeout|
+    [ 10, 20 ].each do |timeout|
       @conn.timeout = timeout
       @conn.send(:configure_http, http)
       assert_equal timeout, http.open_timeout

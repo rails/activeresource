@@ -2,7 +2,7 @@
 
 module ActiveResource::Associations::Builder
   class BelongsTo < Association
-    self.valid_options += [:foreign_key]
+    self.valid_options += [ :foreign_key ]
 
     self.macro = :belongs_to
 

@@ -29,13 +29,13 @@ def setup_response
   @addy  = { address: { id: 1, street: "12345 Street", country: "Australia" } }.to_json
   @rick  = { person: { name: "Rick", age: 25 } }.to_json
   @joe    = { person: { id: 6, name: "Joe", likes_hats: true } }.to_json
-  @people = { people: [ { person: { id: 1, name: "Matz" } }, { person: { id: 2, name: "David" } }] }.to_json
-  @people_david = { people: [ { person: { id: 2, name: "David" } }] }.to_json
-  @addresses = { addresses: [{ address: { id: 1, street: "12345 Street", country: "Australia" } }] }.to_json
+  @people = { people: [ { person: { id: 1, name: "Matz" } }, { person: { id: 2, name: "David" } } ] }.to_json
+  @people_david = { people: [ { person: { id: 2, name: "David" } } ] }.to_json
+  @addresses = { addresses: [ { address: { id: 1, street: "12345 Street", country: "Australia" } } ] }.to_json
   @post  = { id: 1, title: "Hello World", body: "Lorem Ipsum" }.to_json
-  @posts = [{ id: 1, title: "Hello World", body: "Lorem Ipsum" }, { id: 2, title: "Second Post", body: "Lorem Ipsum" }].to_json
-  @comments = [{ id: 1, post_id: 1, content: "Interesting post" }, { id: 2, post_id: 1, content: "I agree" }].to_json
-  @pets = [{ id: 1, name: "Max" }, { id: 2, name: "Daisy" }].to_json
+  @posts = [ { id: 1, title: "Hello World", body: "Lorem Ipsum" }, { id: 2, title: "Second Post", body: "Lorem Ipsum" } ].to_json
+  @comments = [ { id: 1, post_id: 1, content: "Interesting post" }, { id: 2, post_id: 1, content: "I agree" } ].to_json
+  @pets = [ { id: 1, name: "Max" }, { id: 2, name: "Daisy" } ].to_json
 
   # - deep nested resource -
   # - Luis (Customer)
@@ -58,15 +58,15 @@ def setup_response
     customer: {
       id: 1,
       name: "Luis",
-      friends: [{
+      friends: [ {
         name: "JK",
         brothers: [
           {
             name: "Mateo",
-            children: [{ name: "Edith" }, { name: "Martha" }]
+            children: [ { name: "Edith" }, { name: "Martha" } ]
           }, {
             name: "Felipe",
-            children: [{ name: "Bryan" }, { name: "Luke" }]
+            children: [ { name: "Bryan" }, { name: "Luke" } ]
           }
         ]
       }, {
@@ -74,17 +74,17 @@ def setup_response
         brothers: [
           {
             name: "Sebas",
-            children: [{ name: "Andres" }, { name: "Jorge" }]
+            children: [ { name: "Andres" }, { name: "Jorge" } ]
           }, {
             name: "Elsa",
-            children: [{ name: "Natacha" }]
+            children: [ { name: "Natacha" } ]
           }, {
             name: "Milena",
             children: []
           }
         ]
-      }],
-      enemies: [{ name: "Joker" }],
+      } ],
+      enemies: [ { name: "Joker" } ],
       mother: { name: "Ingeborg" }
     }
   }.to_json

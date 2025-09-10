@@ -38,7 +38,7 @@ class BaseEqualityTest < ActiveSupport::TestCase
   end
 
   def test_hash_should_be_id_hash
-    [@new, @one, @two, @street].each do |resource|
+    [ @new, @one, @two, @street ].each do |resource|
       assert_equal resource.id.hash, resource.hash
     end
   end

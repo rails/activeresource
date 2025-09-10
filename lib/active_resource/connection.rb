@@ -240,7 +240,7 @@ module ActiveResource
           if auth_type == :digest
             { "Authorization" => digest_auth_header(http_method, uri) }
           else
-            { "Authorization" => "Basic " + ["#{@user}:#{@password}"].pack("m").delete("\r\n") }
+            { "Authorization" => "Basic " + [ "#{@user}:#{@password}" ].pack("m").delete("\r\n") }
           end
         elsif @bearer_token
           { "Authorization" => "Bearer #{@bearer_token}" }
@@ -259,7 +259,7 @@ module ActiveResource
         ha2 = Digest::MD5.hexdigest("#{http_method.to_s.upcase}:#{request_uri}")
 
         params["cnonce"] = client_nonce
-        request_digest = Digest::MD5.hexdigest([ha1, params["nonce"], "0", params["cnonce"], params["qop"], ha2].join(":"))
+        request_digest = Digest::MD5.hexdigest([ ha1, params["nonce"], "0", params["cnonce"], params["qop"], ha2 ].join(":"))
         "Digest #{auth_attributes_for(uri, request_digest, params)}"
       end
 
@@ -285,7 +285,7 @@ module ActiveResource
             %Q(nonce="#{params['nonce']}"),
             'nc="0"',
             %Q(cnonce="#{params['cnonce']}"),
-            %Q(response="#{request_digest}")]
+            %Q(response="#{request_digest}") ]
 
         auth_attrs << %Q(opaque="#{params['opaque']}") unless params["opaque"].blank?
         auth_attrs.join(", ")
@@ -298,7 +298,7 @@ module ActiveResource
       def legitimize_auth_type(auth_type)
         return :basic if auth_type.nil?
         auth_type = auth_type.to_sym
-        auth_type.in?([:basic, :digest, :bearer]) ? auth_type : :basic
+        auth_type.in?([ :basic, :digest, :bearer ]) ? auth_type : :basic
       end
   end
 end

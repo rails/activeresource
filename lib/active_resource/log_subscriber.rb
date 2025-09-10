@@ -14,7 +14,7 @@ module ActiveResource
       log_level_method = code.to_i < 400 ? :info : :error
 
       send log_level_method, "#{event.payload[:method].to_s.upcase} #{event.payload[:request_uri]}"
-      send log_level_method, "--> %d %s %d (%.1fms)" % [code, message, body.to_s.length, event.duration]
+      send log_level_method, "--> %d %s %d (%.1fms)" % [ code, message, body.to_s.length, event.duration ]
     end
 
     def logger

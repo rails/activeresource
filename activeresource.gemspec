@@ -21,7 +21,7 @@ Gem::Specification.new do |s|
     "changelog_uri"     => "https://github.com/rails/activeresource/releases/tag/v#{version}",
     "documentation_uri" => "http://rubydoc.info/gems/activeresource",
     "source_code_uri"   => "https://github.com/rails/activeresource/tree/v#{version}",
-    "rubygems_mfa_required" => "true",
+    "rubygems_mfa_required" => "true"
   }
 
   s.files = Dir["MIT-LICENSE", "README.md", "lib/**/*"]

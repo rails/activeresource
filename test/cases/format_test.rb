@@ -13,12 +13,12 @@ class FormatTest < ActiveSupport::TestCase
   end
 
   def test_http_format_header_name
-    [:get, :head].each do |verb|
+    [ :get, :head ].each do |verb|
       header_name = ActiveResource::Connection::HTTP_FORMAT_HEADER_NAMES[verb]
       assert_equal "Accept", header_name
     end
 
-    [:patch, :put, :post].each do |verb|
+    [ :patch, :put, :post ].each do |verb|
       header_name = ActiveResource::Connection::HTTP_FORMAT_HEADER_NAMES[verb]
       assert_equal "Content-Type", header_name
     end
@@ -47,7 +47,7 @@ class FormatTest < ActiveSupport::TestCase
   def test_formats_on_custom_collection_method
     [ :json, :xml ].each do |format|
       using_format(Person, format) do
-        ActiveResource::HttpMock.respond_to.get "/people/retrieve.#{format}?name=David", { "Accept" => ActiveResource::Formats[format].mime_type }, ActiveResource::Formats[format].encode([@david])
+        ActiveResource::HttpMock.respond_to.get "/people/retrieve.#{format}?name=David", { "Accept" => ActiveResource::Formats[format].mime_type }, ActiveResource::Formats[format].encode([ @david ])
         remote_programmers = Person.get(:retrieve, name: "David")
         assert_equal 1, remote_programmers.size
         assert_equal @david[:id], remote_programmers[0]["id"]
@@ -57,7 +57,7 @@ class FormatTest < ActiveSupport::TestCase
   end
 
   def test_formats_on_custom_element_method
-    [:json, :xml].each do |format|
+    [ :json, :xml ].each do |format|
       using_format(Person, format) do
         david = (format == :json ? { person: @david } : @david)
         ActiveResource::HttpMock.respond_to do |mock|
@@ -96,7 +96,7 @@ class FormatTest < ActiveSupport::TestCase
     address = { street: "12345 Street" }
     person = { name: "Rus", address: address }
 
-    [:json, :xml].each do |format|
+    [ :json, :xml ].each do |format|
       encoded_person = ActiveResource::Formats[format].encode(person)
       assert_match(/12345 Street/, encoded_person)
       remote_person = Person.new(person.update(address: StreetAddress.new(address)))

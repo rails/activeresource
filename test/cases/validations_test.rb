@@ -20,7 +20,7 @@ class ValidationsTest < ActiveSupport::TestCase
     p = new_project(name: nil)
     assert_not p.valid?, "should not be a valid record without name"
     assert_not p.save, "should not have saved an invalid record"
-    assert_equal ["can't be blank"], p.errors[:name], "should have an error on name"
+    assert_equal [ "can't be blank" ], p.errors[:name], "should have an error on name"
 
     p.name = "something"
 
@@ -43,7 +43,7 @@ class ValidationsTest < ActiveSupport::TestCase
     p = new_project(description: "a")
     assert_not p.valid?, "should not be a valid record when it fails a validation callback"
     assert_not p.save, "should not have saved an invalid record"
-    assert_equal ["must be greater than three letters long"], p.errors[:description], "should be an error on description"
+    assert_equal [ "must be greater than three letters long" ], p.errors[:description], "should be an error on description"
 
     # should now allow this description
     p.description = "abcd"
@@ -53,7 +53,7 @@ class ValidationsTest < ActiveSupport::TestCase
   def test_client_side_validation_maximum
     project = Project.new(description: "123456789012345")
     assert_not project.valid?
-    assert_equal ["is too long (maximum is 10 characters)"], project.errors[:description]
+    assert_equal [ "is too long (maximum is 10 characters)" ], project.errors[:description]
   end
 
   def test_invalid_method

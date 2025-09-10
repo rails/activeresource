@@ -43,11 +43,11 @@ class BaseErrorsTest < ActiveSupport::TestCase
     [ :json, :xml ].each do |format|
       invalid_user_using_format(format) do
         assert @person.errors[:name].any?
-        assert_equal ["can't be blank"], @person.errors[:age]
-        assert_equal ["can't be blank", "must start with a letter"], @person.errors[:name]
-        assert_equal ["can't be blank"], @person.errors[:phone_work]
-        assert_equal ["is not valid"], @person.errors[:phone]
-        assert_equal ["Person quota full for today."], @person.errors[:base]
+        assert_equal [ "can't be blank" ], @person.errors[:age]
+        assert_equal [ "can't be blank", "must start with a letter" ], @person.errors[:name]
+        assert_equal [ "can't be blank" ], @person.errors[:phone_work]
+        assert_equal [ "is not valid" ], @person.errors[:phone]
+        assert_equal [ "Person quota full for today." ], @person.errors[:base]
       end
     end
   end
@@ -55,7 +55,7 @@ class BaseErrorsTest < ActiveSupport::TestCase
   def test_should_parse_errors_to_known_attributes
     [ :json, :xml ].each do |format|
       invalid_user_using_format(format) do
-        assert_equal ["can't be blank"], @person.errors[:known_attribute]
+        assert_equal [ "can't be blank" ], @person.errors[:known_attribute]
       end
     end
   end
@@ -65,11 +65,11 @@ class BaseErrorsTest < ActiveSupport::TestCase
       invalid_user_using_format(format) do
         errors = []
         if ActiveSupport.gem_version >= Gem::Version.new("6.1.x")
-          @person.errors.each { |error| errors << [error.attribute, error.message] }
+          @person.errors.each { |error| errors << [ error.attribute, error.message ] }
         else
-          @person.errors.each { |attribute, message| errors << [attribute, message] }
+          @person.errors.each { |attribute, message| errors << [ attribute, message ] }
         end
-        assert errors.include?([:name, "can't be blank"])
+        assert errors.include?([ :name, "can't be blank" ])
       end
     end
   end
@@ -119,11 +119,11 @@ class BaseErrorsTest < ActiveSupport::TestCase
     assert_deprecated(/as an array/, ActiveResource.deprecator) do
       invalid_user_using_format(:json) do
         assert @person.errors[:name].any?
-        assert_equal ["can't be blank"], @person.errors[:age]
-        assert_equal ["can't be blank", "must start with a letter"], @person.errors[:name]
-        assert_equal ["is not valid"], @person.errors[:phone]
-        assert_equal ["can't be blank"], @person.errors[:phone_work]
-        assert_equal ["Person quota full for today."], @person.errors[:base]
+        assert_equal [ "can't be blank" ], @person.errors[:age]
+        assert_equal [ "can't be blank", "must start with a letter" ], @person.errors[:name]
+        assert_equal [ "is not valid" ], @person.errors[:phone]
+        assert_equal [ "can't be blank" ], @person.errors[:phone_work]
+        assert_equal [ "Person quota full for today." ], @person.errors[:base]
       end
     end
   end
@@ -136,11 +136,11 @@ class BaseErrorsTest < ActiveSupport::TestCase
     assert_deprecated(/without a root/, ActiveResource.deprecator) do
       invalid_user_using_format(:json) do
         assert @person.errors[:name].any?
-        assert_equal ["can't be blank"], @person.errors[:age]
-        assert_equal ["can't be blank", "must start with a letter"], @person.errors[:name]
-        assert_equal ["is not valid"], @person.errors[:phone]
-        assert_equal ["can't be blank"], @person.errors[:phone_work]
-        assert_equal ["Person quota full for today."], @person.errors[:base]
+        assert_equal [ "can't be blank" ], @person.errors[:age]
+        assert_equal [ "can't be blank", "must start with a letter" ], @person.errors[:name]
+        assert_equal [ "is not valid" ], @person.errors[:phone]
+        assert_equal [ "can't be blank" ], @person.errors[:phone_work]
+        assert_equal [ "Person quota full for today." ], @person.errors[:base]
       end
     end
   end

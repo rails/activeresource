@@ -65,7 +65,7 @@ class FinderTest < ActiveSupport::TestCase
 
   def test_where_with_clause_in
     ActiveResource::HttpMock.respond_to { |m| m.get "/people.json?id%5B%5D=2", {}, @people_david }
-    people = Person.where(id: [2])
+    people = Person.where(id: [ 2 ])
     assert_equal 1, people.size
     assert_kind_of Person, people.first
     assert_equal "David", people.first.name
