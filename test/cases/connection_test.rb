@@ -312,6 +312,13 @@ class ConnectionTest < ActiveSupport::TestCase
     end
   end
 
+  def test_enable_net_connection_first_time
+    keep_net_connection_status do
+      ActiveResource::HttpMock.enable_net_connection!
+      assert @conn.send(:http).kind_of?(Net::HTTP)
+    end
+  end
+
   def test_disable_net_connection
     keep_net_connection_status do
       ActiveResource::HttpMock.enable_net_connection!

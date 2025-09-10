@@ -375,11 +375,11 @@ module ActiveResource
         end
 
         def unstub_http?
-          HttpMock.net_connection_enabled? && defined?(@http) && @http.kind_of?(HttpMock)
+          HttpMock.net_connection_enabled? && (!defined?(@http) || @http.kind_of?(HttpMock))
         end
 
         def stub_http?
-          HttpMock.net_connection_disabled? && defined?(@http) && @http.kind_of?(Net::HTTP)
+          HttpMock.net_connection_disabled? && (!defined?(@http) || @http.kind_of?(Net::HTTP))
         end
       end
   end
