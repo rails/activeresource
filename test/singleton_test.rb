@@ -41,7 +41,11 @@ class SingletonTest < ActiveSupport::TestCase
   def test_singleton_path_with_parameters
     assert_equal "/weather.json?degrees=fahrenheit", Weather.singleton_path(degrees: "fahrenheit")
     assert_equal "/weather.json?degrees=false", Weather.singleton_path(degrees: false)
-    assert_equal "/weather.json?degrees=", Weather.singleton_path(degrees: nil)
+    if ActiveSupport::VERSION::MAJOR < 8 || ActiveSupport::VERSION::MINOR < 1
+      assert_equal "/weather.json?degrees=", Weather.singleton_path(degrees: nil)
+    else
+      assert_equal "/weather.json?degrees", Weather.singleton_path(degrees: nil)
+    end
 
     assert_equal "/weather.json?degrees=fahrenheit", Weather.singleton_path("degrees" => "fahrenheit")
 
@@ -52,7 +56,11 @@ class SingletonTest < ActiveSupport::TestCase
     assert path.include?("lunar=true")
 
     path = Weather.singleton_path(days: ["monday", "saturday and sunday", nil, false])
-    assert_equal "/weather.json?days%5B%5D=monday&days%5B%5D=saturday+and+sunday&days%5B%5D=&days%5B%5D=false", path
+    if ActiveSupport::VERSION::MAJOR < 8 || ActiveSupport::VERSION::MINOR < 1
+      assert_equal "/weather.json?days%5B%5D=monday&days%5B%5D=saturday+and+sunday&days%5B%5D=&days%5B%5D=false", path
+    else
+      assert_equal "/weather.json?days%5B%5D=monday&days%5B%5D=saturday+and+sunday&days%5B%5D&days%5B%5D=false", path
+    end
 
     path = Inventory.singleton_path(product_id: 5)
     assert_equal "/products/5/inventory.json", path
