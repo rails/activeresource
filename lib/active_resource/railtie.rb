@@ -28,6 +28,10 @@ module ActiveResource
       end
     end
 
+    initializer "active_resource.logger" do
+      ActiveSupport.on_load(:active_resource) { self.logger ||= ::Rails.logger }
+    end
+
     initializer "active_resource.http_mock" do
       ActiveSupport.on_load(:active_support_test_case) do
         teardown { ActiveResource::HttpMock.reset! }
