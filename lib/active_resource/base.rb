@@ -1443,6 +1443,8 @@ module ActiveResource
     #   my_branch.name # => "Wilson Road"
     def reload
       self.load(self.class.find(to_param, params: @prefix_options).attributes, false, true)
+    rescue => exception
+      rescue_with_handler(exception) || raise
     end
 
     # A method to manually load attributes from a \hash. Recursively loads collections of
@@ -1725,7 +1727,7 @@ module ActiveResource
     include ActiveModel::Conversion
     include ActiveModel::Serializers::JSON
     include ActiveModel::Serializers::Xml
-    include ActiveResource::Reflection
+    include ActiveResource::Reflection, ActiveResource::Rescuable
   end
 
   ActiveSupport.run_load_hooks(:active_resource, Base)

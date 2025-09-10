@@ -41,6 +41,7 @@ module ActiveResource
   autoload :CustomMethods
   autoload :Formats
   autoload :HttpMock
+  autoload :Rescuable
   autoload :Schema
   autoload :Singleton
   autoload :InheritingHash
