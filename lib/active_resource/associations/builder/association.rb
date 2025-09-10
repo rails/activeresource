@@ -4,7 +4,7 @@ module ActiveResource::Associations::Builder
   class Association # :nodoc:
     # providing a Class-Variable, which will have a different store of subclasses
     class_attribute :valid_options
-    self.valid_options = [:class_name]
+    self.valid_options = [ :class_name ]
 
     # would identify subclasses of association
     class_attribute :macro

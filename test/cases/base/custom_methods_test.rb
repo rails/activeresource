@@ -9,7 +9,7 @@ class CustomMethodsTest < ActiveSupport::TestCase
   def setup
     @matz = { person: { id: 1, name: "Matz" } }.to_json
     @matz_deep  = { person: { id: 1, name: "Matz", other: "other" } }.to_json
-    @matz_array = { people: [{ person: { id: 1, name: "Matz" } }] }.to_json
+    @matz_array = { people: [ { person: { id: 1, name: "Matz" } } ] }.to_json
     @ryan  = { person: { name: "Ryan" } }.to_json
     @addy  = { address: { id: 1, street: "12345 Street" } }.to_json
     @addy_deep = { address: { id: 1, street: "12345 Street", zip: "27519" } }.to_json
@@ -45,7 +45,7 @@ class CustomMethodsTest < ActiveSupport::TestCase
 
   def test_custom_collection_method
     # GET
-    assert_equal([{ "id" => 1, "name" => "Matz" }], Person.get(:retrieve, name: "Matz"))
+    assert_equal([ { "id" => 1, "name" => "Matz" } ], Person.get(:retrieve, name: "Matz"))
 
     # POST
     assert_equal(ActiveResource::Response.new("", 201, {}), Person.post(:hire, name: "Matz"))
@@ -112,7 +112,7 @@ class CustomMethodsTest < ActiveSupport::TestCase
       mock.put      path_with_format, {}, nil
     end
 
-    [:get, :post, :delete, :patch, :put].each_with_index do |method, index|
+    [ :get, :post, :delete, :patch, :put ].each_with_index do |method, index|
       Person.send(method, :active)
       expected_request = ActiveResource::Request.new(method, path_with_format)
       assert_equal expected_request.path, ActiveResource::HttpMock.requests[index].path
@@ -132,7 +132,7 @@ class CustomMethodsTest < ActiveSupport::TestCase
       mock.put      path_without_format, {}, nil
     end
 
-    [:get, :post, :delete, :patch, :put].each_with_index do |method, index|
+    [ :get, :post, :delete, :patch, :put ].each_with_index do |method, index|
       Person.send(method, :active)
       expected_request = ActiveResource::Request.new(method, path_without_format)
       assert_equal expected_request.path, ActiveResource::HttpMock.requests[index].path

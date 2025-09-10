@@ -10,7 +10,7 @@ class HttpMockTest < ActiveSupport::TestCase
 
   FORMAT_HEADER = ActiveResource::Connection::HTTP_FORMAT_HEADER_NAMES
 
-  [:post, :patch, :put, :get, :delete, :head].each do |method|
+  [ :post, :patch, :put, :get, :delete, :head ].each do |method|
     test "responds to simple #{method} request" do
       ActiveResource::HttpMock.respond_to do |mock|
         mock.send(method, "/people/1", { FORMAT_HEADER[method] => "application/json" }, "Response")
@@ -204,7 +204,7 @@ class HttpMockTest < ActiveSupport::TestCase
   end
 
   def request(method, path, headers = {}, body = nil)
-    if method.in?([:patch, :put, :post])
+    if method.in?([ :patch, :put, :post ])
       @http.send(method, path, body, headers)
     else
       @http.send(method, path, headers)

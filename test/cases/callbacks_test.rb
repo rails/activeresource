@@ -12,12 +12,12 @@ class Developer < ActiveResource::Base
     end
 
     def callback_proc(callback_method)
-      Proc.new { |model| model.history << [callback_method, :proc] }
+      Proc.new { |model| model.history << [ callback_method, :proc ] }
     end
 
     def define_callback_method(callback_method)
       define_method(callback_method) do
-        self.history << [callback_method, :method]
+        self.history << [ callback_method, :method ]
       end
       send(callback_method, :"#{callback_method}")
     end
@@ -25,7 +25,7 @@ class Developer < ActiveResource::Base
     def callback_object(callback_method)
       klass = Class.new
       klass.send(:define_method, callback_method) do |model|
-        model.history << [callback_method, :object]
+        model.history << [ callback_method, :object ]
       end
       klass.new
     end
@@ -36,7 +36,7 @@ class Developer < ActiveResource::Base
     define_callback_method(callback_method)
     send(callback_method, callback_proc(callback_method))
     send(callback_method, callback_object(callback_method))
-    send(callback_method) { |model| model.history << [callback_method, :block] }
+    send(callback_method) { |model| model.history << [ callback_method, :block ] }
   end
 
   def history
@@ -67,7 +67,7 @@ class CallbacksTest < ActiveSupport::TestCase
       [ :after_validation,            :method ],
       [ :after_validation,            :proc   ],
       [ :after_validation,            :object ],
-      [ :after_validation,            :block  ],
+      [ :after_validation,            :block  ]
     ], developer.history
   end
 

@@ -241,8 +241,8 @@ module ActiveResource
     end
 
     # body?       methods
-    { true  => %w(post patch put),
-      false => %w(get delete head) }.each do |has_body, methods|
+    { true  => %w[post patch put],
+      false => %w[get delete head] }.each do |has_body, methods|
       methods.each do |method|
         # def post(path, body, headers, options = {})
         #   request = ActiveResource::Request.new(:post, path, body, headers, options)

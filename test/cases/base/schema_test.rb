@@ -28,7 +28,7 @@ class SchemaTest < ActiveSupport::TestCase
   end
 
   test "schema should only accept a hash" do
-    ["blahblah", ["one", "two"],  [:age, :name], Person.new].each do |bad_schema|
+    [ "blahblah", [ "one", "two" ],  [ :age, :name ], Person.new ].each do |bad_schema|
       assert_raises(ArgumentError, "should only accept a hash (or nil), but accepted: #{bad_schema.inspect}") do
         Person.schema = bad_schema
       end
@@ -64,7 +64,7 @@ class SchemaTest < ActiveSupport::TestCase
   end
 
   test "schema should not accept unknown values" do
-    bad_values = [ :oogle, :blob, "thing"]
+    bad_values = [ :oogle, :blob, "thing" ]
 
     bad_values.each do |bad_value|
       assert_raises(ArgumentError, "should only accept a known attribute type, but accepted: #{bad_value.inspect}") do
@@ -225,7 +225,7 @@ class SchemaTest < ActiveSupport::TestCase
   end
 
   test "attributes should not accept unknown values" do
-    bad_values = [ :oogle, :blob, "thing"]
+    bad_values = [ :oogle, :blob, "thing" ]
 
     bad_values.each do |bad_value|
       assert_raises(ArgumentError, "should only accept a known attribute type, but accepted: #{bad_value.inspect}") do
@@ -255,7 +255,7 @@ class SchemaTest < ActiveSupport::TestCase
   end
 
   test "should accept multiple attribute names for an attribute method" do
-    names = ["foo", "bar", "baz"]
+    names = [ "foo", "bar", "baz" ]
     s = nil
     Person.schema do
       s = self
@@ -423,6 +423,6 @@ class SchemaTest < ActiveSupport::TestCase
   test "known attributes should be unique" do
     new_schema = { "age" => "integer", "name" => "string" }
     Person.schema = new_schema
-    assert_equal Person.new(age: 20, name: "Matz").known_attributes, ["age", "name"]
+    assert_equal Person.new(age: 20, name: "Matz").known_attributes, [ "age", "name" ]
   end
 end

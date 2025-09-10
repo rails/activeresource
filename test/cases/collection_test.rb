@@ -34,14 +34,14 @@ class BasicCollectionTest < CollectionTest
   end
 
   def test_collect_bang_modifies_elements
-    elements = %w(a b c)
+    elements = %w[a b c]
     @collection.elements = elements
     results = @collection.collect! { |i| i + "!" }
     assert_equal results.to_a, elements.collect! { |i| i + "!" }
   end
 
   def test_collect_bang_returns_collection
-    @collection.elements = %w(a)
+    @collection.elements = %w[a]
     results = @collection.collect! { |i| i + "!" }
     assert_kind_of ActiveResource::Collection, results
   end
@@ -73,9 +73,9 @@ end
 class CollectionInheritanceTest < ActiveSupport::TestCase
   def setup
     @post = { id: 1, title: "Awesome" }
-    @posts_hash = { "results" => [@post], :next_page => "/paginated_posts.json?page=2" }
+    @posts_hash = { "results" => [ @post ], :next_page => "/paginated_posts.json?page=2" }
     @posts = @posts_hash.to_json
-    @posts2 = { "results" => [@post.merge(id: 2)], :next_page => nil }.to_json
+    @posts2 = { "results" => [ @post.merge(id: 2) ], :next_page => nil }.to_json
 
     @empty_posts = { "results" => [], :next_page => nil }.to_json
     @new_post = { id: nil, title: nil }.to_json

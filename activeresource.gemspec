@@ -21,16 +21,16 @@ Gem::Specification.new do |s|
     "changelog_uri"     => "https://github.com/rails/activeresource/releases/tag/v#{version}",
     "documentation_uri" => "http://rubydoc.info/gems/activeresource",
     "source_code_uri"   => "https://github.com/rails/activeresource/tree/v#{version}",
-    "rubygems_mfa_required" => "true",
+    "rubygems_mfa_required" => "true"
   }
 
   s.files = Dir["MIT-LICENSE", "README.md", "lib/**/*"]
   s.require_path = "lib"
 
-  s.required_ruby_version = ">= 2.6.0"
+  s.required_ruby_version = ">= 2.7.0"
 
-  s.add_dependency("activesupport", ">= 6.0")
-  s.add_dependency("activemodel", ">= 6.0")
+  s.add_dependency("activesupport", ">= 7.0")
+  s.add_dependency("activemodel", ">= 7.0")
   s.add_dependency("activemodel-serializers-xml", "~> 1.0")
 
   s.add_development_dependency("rake")
