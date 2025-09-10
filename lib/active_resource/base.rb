@@ -1066,6 +1066,7 @@ module ActiveResource
       end
 
       def where(clauses = {})
+        clauses = sanitize_forbidden_attributes(clauses)
         raise ArgumentError, "expected a clauses Hash, got #{clauses.inspect}" unless clauses.is_a? Hash
         find(:all, params: clauses)
       end
@@ -1498,6 +1499,7 @@ module ActiveResource
         raise ArgumentError, "expected attributes to be able to convert to Hash, got #{attributes.inspect}"
       end
 
+      attributes = sanitize_forbidden_attributes(attributes)
       attributes = attributes.to_hash
       @prefix_options, attributes = split_options(attributes)
 
@@ -1745,11 +1747,13 @@ module ActiveResource
   end
 
   class Base
+    extend ActiveModel::ForbiddenAttributesProtection
     extend ActiveModel::Naming
     extend ActiveResource::Associations
 
     include Callbacks, CustomMethods, Validations
     include ActiveModel::Conversion
+    include ActiveModel::ForbiddenAttributesProtection
     include ActiveModel::Serializers::JSON
     include ActiveModel::Serializers::Xml
     include ActiveResource::Reflection, ActiveResource::Rescuable

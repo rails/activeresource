@@ -817,7 +817,11 @@ class BaseTest < ActiveSupport::TestCase
     assert Person.collection_url(name: "Test", student: true).include?("name=Test")
     assert Person.collection_url(name: "Test", student: true).include?("student=true")
 
-    assert_equal "http://37s.sunrise.i:3000/people.json?name%5B%5D=bob&name%5B%5D=your+uncle%2Bme&name%5B%5D=&name%5B%5D=false", Person.collection_url(name: [ "bob", "your uncle+me", nil, false ])
+    if ActiveSupport::VERSION::MAJOR < 8 || ActiveSupport::VERSION::MINOR < 1
+      assert_equal "http://37s.sunrise.i:3000/people.json?name%5B%5D=bob&name%5B%5D=your+uncle%2Bme&name%5B%5D=&name%5B%5D=false", Person.collection_url(name: [ "bob", "your uncle+me", nil, false ])
+    else
+      assert_equal "http://37s.sunrise.i:3000/people.json?name%5B%5D=bob&name%5B%5D=your+uncle%2Bme&name%5B%5D&name%5B%5D=false", Person.collection_url(name: [ "bob", "your uncle+me", nil, false ])
+    end
     assert_equal "http://37s.sunrise.i:3000/people.json?struct%5Ba%5D%5B%5D=2&struct%5Ba%5D%5B%5D=1&struct%5Bb%5D=fred", Person.collection_url(struct: { :a => [ 2, 1 ], "b" => "fred" })
   end
 
