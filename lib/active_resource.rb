@@ -37,12 +37,14 @@ module ActiveResource
 
   autoload :Base
   autoload :Callbacks
+  autoload :Coder
   autoload :Connection
   autoload :CustomMethods
   autoload :Formats
   autoload :HttpMock
   autoload :Rescuable
   autoload :Schema
+  autoload :Serialization
   autoload :Singleton
   autoload :InheritingHash
   autoload :Validations

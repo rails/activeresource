@@ -1751,7 +1751,7 @@ module ActiveResource
     extend ActiveModel::Naming
     extend ActiveResource::Associations
 
-    include Callbacks, CustomMethods, Validations
+    include Callbacks, CustomMethods, Validations, Serialization
     include ActiveModel::Conversion
     include ActiveModel::ForbiddenAttributesProtection
     include ActiveModel::Serializers::JSON
