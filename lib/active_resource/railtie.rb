@@ -5,6 +5,8 @@ require "rails"
 
 module ActiveResource
   class Railtie < Rails::Railtie
+    config.eager_load_namespaces << ActiveResource
+
     config.active_resource = ActiveSupport::OrderedOptions.new
 
     initializer "active_resource.set_configs" do |app|
