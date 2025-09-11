@@ -1380,6 +1380,10 @@ module ActiveResource
     # is Json for the final object as it looked after the \save (which would include attributes like +created_at+
     # that weren't part of the original submit).
     #
+    # There's a series of callbacks associated with <tt>save</tt>. If any
+    # of the <tt>before_*</tt> callbacks throw +:abort+ the action is
+    # cancelled and <tt>save</tt> raises ActiveResource::ResourceInvalid.
+    #
     # ==== Examples
     #   my_company = Company.new(:name => 'RoleModel Software', :owner => 'Ken Auer', :size => 2)
     #   my_company.new? # => true
@@ -1405,13 +1409,17 @@ module ActiveResource
     # See ActiveResource::Validations for more information.
     #
     # There's a series of callbacks associated with <tt>save!</tt>. If any
-    # of the <tt>before_*</tt> callbacks return +false+ the action is
+    # of the <tt>before_*</tt> callbacks throw +:abort+ the action is
     # cancelled and <tt>save!</tt> raises ActiveResource::ResourceInvalid.
     def save!
       save || raise(ResourceInvalid.new(self))
     end
 
     # Deletes the resource from the remote service.
+    #
+    # There's a series of callbacks associated with <tt>destroy</tt>. If any
+    # of the <tt>before_destroy</tt> callbacks throw +:abort+ the action is
+    # cancelled.
     #
     # ==== Examples
     #   my_id = 3
@@ -1468,9 +1476,9 @@ module ActiveResource
     #   my_branch.reload
     #   my_branch.name # => "Wilson Road"
     def reload
-      self.load(self.class.find(to_param, params: @prefix_options).attributes, false, true)
-    rescue => exception
-      rescue_with_handler(exception) || raise
+      run_callbacks :reload do
+        self.load(self.class.find(to_param, params: @prefix_options).attributes, false, true)
+      end
     end
 
     # A method to manually load attributes from a \hash. Recursively loads collections of
@@ -1614,6 +1622,10 @@ module ActiveResource
       end
 
       # Create (i.e., \save to the remote service) the \new resource.
+      #
+      # There's a series of callbacks associated with <tt>create</tt>. If any
+      # of the <tt>before_create</tt> callbacks throw +:abort+ the action is
+      # cancelled.
       def create
         run_callbacks :create do
           connection.post(collection_path, encode, self.class.headers).tap do |response|
