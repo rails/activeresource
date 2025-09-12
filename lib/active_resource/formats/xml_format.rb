@@ -15,8 +15,8 @@ module ActiveResource
         "application/xml"
       end
 
-      def encode(hash, options = {})
-        hash.to_xml(options)
+      def encode(resource, options = {})
+        resource.to_xml(options)
       end
 
       def decode(xml)

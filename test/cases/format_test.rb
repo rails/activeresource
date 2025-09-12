@@ -108,6 +108,60 @@ class FormatTest < ActiveSupport::TestCase
     end
   end
 
+  def test_custom_json_format
+    format_class = Class.new do
+      include ActiveResource::Formats[:json]
+
+      def initialize(encoder:, decoder:)
+        @encoder, @decoder = encoder, decoder
+      end
+
+      def encode(resource, options = nil)
+        hash = resource.as_json(options)
+        hash = hash.deep_transform_keys!(&@encoder)
+        super(hash)
+      end
+
+      def decode(json)
+        super.deep_transform_keys!(&@decoder)
+      end
+    end
+
+    format = format_class.new(encoder: ->(key) { key.camelcase(:lower) }, decoder: :underscore)
+
+    using_format(Person, format) do
+      person = Person.new(name: "Joe", likes_hats: true)
+      json = { person: { name: "Joe", likesHats: true } }.to_json
+
+      assert_equal person, Person.new(format.decode(json))
+      assert_equal person.encode, json
+    end
+  end
+
+  def test_custom_xml_format
+    format = Module.new do
+      extend self, ActiveResource::Formats[:xml]
+
+      def encode(value, options = {})
+        xml = value.serializable_hash(options)
+        xml.deep_transform_keys!(&:camelcase)
+        super(xml, root: value.class.element_name)
+      end
+
+      def decode(value)
+        super.deep_transform_keys!(&:underscore)
+      end
+    end
+
+    using_format(Person, format) do
+      person = Person.new(name: "Joe", likes_hats: true)
+      xml = { Name: "Joe", "LikesHats": true }.to_xml(root: "person")
+
+      assert_equal person, Person.new(format.decode(xml))
+      assert_equal person.encode, xml
+    end
+  end
+
   def test_removing_root
     matz = { name: "Matz" }
     matz_with_root = { person: matz }
