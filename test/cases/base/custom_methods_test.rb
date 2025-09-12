@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "abstract_unit"
+require "fixtures/inventory"
 require "fixtures/person"
 require "fixtures/street_address"
 require "active_support/core_ext/hash/conversions"
@@ -13,6 +14,8 @@ class CustomMethodsTest < ActiveSupport::TestCase
     @ryan  = { person: { name: "Ryan" } }.to_json
     @addy  = { address: { id: 1, street: "12345 Street" } }.to_json
     @addy_deep = { address: { id: 1, street: "12345 Street", zip: "27519" } }.to_json
+    @inventory = { inventory: { id: 1, name: "Warehouse" } }.to_json
+    @inventory_array = { inventory: [ { id: 1, name: "Warehouse" } ] }.to_json
 
     ActiveResource::HttpMock.respond_to do |mock|
       mock.get    "/people/1.json",        {}, @matz
@@ -33,6 +36,14 @@ class CustomMethodsTest < ActiveSupport::TestCase
       mock.put    "/people/1/addresses/1/normalize_phone.json?locale=US", {}, nil, 204
       mock.put    "/people/1/addresses/sort.json?by=name", {}, nil, 204
       mock.post   "/people/1/addresses/new/link.json", {}, { address: { street: "12345 Street" } }.to_json, 201, "Location" => "/people/1/addresses/2.json"
+      mock.get    "/products/1/inventory.json", {}, @inventory
+      mock.get    "/products/1/inventories/retrieve.json?name=Warehouse", {}, @inventory_array
+      mock.post   "/products/1/inventories/purchase.json?name=Warehouse", {}, nil, 201
+      mock.put    "/products/1/inventories/promote.json?name=Warehouse", {}, nil, 204
+      mock.put    "/products/1/inventories/sort.json?by=name", {}, nil, 204
+      mock.get    "/products/1/inventories/1/shallow.json", {}, @inventory
+      mock.put    "/products/1/inventories/1/promote.json?name=Warehouse", {}, nil, 204
+      mock.delete "/products/1/inventories/1/deactivate.json", {}, nil, 200
     end
 
     Person.user = nil
@@ -97,6 +108,43 @@ class CustomMethodsTest < ActiveSupport::TestCase
     assert_equal ActiveResource::Response.new(@matz, 201), matz.post(:register)
   end
 
+  def test_custom_singleton_collection_method
+    # GET
+    assert_equal([ { "id" => 1, "name" => "Warehouse" } ], Inventory.get(:retrieve, product_id: 1, name: "Warehouse"))
+
+    # POST
+    assert_equal(ActiveResource::Response.new("", 201, {}), Inventory.post(:purchase, product_id: 1, name: "Warehouse"))
+
+    # PUT
+    assert_equal ActiveResource::Response.new("", 204, {}),
+                   Inventory.put(:promote, { product_id: 1, name: "Warehouse" }, "atestbody")
+    assert_equal ActiveResource::Response.new("", 204, {}), Inventory.put(:sort, product_id: 1, by: "name")
+  end
+
+  def test_custom_singleton_collection_method_with_overridden_collection_name
+    original_collection_name, Inventory.collection_name = Inventory.collection_name, "special_inventories"
+
+    ActiveResource::HttpMock.respond_to.get "/products/1/special_inventories/shallow.json", {}, @inventory
+
+    # GET
+    assert_equal({ "id" => 1, "name" => "Warehouse" }, Inventory.get(:shallow, product_id: 1))
+  ensure
+    Inventory.collection_name = original_collection_name
+  end
+
+  def test_custom_singleton_element_method
+    inventory = Inventory.find(params: { product_id: 1 })
+
+    # Test GET against an element URL
+    assert_equal inventory.get(:shallow), "id" => 1, "name" => "Warehouse"
+
+    # Test PUT against an element URL
+    assert_equal ActiveResource::Response.new("", 204, {}), inventory.put(:promote, { name: "Warehouse" }, "body")
+
+    # Test DELETE against an element URL
+    assert_equal ActiveResource::Response.new("", 200, {}), inventory.delete(:deactivate)
+  end
+
   def test_find_custom_resources
     assert_equal "Matz", Person.find(:all, from: :managers).first.name
   end
@@ -151,5 +199,69 @@ class CustomMethodsTest < ActiveSupport::TestCase
     end
 
     assert_equal ActiveResource::Response.new(luis, 204), Person.find("luís").put(:deactivate)
+  end
+end
+
+class SingletonCustomMethodsTest < ActiveSupport::TestCase
+  class Inventory < ::Inventory
+    self.element_name = "inventory"
+
+    include ActiveResource::Singleton::CustomMethods
+  end
+
+  def setup
+    @inventory = { inventory: { id: 1, name: "Warehouse" } }.to_json
+    @inventory_array = { inventory: [ { id: 1, name: "Warehouse" } ] }.to_json
+
+    ActiveResource::HttpMock.respond_to do |mock|
+      mock.get    "/products/1/inventory.json", {}, @inventory
+      mock.get    "/products/1/inventory/shallow.json", {}, @inventory
+      mock.get    "/products/1/inventory/retrieve.json?name=Warehouse", {}, @inventory_array
+      mock.post   "/products/1/inventory/purchase.json?name=Warehouse", {}, nil, 201
+      mock.put    "/products/1/inventory/promote.json?name=Warehouse", {}, nil, 204
+      mock.put    "/products/1/inventory/sort.json?by=name", {}, nil, 204
+      mock.delete "/products/1/inventory/deactivate.json", {}, nil, 200
+    end
+  end
+
+  def teardown
+    ActiveResource::HttpMock.reset!
+  end
+
+  def test_singleton_custom_collection_method
+    # GET
+    assert_equal([ { "id" => 1, "name" => "Warehouse" } ], Inventory.get(:retrieve, product_id: 1, name: "Warehouse"))
+
+    # POST
+    assert_equal(ActiveResource::Response.new("", 201, {}), Inventory.post(:purchase, product_id: 1, name: "Warehouse"))
+
+    # PUT
+    assert_equal ActiveResource::Response.new("", 204, {}),
+                   Inventory.put(:promote, { product_id: 1, name: "Warehouse" }, "atestbody")
+    assert_equal ActiveResource::Response.new("", 204, {}), Inventory.put(:sort, product_id: 1, by: "name")
+  end
+
+  def test_singleton_custom_collection_method_with_overridden_collection_name
+    original_collection_name, Inventory.collection_name = Inventory.collection_name, "special_inventory"
+
+    ActiveResource::HttpMock.respond_to.get "/products/1/special_inventory/shallow.json", {}, @inventory
+
+    # GET
+    assert_equal({ "id" => 1, "name" => "Warehouse" }, Inventory.get(:shallow, product_id: 1))
+  ensure
+    Inventory.collection_name = original_collection_name
+  end
+
+  def test_singleton_custom_element_method
+    inventory = Inventory.find(params: { product_id: 1 })
+
+    # Test GET against an element URL
+    assert_equal inventory.get(:shallow), "id" => 1, "name" => "Warehouse"
+
+    # Test PUT against an element URL
+    assert_equal ActiveResource::Response.new("", 204, {}), inventory.put(:promote, { name: "Warehouse" }, "body")
+
+    # Test DELETE against an element URL
+    assert_equal ActiveResource::Response.new("", 200, {}), inventory.delete(:deactivate)
   end
 end
