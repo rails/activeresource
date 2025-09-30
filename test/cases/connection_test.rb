@@ -101,6 +101,9 @@ class ConnectionTest < ActiveSupport::TestCase
     # 429 is too many requests
     assert_response_raises ActiveResource::TooManyRequests, 429
 
+    # 451 is unavailable for legal reasons
+    assert_response_raises ActiveResource::UnavailableForLegalReasons, 451
+
     # 4xx are client errors.
     [ 402, 499 ].each do |code|
       assert_response_raises ActiveResource::ClientError, code

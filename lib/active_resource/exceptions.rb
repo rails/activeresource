@@ -88,6 +88,10 @@ module ActiveResource
   class TooManyRequests < ClientError # :nodoc:
   end
 
+  # 451 Unavailable For Legal Reasons
+  class UnavailableForLegalReasons < ClientError # :nodoc:
+  end
+
   # 5xx Server Error
   class ServerError < ConnectionError # :nodoc:
   end
