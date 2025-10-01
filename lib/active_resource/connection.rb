@@ -163,6 +163,8 @@ module ActiveResource
           raise(ResourceInvalid.new(response))
         when 429
           raise(TooManyRequests.new(response))
+        when 451
+          raise(UnavailableForLegalReasons.new(response))
         when 401...500
           raise(ClientError.new(response))
         when 500...600
