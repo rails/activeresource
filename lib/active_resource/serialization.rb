@@ -11,14 +11,14 @@ module ActiveResource
   # database. Decodes strings read from the database into Active Resource
   # instances.
   #
-  #   class User < ActiveRecord::Base
-  #     serialize :person, coder: Person
-  #   end
-  #
   #   class Person < ActiveResource::Base
   #     schema do
   #       attribute :name, :string
   #     end
+  #   end
+  #
+  #   class User < ActiveRecord::Base
+  #     serialize :person, coder: Person
   #   end
   #
   #   user = User.new
@@ -55,6 +55,10 @@ module ActiveResource
   #     schema do
   #       attribute :name, :string
   #     end
+  #   end
+  #
+  #   class User < ActiveRecord::Base
+  #     serialize :person, coder: ActiveResource::Coder.new(Person, :serializable_hash)
   #   end
   #
   #   user = User.new

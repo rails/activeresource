@@ -9,14 +9,14 @@ module ActiveResource
   # database. Decodes values read from the database into Active Resource
   # instances.
   #
-  #   class User < ActiveRecord::Base
-  #     serialize :person, coder: ActiveResource::Coder.new(Person)
-  #   end
-  #
   #   class Person < ActiveResource::Base
   #     schema do
   #       attribute :name, :string
   #     end
+  #   end
+  #
+  #   class User < ActiveRecord::Base
+  #     serialize :person, coder: Person
   #   end
   #
   #   user = User.new
@@ -37,8 +37,8 @@ module ActiveResource
   #
   #   user.person_before_type_cast # => "{\"name\":\"Matz\"}"
   #
-  # To customize serialization, pass the method name or a block as the second
-  # argument:
+  # To customize serialization, pass the method name or a block that accepts the
+  # instance as the second argument:
   #
   #   person = Person.new name: "Matz"
   #
@@ -50,6 +50,10 @@ module ActiveResource
   class Coder
     attr_accessor :resource_class, :encoder
 
+    # ==== Arguments
+    # * <tt>resource_class</tt> Active Resource class that to be coded
+    # * <tt>encoder_method</tt> the method to invoke on the instance to encode
+    # it. Defaults to ActiveResource::Base#encode.
     def initialize(resource_class, encoder_method = :encode, &block)
       @resource_class = resource_class
       @encoder = block || encoder_method
