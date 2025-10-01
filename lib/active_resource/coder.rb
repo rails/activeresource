@@ -70,6 +70,8 @@ module ActiveResource
       return if value.nil?
       value = resource_class.format.decode(value) if value.is_a?(String)
       raise ArgumentError.new("expected value to be Hash, but was #{value.class}") unless value.is_a?(Hash)
+      value = Formats.remove_root(value) if value.keys.first.to_s == resource_class.element_name
+
       resource_class.new(value, value[resource_class.primary_key])
     end
   end
