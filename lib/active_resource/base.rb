@@ -77,6 +77,58 @@ module ActiveResource
   # As you can see, these are very similar to Active Record's life cycle methods for database records.
   # You can read more about each of these methods in their respective documentation.
   #
+  # Active Resource objects provide out-of-the-box support for both JSON and XML
+  # formats. A resource object's format encodes attributes into request payloads and decodes response payloads
+  # into attributes.
+  #
+  # The default format is ActiveResource::Formats::JsonFormat. To change the
+  # format, configure the resource object class' +format+:
+  #
+  #   Person.format = :json
+  #   person = Person.find(1) # => GET /people/1.json
+  #
+  #   person.encode
+  #   # => "{\"person\":{\"id\":1,\"full_name\":\"First Last\"}}"
+  #
+  #   Person.format.decode(person.encode)
+  #   # => {"id"=>1, "full_name"=>"First Last"}
+  #
+  #   Person.format = :xml
+  #   person = Person.find(1) # => GET /people/1.xml
+  #
+  #   person.encode
+  #   # => "<?xml version=\"1.0\" encoding=\"UTF-8\"?><person><id type=\"integer\">1</id><full-name>First Last</full-name></person>"
+  #
+  #   Person.format.decode(person.encode)
+  #   # => {"full_name"=>"First Last"}
+  #
+  # To customize how attributes are encoded and decoded, declare a format and override
+  # its +encode+ and +decode+ methods:
+  #
+  #   module CamelcaseJsonFormat
+  #     extend ActiveResource::Formats[:json]
+  #
+  #     def self.encode(resource, options = nil)
+  #       hash = resource.as_json(options)
+  #       hash = hash.deep_transform_keys! { |key| key.camelcase(:lower) }
+  #       super(hash)
+  #     end
+  #
+  #     def decode(json)
+  #       hash = super
+  #       hash.deep_transform_keys! { |key| key.underscore }
+  #     end
+  #   end
+  #
+  #   Person.format = CamelcaseJsonFormat
+  #
+  #   person = Person.new(first_name: "First", last_name: "Last")
+  #   person.encode
+  #   # => "{\"person\":{\"firstName\":\"First\",\"lastName\":\"Last\"}}"
+  #
+  #   Person.format.decode(person.encode)
+  #   # => {"first_name"=>"First", "last_name"=>"Last"}
+  #
   # === Custom REST methods
   #
   # Since simple CRUD/life cycle methods can't accomplish every task, Active Resource also supports
@@ -1459,9 +1511,13 @@ module ActiveResource
 
     # Returns the serialized string representation of the resource in the configured
     # serialization format specified in ActiveResource::Base.format. The options
-    # applicable depend on the configured encoding format.
+    # applicable depend on the configured encoding format, and are forwarded to
+    # the corresponding serializer method.
+    #
+    # ActiveResource::Formats::JsonFormat delegates to <tt>Base#to_json</tt> and
+    # ActiveResource::Formats::XmlFormat delegates to <tt>Base#to_xml</tt>.
     def encode(options = {})
-      send("to_#{self.class.format.extension}", options)
+      self.class.format.encode(self, options)
     end
 
     # A method to \reload the attributes of this object from the remote web service.
