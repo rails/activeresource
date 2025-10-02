@@ -9,6 +9,24 @@ require "fixtures/proxy"
 require "fixtures/pet"
 require "active_support/core_ext/hash/conversions"
 
+module CamelcaseUrlEncodedFormat
+  extend ActiveResource::Formats::UrlEncodedFormat
+
+  def self.encode(params, options = nil)
+    params = params.deep_transform_keys { |key| key.to_s.camelcase(:lower) }
+
+    super
+  end
+end
+
+class CamelcasePerson < Person
+  self.query_format = CamelcaseUrlEncodedFormat
+end
+
+class CamelcasePet < Pet
+  self.query_format = CamelcaseUrlEncodedFormat
+end
+
 class FinderTest < ActiveSupport::TestCase
   def setup
     setup_response # find me in abstract_unit
@@ -143,6 +161,15 @@ class FinderTest < ActiveSupport::TestCase
     assert_equal "David", people.first.name
   end
 
+  def test_where_with_clause_in_custom_query_format
+    ActiveResource::HttpMock.respond_to { |m| m.get "/camelcase_people.json?likesHats=true", {}, @people_joe }
+    people = CamelcasePerson.where(likes_hats: true)
+    assert_equal 1, people.size
+    assert_kind_of CamelcasePerson, people.first
+    assert_equal "Joe", people.first.name
+    assert_predicate people.first, :likes_hats
+  end
+
   def test_where_with_invalid_clauses
     error = assert_raise(ArgumentError) { Person.where(nil) }
     assert_equal "expected a clauses Hash, got nil", error.message
@@ -222,6 +249,18 @@ class FinderTest < ActiveSupport::TestCase
     ActiveResource::HttpMock.respond_to { |m| m.get "/dogs.json", {}, @pets }
 
     pets = Pet.find(:all, from: "/dogs.json", params: { person_id: 1 })
+    assert_equal 2, pets.size
+    assert_equal "Max", pets.first.name
+    assert_equal ({ person_id: 1 }), pets.first.prefix_options
+
+    assert_equal "Daisy", pets.second.name
+    assert_equal ({ person_id: 1 }), pets.second.prefix_options
+  end
+
+  def test_find_all_with_prefix_and_custom_query_format
+    ActiveResource::HttpMock.respond_to { |m| m.get "/people/1/camelcase_pets.json?queryParam=1", {}, @pets }
+
+    pets = CamelcasePet.find(:all, params: { person_id: 1, query_param: 1 })
     assert_equal 2, pets.size
     assert_equal "Max", pets.first.name
     assert_equal ({ person_id: 1 }), pets.first.prefix_options
