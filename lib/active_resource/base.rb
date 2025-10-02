@@ -380,6 +380,7 @@ module ActiveResource
       @@logger = logger
     end
 
+    class_attribute :_query_format
     class_attribute :_format
     class_attribute :_collection_parser
     class_attribute :include_format_in_path
@@ -621,6 +622,24 @@ module ActiveResource
       def auth_type=(auth_type)
         self._connection = nil
         @auth_type = auth_type
+      end
+
+      # Sets the URL format that attributes are sent and received in from a mime type reference:
+      #
+      #   Person.query_format = ActiveResource::Formats::UrlEncodedFormat
+      #   Person.where(first_name: "Matz") # => GET /people.json?first_name=Matz
+      #
+      #   Person.query_format = CustomCamelcaseUrlEncodedFormat
+      #   Person.where(first_name: "Matz") # => GET /people.json?firstName=Matz
+      #
+      # Default format is <tt>ActiveResource::Formats::UrlEncodedFormat</tt>.
+      def query_format=(mime_type_reference_or_format)
+        self._query_format = mime_type_reference_or_format
+      end
+
+      # Returns the current parameters format, default is ActiveResource::Formats::UrlEncodedFormat
+      def query_format
+        self._query_format || ActiveResource::Formats::UrlEncodedFormat
       end
 
       # Sets the format that attributes are sent and received in from a mime type reference:
@@ -1032,7 +1051,8 @@ module ActiveResource
       # ==== Options
       #
       # * <tt>:from</tt> - Sets the path or custom method that resources will be fetched from.
-      # * <tt>:params</tt> - Sets query and \prefix (nested URL) parameters.
+      # * <tt>:params</tt> - Sets query and \prefix (nested URL) parameters. Query keys are URL
+      #                      encoded using the resource's +query_format+ (the ActiveResource::Formats::UrlEncodedFormat by default).
       #
       # ==== Examples
       #   Person.find(1)
@@ -1118,6 +1138,8 @@ module ActiveResource
         WhereClause.new(self, *args)
       end
 
+      # This is an alias for all. You can pass in all the same
+      # arguments to this method as you can to <tt>all</tt> and <tt>find(:all)</tt>
       def where(clauses = {})
         clauses = sanitize_forbidden_attributes(clauses)
         raise ArgumentError, "expected a clauses Hash, got #{clauses.inspect}" unless clauses.is_a? Hash
@@ -1243,7 +1265,7 @@ module ActiveResource
 
         # Builds the query string for the request.
         def query_string(options)
-          "?#{options.to_query}" unless options.nil? || options.empty?
+          "?#{query_format.encode(options)}" unless options.nil? || options.empty?
         end
 
         # split an option hash into two hashes, one containing the prefix options,

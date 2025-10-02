@@ -132,7 +132,7 @@ response:
 ```ruby
 # Expects a response of
 #
-# {"id":1,"first":"Tyler","last":"Durden"}
+# {"id":1,"first_name":"Tyler","last_name":"Durden"}
 #
 # for GET http://api.people.com:3000/people/1.json
 #
@@ -144,14 +144,14 @@ JSON element becoming an attribute on the object.
 
 ```ruby
 tyler.is_a? Person  # => true
-tyler.last  # => 'Durden'
+tyler.last_name  # => 'Durden'
 ```
 
 Any complex element (one that contains other elements) becomes its own object:
 
 ```ruby
 # With this response:
-# {"id":1,"first":"Tyler","address":{"street":"Paper St.","state":"CA"}}
+# {"id":1,"first_name":"Tyler","address":{"street":"Paper St.","state":"CA"}}
 #
 # for GET http://api.people.com:3000/people/1.json
 #
@@ -166,15 +166,30 @@ Collections can also be requested in a similar fashion
 # Expects a response of
 #
 # [
-#   {"id":1,"first":"Tyler","last":"Durden"},
-#   {"id":2,"first":"Tony","last":"Stark",}
+#   {"id":1,"first_name":"Tyler","last_name":"Durden"},
+#   {"id":2,"first_name":"Tony","last_name":"Stark",}
 # ]
 #
 # for GET http://api.people.com:3000/people.json
 #
 people = Person.all
-people.first  # => <Person::xxx 'first' => 'Tyler' ...>
-people.last  # => <Person::xxx 'first' => 'Tony' ...>
+people.first  # => <Person::xxx 'first_name' => 'Tyler' ...>
+people.last  # => <Person::xxx 'first_name' => 'Tony' ...>
+```
+
+Collections can be filtered with query parameters
+
+```ruby
+# Expects a response of
+#
+# [
+#   {"id":1,"first_name":"Tyler","last_name":"Durden"},
+# ]
+#
+# for GET http://api.people.com:3000/people.json?last_name=Durden
+#
+people = Person.where(last_name: "Durden")
+people.first  # => <Person::xxx 'first_name' => 'Tyler' ...>
 ```
 
 ### Create
@@ -185,12 +200,12 @@ id of the newly created resource is parsed out of the Location response header a
 as the id of the ARes object.
 
 ```ruby
-# {"first":"Tyler","last":"Durden"}
+# {"first_name":"Tyler","last_name":"Durden"}
 #
 # is submitted as the body on
 #
-# if include_root_in_json is not set or set to false => {"first":"Tyler"}
-# if include_root_in_json is set to true => {"person":{"first":"Tyler"}}
+# if include_root_in_json is not set or set to false => {"first_name":"Tyler"}
+# if include_root_in_json is set to true => {"person":{"first_name":"Tyler"}}
 #
 # POST http://api.people.com:3000/people.json
 #
@@ -199,7 +214,7 @@ as the id of the ARes object.
 #
 # Response (201): Location: http://api.people.com:3000/people/2
 #
-tyler = Person.new(:first => 'Tyler')
+tyler = Person.new(:first_name => 'Tyler')
 tyler.new?  # => true
 tyler.save  # => true
 tyler.new?  # => false
@@ -213,12 +228,12 @@ with the exception that no response headers are needed -- just an empty response
 server side was successful.
 
 ```ruby
-# {"first":"Tyler"}
+# {"first_name":"Tyler"}
 #
 # is submitted as the body on
 #
-# if include_root_in_json is not set or set to false => {"first":"Tyler"}
-# if include_root_in_json is set to true => {"person":{"first":"Tyler"}}
+# if include_root_in_json is not set or set to false => {"first_name":"Tyler"}
+# if include_root_in_json is set to true => {"person":{"first_name":"Tyler"}}
 #
 # PUT http://api.people.com:3000/people/1.json
 #
@@ -226,8 +241,8 @@ server side was successful.
 # is expected with code (204)
 #
 tyler = Person.find(1)
-tyler.first # => 'Tyler'
-tyler.first = 'Tyson'
+tyler.first_name # => 'Tyler'
+tyler.first_name = 'Tyson'
 tyler.save  # => true
 ```
 
