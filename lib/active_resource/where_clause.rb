@@ -2,6 +2,7 @@
 
 module ActiveResource
   class WhereClause < BasicObject # :nodoc:
+    delegate :==, to: :resources
     delegate_missing_to :resources
 
     def initialize(resource_class, options = {})

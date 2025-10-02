@@ -66,11 +66,25 @@ module ActiveResource
   #   user.person.name # => "Matz"
   #
   #   user.person_before_type_cast # => {"name"=>"Matz"}
+  #
+  # === Collections
+  #
+  # To encode ActiveResource::Collection instances, pass the resource class
+  # +collection_coder+ as the +:coder+ option:
+  #
+  #   class Team < ActiveRecord::Base
+  #     serialize :people, coder: Person.collection_coder
+  #   end
+  #
+  #   team = Team.new
+  #   team.people = Person.all
+  #   team.people.map(&:attributes) # => [{ "id" => 1, "name" => "Matz" }]
   module Serialization
     extend ActiveSupport::Concern
 
     included do
       class_attribute :coder, instance_accessor: false, instance_predicate: false
+      class_attribute :collection_coder, instance_accessor: false, instance_predicate: false
     end
 
     module ClassMethods
@@ -79,6 +93,7 @@ module ActiveResource
       def inherited(subclass) # :nodoc:
         super
         subclass.coder = Coder.new(subclass)
+        subclass.collection_coder = Coder.new(subclass, collection: true)
       end
     end
   end
