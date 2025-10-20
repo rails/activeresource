@@ -54,14 +54,14 @@ module ActiveResource
 
     # Grabs errors from a json response.
     def from_json(json, save_cache = false)
-      decoded = ActiveSupport::JSON.decode(json) || {} rescue {}
+      decoded = Formats[:json].decode(json, false) || {} rescue {}
       errors = decoded["errors"] || {}
       from_hash errors, save_cache
     end
 
     # Grabs errors from an XML response.
     def from_xml(xml, save_cache = false)
-      array = Array.wrap(Hash.from_xml(xml)["errors"]["error"]) rescue []
+      array = Array.wrap(Formats[:xml].decode(xml, false)["errors"]["error"]) rescue []
       from_array array, save_cache
     end
   end

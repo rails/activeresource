@@ -19,8 +19,9 @@ module ActiveResource
         resource.to_xml(options)
       end
 
-      def decode(xml)
-        Formats.remove_root(Hash.from_xml(xml))
+      def decode(xml, remove_root = true)
+        hash = Hash.from_xml(xml)
+        remove_root ? Formats.remove_root(hash) : hash
       end
     end
   end
