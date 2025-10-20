@@ -325,15 +325,6 @@ module ActiveResource
   #   ryan.errors.invalid?(:first)  # => true
   #   ryan.errors.full_messages     # => ['First cannot be empty']
   #
-  # For backwards-compatibility with older endpoints, the following formats are also supported in JSON responses:
-  #
-  #   # {"errors":['First cannot be empty']}
-  #   #   This was the required format for previous versions of ActiveResource
-  #   # {"first":["cannot be empty"]}
-  #   #   This was the default format produced by respond_with in ActionController <3.2.1
-  #
-  # Parsing either of these formats will result in a deprecation warning.
-  #
   # Learn more about Active Resource's validation features in the ActiveResource::Validations documentation.
   #
   # === Timeouts
