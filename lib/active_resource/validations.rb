@@ -54,15 +54,123 @@ module ActiveResource
 
     # Grabs errors from a json response.
     def from_json(json, save_cache = false)
-      decoded = Formats[:json].decode(json, false) || {} rescue {}
-      errors = decoded["errors"] || {}
-      from_hash errors, save_cache
+      from_body json, save_cache, format: Formats[:json]
     end
 
     # Grabs errors from an XML response.
     def from_xml(xml, save_cache = false)
-      array = Array.wrap(Formats[:xml].decode(xml, false)["errors"]["error"]) rescue []
-      from_array array, save_cache
+      from_body xml, save_cache, format: Formats[:xml]
+    end
+
+    ##
+    # :method: from_body
+    #
+    # :call-seq:
+    #     from_body(body, save_cache = false)
+    #
+    # Grabs errors from a response body.
+    def from_body(body, save_cache = false, format: @base.class.format)
+      decoded = format.decode(body, false) || {} rescue {}
+      errors = @base.class.errors_parser.new(decoded).tap do |parser|
+        parser.format = format
+      end.messages
+
+      if errors.is_a?(Array)
+        from_array errors, save_cache
+      else
+        from_hash errors, save_cache
+      end
+    end
+  end
+
+  # ActiveResource::ErrorsParser is a wrapper to handle parsing responses in
+  # response to invalid requests that do not directly map to Active Model error
+  # conventions.
+  #
+  # You can define a custom class that inherits from ActiveResource::ErrorsParser
+  # in order to to set the elements instance.
+  #
+  # The initialize method will receive the ActiveResource::Formats parsed result
+  # and should set @messages.
+  #
+  # ==== Example
+  #
+  # Consider a POST /posts.json request that results in a 422 Unprocessable
+  # Content response with the following +application/json+ body:
+  #
+  #   {
+  #     "error": true,
+  #     "messages": ["Something went wrong", "Title can't be blank"]
+  #   }
+  #
+  # A Post class can be setup to handle it with:
+  #
+  #   class Post < ActiveResource::Base
+  #     self.errors_parser = PostErrorsParser
+  #   end
+  #
+  # A custom ActiveResource::ErrorsParser instance's +messages+ method should
+  # return a mapping of attribute names (or +"base"+) to arrays of error message
+  # strings:
+  #
+  #   class PostErrorsParser < ActiveResource::ErrorsParser
+  #     def initialize(parsed)
+  #       @messages = Hash.new { |hash, attr_name| hash[attr_name] = [] }
+  #
+  #       parsed["messages"].each do |message|
+  #         if message.starts_with?("Title")
+  #           @messages["title"] << message
+  #         else
+  #           @messages["base"] << message
+  #         end
+  #       end
+  #     end
+  #   end
+  #
+  # When the POST /posts.json request is submitted by calling +save+, the errors
+  # are parsed from the body and assigned to the Post instance's +errors+
+  # object:
+  #
+  #   post = Post.new(title: "")
+  #   post.save                         # => false
+  #   post.valid?                       # => false
+  #   post.errors.messages_for(:base)   # => ["Something went wrong"]
+  #   post.errors.messages_for(:title)  # => ["Title can't be blank"]
+  #
+  # If the custom ActiveResource::ErrorsParser instance's +messages+ method
+  # returns an array of error message strings, Active Resource will try to infer
+  # the attribute name based on the contents of the error message string. If an
+  # error starts with a known attribute name, Active Resource will add the
+  # message to that attribute's error messages. If a known attribute name cannot
+  # be inferred, the error messages will be added to the +:base+ errors:
+  #
+  #   class PostErrorsParser < ActiveResource::ErrorsParser
+  #     def initialize(parsed)
+  #       @messages = parsed["messages"]
+  #     end
+  #   end
+  #
+  #   post = Post.new(title: "")
+  #   post.save                         # => false
+  #   post.valid?                       # => false
+  #   post.errors.messages_for(:base)   # => ["Something went wrong"]
+  #   post.errors.messages_for(:title)  # => ["Title can't be blank"]
+  class ErrorsParser
+    attr_accessor :messages
+    attr_accessor :format
+
+    def initialize(parsed)
+      @messages = parsed
+    end
+  end
+
+  class ActiveModelErrorsParser < ErrorsParser # :nodoc:
+    def messages
+      if format.is_a?(Formats[:xml])
+        Array.wrap(super["errors"]["error"]) rescue []
+      else
+        super["errors"] || {} rescue {}
+      end
     end
   end
 
@@ -138,6 +246,7 @@ module ActiveResource
       alias_method :save_without_validation, :save
       alias_method :save, :save_with_validation
       class_attribute :_remote_errors, instance_accessor: false
+      class_attribute :_errors_parser, instance_accessor: false
     end
 
     class_methods do
@@ -152,6 +261,16 @@ module ActiveResource
       # ActiveResource::ResourceInvalid.
       def remote_errors
         _remote_errors.presence || ResourceInvalid
+      end
+
+      # Sets the parser to use when a response with errors is returned.
+      def errors_parser=(parser_class)
+        parser_class = parser_class.constantize if parser_class.is_a?(String)
+        self._errors_parser = parser_class
+      end
+
+      def errors_parser
+        _errors_parser || ActiveResource::ActiveModelErrorsParser
       end
     end
 
@@ -183,12 +302,7 @@ module ActiveResource
     # Loads the set of remote errors into the object's Errors based on the
     # content-type of the error-block received.
     def load_remote_errors(remote_errors, save_cache = false) # :nodoc:
-      case self.class.format
-      when ActiveResource::Formats[:xml]
-        errors.from_xml(remote_errors.response.body, save_cache)
-      when ActiveResource::Formats[:json]
-        errors.from_json(remote_errors.response.body, save_cache)
-      end
+      errors.from_body(remote_errors.response.body, save_cache)
     end
 
     # Checks for errors on an object (i.e., is resource.errors empty?).
