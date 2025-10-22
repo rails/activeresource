@@ -5,7 +5,7 @@ class AddressXMLFormatter
   include ActiveResource::Formats::XmlFormat
 
   def decode(xml)
-    data = ActiveResource::Formats::XmlFormat.decode(xml)
+    data = super
     # process address fields
     data.each do |address|
       address["city_state"] = "#{address['city']}, #{address['state']}"
