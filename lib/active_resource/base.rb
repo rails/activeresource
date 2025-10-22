@@ -105,10 +105,10 @@ module ActiveResource
   # To customize how attributes are encoded and decoded, declare a format and override
   # its +encode+ and +decode+ methods:
   #
-  #   module CamelcaseJsonFormat
-  #     extend ActiveResource::Formats[:json]
+  #   class CamelcaseJsonFormat
+  #     include ActiveResource::Formats[:json]
   #
-  #     def self.encode(resource, options = nil)
+  #     def encode(resource, options = nil)
   #       hash = resource.as_json(options)
   #       hash = hash.deep_transform_keys! { |key| key.camelcase(:lower) }
   #       super(hash)
@@ -120,7 +120,7 @@ module ActiveResource
   #     end
   #   end
   #
-  #   Person.format = CamelcaseJsonFormat
+  #   Person.format = CamelcaseJsonFormat.new
   #
   #   person = Person.new(first_name: "First", last_name: "Last")
   #   person.encode
