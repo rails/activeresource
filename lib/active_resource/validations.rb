@@ -55,21 +55,8 @@ module ActiveResource
     # Grabs errors from a json response.
     def from_json(json, save_cache = false)
       decoded = ActiveSupport::JSON.decode(json) || {} rescue {}
-      if decoded.kind_of?(Hash) && (decoded.has_key?("errors") || decoded.empty?)
-        errors = decoded["errors"] || {}
-        if errors.kind_of?(Array)
-          # 3.2.1-style with array of strings
-          ActiveResource.deprecator.warn("Returning errors as an array of strings is deprecated.")
-          from_array errors, save_cache
-        else
-          # 3.2.2+ style
-          from_hash errors, save_cache
-        end
-      else
-        # <3.2-style respond_with - lacks 'errors' key
-        ActiveResource.deprecator.warn('Returning errors as a hash without a root "errors" key is deprecated.')
-        from_hash decoded, save_cache
-      end
+      errors = decoded["errors"] || {}
+      from_hash errors, save_cache
     end
 
     # Grabs errors from an XML response.
