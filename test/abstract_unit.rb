@@ -32,6 +32,7 @@ def setup_response
   @joe    = { person: { id: 6, name: "Joe", likes_hats: true } }.to_json
   @people = { people: [ { person: { id: 1, name: "Matz" } }, { person: { id: 2, name: "David" } } ] }.to_json
   @people_david = { people: [ { person: { id: 2, name: "David" } } ] }.to_json
+  @people_joe = { people: [ { id: 6, name: "Joe", likes_hats: true } ] }.to_json
   @addresses = { addresses: [ { address: { id: 1, street: "12345 Street", country: "Australia" } } ] }.to_json
   @post  = { id: 1, title: "Hello World", body: "Lorem Ipsum" }.to_json
   @posts = [ { id: 1, title: "Hello World", body: "Lorem Ipsum" }, { id: 2, title: "Second Post", body: "Lorem Ipsum" } ].to_json
