@@ -76,3 +76,61 @@ class ValidationsTest < ActiveSupport::TestCase
       Project.new(VALID_PROJECT_HASH.merge(opts))
     end
 end
+
+class ErrorsTest < ActiveSupport::TestCase
+  def test_from_xml_with_multiple_errors
+    errors = Project.new.errors
+
+    errors.from_xml %q(<?xml version="1.0" encoding="UTF-8"?><errors><error>Name can't be blank</error><error>Email can't be blank</error></errors>)
+
+    assert_equal [ "can't be blank" ], errors[:name]
+    assert_equal [ "can't be blank" ], errors[:email]
+  end
+
+  def test_from_xml_with_one_error
+    errors = Project.new.errors
+
+    errors.from_xml %q(<?xml version="1.0" encoding="UTF-8"?><errors><error>Name can't be blank</error></errors>)
+
+    assert_equal [ "can't be blank" ], errors[:name]
+  end
+
+  def test_from_json
+    errors = Project.new.errors
+
+    errors.from_json %q({"errors":{"name":["can't be blank"],"email":["can't be blank"]}})
+
+    assert_equal [ "can't be blank" ], errors[:name]
+    assert_equal [ "can't be blank" ], errors[:email]
+  end
+
+  def test_from_hash
+    errors = Project.new.errors
+
+    errors.from_hash(
+      "base" => [ "has an error" ],
+      "unknown" => [ "is invalid" ],
+      "name" => [ "can't be blank" ],
+      "email" => [ "can't be blank" ]
+    )
+
+    assert_equal [ "has an error", "Unknown is invalid" ], errors[:base]
+    assert_equal [ "can't be blank" ], errors[:name]
+    assert_equal [ "can't be blank" ], errors[:email]
+  end
+
+  def test_from_array
+    errors = Project.new.errors
+
+    errors.from_array [
+      "Unknown is invalid",
+      "Base has an error",
+      "Name can't be blank",
+      "Email can't be blank"
+    ]
+
+    assert_equal [ "Unknown is invalid", "Base has an error" ], errors[:base]
+    assert_equal [ "can't be blank" ], errors[:name]
+    assert_equal [ "can't be blank" ], errors[:email]
+  end
+end

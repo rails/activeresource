@@ -14,16 +14,18 @@ module ActiveResource
     # The second parameter directs the errors cache to be cleared (default)
     # or not (by passing true).
     def from_array(messages, save_cache = false)
-      clear unless save_cache
+      errors = Hash.new { |hash, attr_name| hash[attr_name] = [] }
       humanized_attributes = Hash[@base.known_attributes.map { |attr_name| [ attr_name.humanize, attr_name ] }]
-      messages.each do |message|
+      messages.each_with_object(errors) do |message, hash|
         attr_message = humanized_attributes.keys.sort_by { |a| -a.length }.detect do |attr_name|
           if message[0, attr_name.size + 1] == "#{attr_name} "
-            add humanized_attributes[attr_name], message[(attr_name.size + 1)..-1]
+            hash[humanized_attributes[attr_name]] << message[(attr_name.size + 1)..-1]
           end
         end
-        add(:base, message) if attr_message.nil?
+        hash["base"] << message if attr_message.nil?
       end
+
+      from_hash errors, save_cache
     end
 
     # Grabs errors from a hash of attribute => array of errors elements
