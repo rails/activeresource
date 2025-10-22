@@ -1153,6 +1153,14 @@ module ActiveResource
         false
       end
 
+      def instantiate_collection(collection, original_params = {}, prefix_options = {}) # :nodoc:
+        collection_parser.new(collection).tap do |parser|
+          parser.resource_class  = self
+          parser.original_params = original_params
+          parser.original_parsed = collection
+        end.collect! { |record| instantiate_record(record, prefix_options) }
+      end
+
       private
         def check_prefix_options(prefix_options)
           p_options = HashWithIndifferentAccess.new(prefix_options)
@@ -1201,13 +1209,6 @@ module ActiveResource
           prefix_options, query_options = split_options(options[:params])
           path = element_path(scope, prefix_options, query_options)
           instantiate_record(format.decode(connection.get(path, headers).body), prefix_options)
-        end
-
-        def instantiate_collection(collection, original_params = {}, prefix_options = {})
-          collection_parser.new(collection).tap do |parser|
-            parser.resource_class  = self
-            parser.original_params = original_params
-          end.collect! { |record| instantiate_record(record, prefix_options) }
         end
 
         def instantiate_record(record, prefix_options = {})
