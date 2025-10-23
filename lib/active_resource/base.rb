@@ -1461,7 +1461,7 @@ module ActiveResource
     #   my_company.save # sends PUT /companies/1 (update)
     def save
       run_callbacks :save do
-        new? ? create : update
+        new? ? create : _update
       end
     end
 
@@ -1623,8 +1623,7 @@ module ActiveResource
     # exception will be raised. If saving fails because the resource is
     # invalid then <tt>false</tt> will be returned.
     def update_attribute(name, value)
-      self.send("#{name}=".to_sym, value)
-      self.save
+      update_attributes(name => value)
     end
 
     # Updates this resource with all the attributes from the passed-in Hash
@@ -1639,6 +1638,22 @@ module ActiveResource
     # in the save request to the remote service.
     def update_attributes(attributes)
       load(attributes, false) && save
+    end
+
+    ##
+    # :method: update
+    # :call-seq:
+    #     update(attributes)
+    #
+    # Equivalent to update_attributes(attributes).
+    def update(attributes = nil)
+      if attributes
+        update_attributes(attributes)
+      else
+        ActiveResource.deprecator.warn("Calling update without arguments is deprecated. Use save instead")
+
+        _update
+      end
     end
 
     # For checking <tt>respond_to?</tt> without searching the attributes (which is faster).
@@ -1684,7 +1699,7 @@ module ActiveResource
       end
 
       # Update the resource on the remote service.
-      def update
+      def _update
         run_callbacks :update do
           connection.put(element_path(prefix_options), encode, self.class.headers).tap do |response|
             load_attributes_from_response(response)

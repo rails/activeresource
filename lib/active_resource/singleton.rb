@@ -122,7 +122,7 @@ module ActiveResource
 
     protected
       # Update the resource on the remote service
-      def update
+      def _update
         connection.put(singleton_path(prefix_options), encode, self.class.headers).tap do |response|
           load_attributes_from_response(response)
         end

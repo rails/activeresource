@@ -1256,6 +1256,49 @@ class BaseTest < ActiveSupport::TestCase
     assert_equal "USA", addy.country
   end
 
+  def test_deprecates_caliing_update_without_arguments
+    ActiveResource::HttpMock.respond_to.put "/posts/1.json", @default_request_headers
+
+    post = Post.new({ id: 1 }, true)
+
+    assert_deprecated "", ActiveResource.deprecator do
+      post.update
+    end
+    assert_equal post.encode, ActiveResource::HttpMock.requests.last.body
+  end
+
+  def test_symbols_to_update
+    ActiveResource::HttpMock.respond_to.put "/posts/1.json", @default_request_headers
+
+    post = Post.new({ id: 1, title: "hello" }, true)
+
+    assert_changes -> { post.title }, from: "hello", to: "goodbye" do
+      post.update(title: "goodbye")
+    end
+    assert_equal post.encode, ActiveResource::HttpMock.requests.last.body
+  end
+
+  def test_strings_to_update
+    ActiveResource::HttpMock.respond_to.put "/posts/1.json", @default_request_headers
+
+    post = Post.new({ id: 1, title: "hello" }, true)
+
+    assert_changes -> { post.title }, from: "hello", to: "goodbye" do
+      post.update("title" => "goodbye")
+    end
+    assert_equal post.encode, ActiveResource::HttpMock.requests.last.body
+  end
+
+  def test_raises_error_from_failed_update
+    ActiveResource::HttpMock.respond_to.put "/posts/1.json", @default_request_headers, nil, 400
+
+    post = Post.new({ id: 1, title: "hello" }, true)
+
+    assert_raises ActiveResource::BadRequest do
+      post.update(title: "goodbye")
+    end
+    assert_equal post.encode, ActiveResource::HttpMock.requests.last.body
+  end
 
   #####
   # Mayhem and destruction
