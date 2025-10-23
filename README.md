@@ -334,6 +334,10 @@ Full API documentation is available at
 
 * http://rubydoc.info/gems/activeresource
 
+Ongoing development changes are available at
+
+* https://github.com/rails/activeresource/blob/main/CHANGELOG.md
+
 Bug reports and feature requests can be filed with the rest for the Ruby on Rails project here:
 
 * https://github.com/rails/activeresource/issues

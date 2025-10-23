@@ -50,6 +50,10 @@ Make sure that `bundle exec rake test` completes without errors.
 
 Document any external behavior in the [README](README.md).
 
+#### Include a Changelog entry
+
+Document any changes to public interfaces or behavior in the [CHANGELOG](CHANGELOG.md).
+
 #### Commit Changes
 
 Make sure git knows your name and email address:
