@@ -3,7 +3,7 @@
 Active Resource (ARes) connects business objects and Representational State Transfer (REST)
 web services. It implements object-relational mapping for REST web services to provide transparent
 proxying capabilities between a client (Active Resource) and a RESTful service (which is provided by
-Simply RESTful routing in `ActionController::Resources`).
+RESTful routing in [ActionDispatch::Routing::Mapper::Resources](https://edgeapi.rubyonrails.org/classes/ActionDispatch/Routing/Mapper/Resources.html)).
 
 ## Philosophy
 
