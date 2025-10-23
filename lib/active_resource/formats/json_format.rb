@@ -19,9 +19,10 @@ module ActiveResource
         resource.to_json(options)
       end
 
-      def decode(json)
+      def decode(json, remove_root = true)
         return nil if json.nil?
-        Formats.remove_root(ActiveSupport::JSON.decode(json))
+        hash = ActiveSupport::JSON.decode(json)
+        remove_root ? Formats.remove_root(hash) : hash
       end
     end
   end
