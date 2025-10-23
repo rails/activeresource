@@ -67,9 +67,13 @@ module ActiveResource
   end
 
   # Module to support validation and errors with Active Resource objects. The module overrides
-  # Base#save to rescue ActiveResource::ResourceInvalid exceptions and parse the errors returned
+  # Base#save to rescue exceptions and parse the errors returned
   # in the web service response. The module also adds an +errors+ collection that mimics the interface
   # of the errors provided by ActiveModel::Errors.
+  #
+  # By default, Active Resource will raise, then rescue from ActiveResource::ResourceInvalid
+  # exceptions for a response with a +422+ status code. Set the +remote_errors+
+  # class attribute to rescue from other exceptions.
   #
   # ==== Example
   #
@@ -133,6 +137,22 @@ module ActiveResource
     included do
       alias_method :save_without_validation, :save
       alias_method :save, :save_with_validation
+      class_attribute :_remote_errors, instance_accessor: false
+    end
+
+    class_methods do
+      # Sets the exception classes to rescue from during Base#save.
+      def remote_errors=(errors)
+        errors = Array.wrap(errors)
+        errors.map! { |error| error.is_a?(String) ? error.constantize : error }
+        self._remote_errors = errors
+      end
+
+      # Returns the exception classes rescued from during Base#save. Defaults to
+      # ActiveResource::ResourceInvalid.
+      def remote_errors
+        _remote_errors.presence || ResourceInvalid
+      end
     end
 
     # Validate a resource and save (POST) it to the remote web service.
@@ -150,7 +170,7 @@ module ActiveResource
       else
         false
       end
-    rescue ResourceInvalid => error
+    rescue *self.class.remote_errors => error
       # cache the remote errors because every call to <tt>valid?</tt> clears
       # all errors. We must keep a copy to add these back after local
       # validations.
