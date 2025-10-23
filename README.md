@@ -265,6 +265,39 @@ Person.delete(2)  # => true
 Person.exists?(2) # => false
 ```
 
+### Validations
+
+Resources validate their attributes with Active Model validations. When a
+resource is invalid, it will not issue a request:
+
+```ruby
+class Post < ActiveResource::Base
+  self.site = "http://blog.io"
+
+  validates :title, presence: true
+end
+
+post = Post.create(title: "")   # does not issue POST http://blog.io/posts.json request
+post.valid?                     # => false
+post.errors[:title]             # => ["can't be blank"]
+```
+
+When a resource is valid but the server responds with an error, Active Resource
+will add error messages in the style of Active Model validations:
+
+```ruby
+class Post < ActiveResource::Base
+  self.site = "http://blog.io"
+
+  validates :title, presence: true
+end
+
+post = Post.create(title: "This Post is not Unique!")   # issues a POST http://blog.io/posts.json request
+                                                        # => {"errors":{"title":"is taken"}}
+post.valid?                                             # => false
+post.errors[:title]                                     # => ["is taken"]
+```
+
 ### Associations
 
 Relationships between resources can be declared using the standard association syntax
