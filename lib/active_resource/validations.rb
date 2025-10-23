@@ -76,16 +76,56 @@ module ActiveResource
   # Consider a Person resource on the server requiring both a +first_name+ and a +last_name+ with a
   # <tt>validates_presence_of :first_name, :last_name</tt> declaration in the model:
   #
-  #   person = Person.new(:first_name => "Jim", :last_name => "")
+  #   person = Person.new(first_name: "Jim", last_name: "")
   #   person.save                   # => false (server returns an HTTP 422 status code and errors)
   #   person.valid?                 # => false
   #   person.errors.empty?          # => false
   #   person.errors.count           # => 1
   #   person.errors.full_messages   # => ["Last name can't be empty"]
-  #   person.errors[:last_name]  # => ["can't be empty"]
+  #   person.errors[:last_name]     # => ["can't be empty"]
   #   person.last_name = "Halpert"
   #   person.save                   # => true (and person is now saved to the remote service)
   #
+  # Consider a POST /people.json request that results in a 422 Unprocessable
+  # Content response with the following +application/json+ body:
+  #
+  #   {
+  #     "errors": {
+  #       "base": ["Something went wrong"],
+  #       "address": ["is invalid"]
+  #     }
+  #   }
+  #
+  # By default, Active Resource will automatically load errors from JSON response
+  # objects that have a top-level +"errors"+ key that maps attribute names to arrays of
+  # error message strings:
+  #
+  #   person = Person.new(first_name: "Jim", last_name: "Halpert", address: "123 Fake Street")
+  #   person.save                   # => false (server returns an HTTP 422 status code and errors)
+  #   person.valid?                 # => false
+  #   person.errors[:base]          # => ["Something went wrong"]
+  #   person.errors[:address]       # => ["is invalid"]
+  #
+  # Consider a POST /people.xml request that results in a 422 Unprocessable
+  # Content response with the following +application/xml+ body:
+  #
+  #   <errors>
+  #     <error>Something went wrong</error>
+  #     <error>Address is invalid</error>
+  #   </errors>
+  #
+  # By default, Active Resource will automatically load errors from XML response
+  # documents that have a top-level +<errors>+ element that contains +<error>+
+  # children that have error message content. When an error message starts with
+  # an attribute name, Active Resource will automatically infer that attribute
+  # name and add the message to the attribute's errors. When an attribute name
+  # cannot be inferred, the error message will be added to the +:base+ errors:
+  #
+  #   person = Person.new(first_name: "Jim", last_name: "Halpert", address: "123 Fake Street")
+  #   person.save                   # => false (server returns an HTTP 422 status code and errors)
+  #   person.valid?                 # => false
+  #   person.errors[:base]          # => ["Something went wrong"]
+  #   person.errors[:address]       # => ["Address is invalid"]
   module Validations
     extend  ActiveSupport::Concern
     include ActiveModel::Validations

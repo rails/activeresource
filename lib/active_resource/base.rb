@@ -322,7 +322,7 @@ module ActiveResource
   #   # {"errors":{"first":["cannot be empty"]}}
   #   #
   #
-  #   ryan.errors.invalid?(:first)  # => true
+  #   ryan.errors.include?(:first)  # => true
   #   ryan.errors.full_messages     # => ['First cannot be empty']
   #
   # Learn more about Active Resource's validation features in the ActiveResource::Validations documentation.
