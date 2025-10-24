@@ -121,6 +121,10 @@ module ActiveResource
 
 
     protected
+      def find_self
+        self.class.find(@prefix_options)
+      end
+
       # Update the resource on the remote service
       def _update
         connection.put(singleton_path(prefix_options), encode, self.class.headers).tap do |response|
