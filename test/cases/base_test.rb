@@ -960,7 +960,52 @@ class BaseTest < ActiveSupport::TestCase
     assert_respond_to matz, :name
     assert_respond_to matz, :name=
     assert_respond_to matz, :name?
-    assert_not matz.respond_to?(:super_scalable_stuff)
+    assert_not_respond_to matz, :super_scalable_stuff
+    assert_not_respond_to matz, :super_scalable_stuff=
+  end
+
+  def test_respond_to_known_attributes
+    previous_schema = Person.schema
+    Person.schema = { name: "string" }
+
+    person = Person.new
+
+    assert_respond_to person, :name
+    assert_respond_to person, :name=
+    assert_not_respond_to person, :super_scalable_stuff
+    assert_not_respond_to person, :super_scalable_stuff=
+  ensure
+    Person.schema = previous_schema
+  end
+
+  def test_reading_an_unknown_attribute_raises_NoMethodError
+    assert_raises NoMethodError, match: "unknown_attribute" do
+      Post.new.unknown_attribute
+    end
+  end
+
+  def test_writing_an_unknown_attribute_assigns_a_value_that_can_be_read
+    post = Post.new
+
+    post.unknown_attribute = "assigned"
+
+    assert_respond_to post, :unknown_attribute
+    assert_equal "assigned", post.unknown_attribute
+  end
+
+  def test_writing_nil_to_an_existing_attribute_can_be_read
+    post = Post.new unknown_attribute: "assigned"
+
+    post.unknown_attribute = nil
+
+    assert_nil post.unknown_attribute
+    assert_respond_to post, :unknown_attribute
+  end
+
+  def test_predicate_for_an_unknown_attribute_returns_nil
+    post = Post.new
+
+    assert_not_predicate post, :unknown_attribute?
   end
 
   def test_custom_header
