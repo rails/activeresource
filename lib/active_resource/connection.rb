@@ -11,7 +11,8 @@ module ActiveResource
   # This class is used by ActiveResource::Base to interface with REST
   # services.
   class Connection
-    HTTP_FORMAT_HEADER_NAMES = {  get: "Accept",
+    HTTP_FORMAT_HEADER_NAMES = {
+      get: "Accept",
       put: "Content-Type",
       post: "Content-Type",
       patch: "Content-Type",
