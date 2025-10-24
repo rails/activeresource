@@ -1548,7 +1548,7 @@ module ActiveResource
     #   my_branch.name # => "Wilson Road"
     def reload
       run_callbacks :reload do
-        self.load(self.class.find(to_param, params: @prefix_options).attributes, false, true)
+        self.load(find_self.attributes, false, true)
       end
     end
 
@@ -1696,6 +1696,10 @@ module ActiveResource
     protected
       def connection(refresh = false)
         self.class.connection(refresh)
+      end
+
+      def find_self
+        self.class.find(to_param, params: @prefix_options)
       end
 
       # Update the resource on the remote service.

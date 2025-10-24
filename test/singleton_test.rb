@@ -143,4 +143,18 @@ class SingletonTest < ActiveSupport::TestCase
     weather.status = "Rainy"
     weather.save
   end
+
+  def test_reload
+    setup_weather
+
+    # First Create the Weather
+    weather = Weather.create!(status: "Sunny", temperature: 67)
+
+    # Then reload it
+    weather.reload
+
+    request = ActiveResource::HttpMock.requests.last
+    assert_equal :get, request.method
+    assert_equal "/weather.json", request.path
+  end
 end

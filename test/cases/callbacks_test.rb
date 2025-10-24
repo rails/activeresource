@@ -2,11 +2,12 @@
 
 require "abstract_unit"
 require "active_support/core_ext/hash/conversions"
+require "fixtures/weather"
 
-class Developer < ActiveResource::Base
-  self.site = "http://37s.sunrise.i:3000"
+module CallbackHistory
+  extend ActiveSupport::Concern
 
-  class << self
+  class_methods do
     def callback_string(callback_method)
       "history << [#{callback_method.to_sym.inspect}, :string]"
     end
@@ -31,12 +32,14 @@ class Developer < ActiveResource::Base
     end
   end
 
-  ActiveResource::Callbacks::CALLBACKS.each do |callback_method|
-    next if callback_method.to_s =~ /^around_/
-    define_callback_method(callback_method)
-    send(callback_method, callback_proc(callback_method))
-    send(callback_method, callback_object(callback_method))
-    send(callback_method) { |model| model.history << [ callback_method, :block ] }
+  included do
+    ActiveResource::Callbacks::CALLBACKS.each do |callback_method|
+      next if callback_method.to_s =~ /^around_/
+      define_callback_method(callback_method)
+      send(callback_method, callback_proc(callback_method))
+      send(callback_method, callback_object(callback_method))
+      send(callback_method) { |model| model.history << [ callback_method, :block ] }
+    end
   end
 
   def history
@@ -44,15 +47,26 @@ class Developer < ActiveResource::Base
   end
 end
 
+class Developer < ActiveResource::Base
+  self.site = "http://37s.sunrise.i:3000"
+
+  include CallbackHistory
+end
+
+Weather.include CallbackHistory
+
 class CallbacksTest < ActiveSupport::TestCase
   def setup
     @developer_attrs = { id: 1, name: "Guillermo", salary: 100_000 }
     @developer = { "developer" => @developer_attrs }.to_json
+    @weather_attrs = { status: "Sunny", temperature: 67 }
+    @weather = { "weather" => @weather_attrs }.to_json
     ActiveResource::HttpMock.respond_to do |mock|
       mock.post   "/developers.json",   {}, @developer, 201, "Location" => "/developers/1.json"
       mock.get    "/developers/1.json", {}, @developer
       mock.put    "/developers/1.json", {}, nil, 204
       mock.delete "/developers/1.json", {}, nil, 200
+      mock.get    "/weather.json", {}, @weather
     end
   end
 
@@ -114,6 +128,21 @@ class CallbacksTest < ActiveSupport::TestCase
       [ :after_reload,                :object ],
       [ :after_reload,                :block  ]
     ], developer.history
+  end
+
+  def test_reload_singleton
+    weather = Weather.find
+    weather.reload
+    assert_equal [
+      [ :before_reload,               :method ],
+      [ :before_reload,               :proc   ],
+      [ :before_reload,               :object ],
+      [ :before_reload,               :block  ],
+      [ :after_reload,                :method ],
+      [ :after_reload,                :proc   ],
+      [ :after_reload,                :object ],
+      [ :after_reload,                :block  ]
+    ], weather.history
   end
 
   def test_update
