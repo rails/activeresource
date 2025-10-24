@@ -1668,7 +1668,7 @@ module ActiveResource
         super
       elsif known_attributes.include?(method_name)
         true
-      elsif method_name =~ /(?:=|\?)$/ && attributes.include?($`)
+      elsif method_name =~ /(?:=|\?)$/ && known_attributes.include?($`)
         true
       else
         # super must be called at the end of the method, because the inherited respond_to?
