@@ -1217,12 +1217,14 @@ module ActiveResource
 
         # Find a single resource from a one-off URL
         def find_one(options)
+          prefix_options, query_options = split_options(options[:params])
+
           case from = options[:from]
           when Symbol
-            instantiate_record(get(from, options[:params]))
+            instantiate_record(get(from, query_options), prefix_options)
           when String
-            path = "#{from}#{query_string(options[:params])}"
-            instantiate_record(format.decode(connection.get(path, headers).body))
+            path = "#{from}#{query_string(query_options)}"
+            instantiate_record(format.decode(connection.get(path, headers).body), prefix_options)
           end
         end
 
