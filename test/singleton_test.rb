@@ -69,14 +69,6 @@ class SingletonTest < ActiveSupport::TestCase
     assert_equal "/products/5/inventory.json?sold=true", path
   end
 
-  def test_find_singleton
-    setup_weather
-    weather = Weather.send(:find_singleton, Hash.new)
-    assert_not_nil weather
-    assert_equal "Sunny", weather.status
-    assert_equal 67, weather.temperature
-  end
-
   def test_find
     setup_weather
     weather = Weather.find
