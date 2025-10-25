@@ -380,6 +380,12 @@ module ActiveResource
     class_attribute :connection_class
     self.connection_class = Connection
 
+    class_attribute :cast_values, instance_accessor: false, instance_predicate: false # :nodoc:
+    self.cast_values = false
+
+    class_attribute :schema_definition, instance_accessor: false, instance_predicate: false # :nodoc:
+    self.schema_definition = Schema
+
     class << self
       include ThreadsafeAttributes
       threadsafe_attribute :_headers, :_connection, :_user, :_password, :_bearer_token, :_site, :_proxy
@@ -430,16 +436,49 @@ module ActiveResource
       #
       # Attribute-types must be one of: <tt>string, text, integer, float, decimal, datetime, timestamp, time, date, binary, boolean</tt>
       #
-      # Note: at present the attribute-type doesn't do anything, but stay
-      # tuned...
-      # Shortly it will also *cast* the value of the returned attribute.
-      # ie:
-      # j.age                 # => 34   # cast to an integer
-      # j.weight              # => '65' # still a string!
+      # Note: By default, the attribute-type is ignored and will not cast its
+      # value.
       #
-      def schema(&block)
+      # To cast values to their specified types, declare the Schema with the
+      # +:cast_values+ set to true.
+      #
+      #   class Person < ActiveResource::Base
+      #     schema cast_values: true do
+      #       integer 'age'
+      #     end
+      #   end
+      #
+      #   p = Person.new
+      #   p.age = "18"
+      #   p.age # => 18
+      #
+      # To configure inheriting resources to cast values, set the +cast_values+
+      # class attribute:
+      #
+      #   class ApplicationResource < ActiveResource::Base
+      #     self.cast_values = true
+      #   end
+      #
+      #   class Person < ApplicationResource
+      #     schema do
+      #       integer 'age'
+      #     end
+      #   end
+      #
+      #   p = Person.new
+      #   p.age = "18"
+      #   p.age # => 18
+      #
+      # To set all resources application-wide to cast values, set
+      # +config.active_resource.cast_values+:
+      #
+      #   # config/application.rb
+      #   config.active_resource.cast_values = true
+      #
+      def schema(cast_values: self.cast_values, &block)
         if block_given?
-          schema_definition = Schema.new
+          self.schema_definition = Class.new(Schema)
+          schema_definition.cast_values = cast_values
           schema_definition.instance_eval(&block)
 
           # skip out if we didn't define anything
@@ -479,6 +518,7 @@ module ActiveResource
       def schema=(the_schema)
         unless the_schema.present?
           # purposefully nulling out the schema
+          self.schema_definition = Schema
           @schema = nil
           @known_attributes = []
           return
@@ -1306,6 +1346,7 @@ module ActiveResource
     def initialize(attributes = {}, persisted = false)
       @attributes     = {}.with_indifferent_access
       @prefix_options = {}
+      @schema         = self.class.schema_definition.new
       @persisted = persisted
       load(attributes, false, persisted)
     end
@@ -1339,6 +1380,7 @@ module ActiveResource
       resource = self.class.new({})
       resource.prefix_options = self.prefix_options
       resource.send :instance_variable_set, "@attributes", cloned
+      resource.send :instance_variable_set, "@schema", @schema.clone
       resource
     end
 
@@ -1378,12 +1420,12 @@ module ActiveResource
 
     # Gets the <tt>\id</tt> attribute of the resource.
     def id
-      attributes[self.class.primary_key]
+      _read_attribute(self.class.primary_key)
     end
 
     # Sets the <tt>\id</tt> attribute of the resource.
     def id=(id)
-      attributes[self.class.primary_key] = id
+      _write_attribute(self.class.primary_key, id)
     end
 
     # Test for equality. Resource are equal if and only if +other+ is the same object or
@@ -1589,7 +1631,7 @@ module ActiveResource
       attributes = Formats.remove_root(attributes) if remove_root
 
       attributes.each do |key, value|
-        @attributes[key.to_s] =
+        _write_attribute(key,
           case value
           when Array
             resource = nil
@@ -1606,7 +1648,7 @@ module ActiveResource
             resource.new(value, persisted)
           else
             value.duplicable? ? value.dup : value
-          end
+          end)
       end
       self
     end
@@ -1664,7 +1706,9 @@ module ActiveResource
     # <tt>my_person.respond_to?(:name?)</tt>.
     def respond_to_missing?(method, include_priv = false)
       method_name = method.to_s
-      if attributes.nil?
+      if @schema.respond_to?(method)
+        true
+      elsif attributes.nil?
         super
       elsif known_attributes.include?(method_name)
         true
@@ -1683,6 +1727,10 @@ module ActiveResource
 
     def to_xml(options = {})
       super({ root: self.class.element_name }.merge(options))
+    end
+
+    def serializable_hash(options = nil)
+      super.merge!(@schema.serializable_hash(options))
     end
 
     def read_attribute_for_serialization(n)
@@ -1825,10 +1873,28 @@ module ActiveResource
         self.class.__send__(:split_options, options)
       end
 
+      def _read_attribute(name)
+        if @schema.respond_to?(name)
+          @schema.send(name)
+        else
+          attributes[name.to_s]
+        end
+      end
+
+      def _write_attribute(name, value)
+        if @schema.respond_to?("#{name}=")
+          @schema.send("#{name}=", value)
+        else
+          attributes[name.to_s] = value
+        end
+      end
+
       def method_missing(method_symbol, *arguments) # :nodoc:
         method_name = method_symbol.to_s
 
-        if method_name =~ /(=|\?)$/
+        if @schema.respond_to?(method_name)
+          @schema.send(method_name, *arguments)
+        elsif method_name =~ /(=|\?)$/
           case $1
           when "="
             attributes[$`] = arguments.first
