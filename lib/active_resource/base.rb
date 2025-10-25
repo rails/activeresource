@@ -1482,6 +1482,11 @@ module ActiveResource
       save || raise(ResourceInvalid.new(self))
     end
 
+    ##
+    # :method: destroy
+    # :call-seq:
+    #     destroy
+    #
     # Deletes the resource from the remote service.
     #
     # There's a series of callbacks associated with <tt>destroy</tt>. If any
@@ -1498,9 +1503,9 @@ module ActiveResource
     #   new_id = new_person.id # => 7
     #   new_person.destroy
     #   Person.find(new_id) # 404 (Resource Not Found)
-    def destroy
+    def destroy(path = element_path)
       run_callbacks :destroy do
-        connection.delete(element_path, self.class.headers)
+        connection.delete(path, self.class.headers)
       end
     end
 
@@ -1699,9 +1704,9 @@ module ActiveResource
       end
 
       # Update the resource on the remote service.
-      def _update
+      def _update(path = element_path(prefix_options))
         run_callbacks :update do
-          connection.put(element_path(prefix_options), encode, self.class.headers).tap do |response|
+          connection.put(path, encode, self.class.headers).tap do |response|
             load_attributes_from_response(response)
           end
         end
@@ -1712,9 +1717,9 @@ module ActiveResource
       # There's a series of callbacks associated with <tt>create</tt>. If any
       # of the <tt>before_create</tt> callbacks throw +:abort+ the action is
       # cancelled.
-      def create
+      def create(path = collection_path)
         run_callbacks :create do
-          connection.post(collection_path, encode, self.class.headers).tap do |response|
+          connection.post(path, encode, self.class.headers).tap do |response|
             self.id = id_from_response(response)
             load_attributes_from_response(response)
           end
