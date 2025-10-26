@@ -1403,12 +1403,12 @@ module ActiveResource
 
     # Gets the <tt>\id</tt> attribute of the resource.
     def id
-      attributes[self.class.primary_key]
+      read_attribute(self.class.primary_key)
     end
 
     # Sets the <tt>\id</tt> attribute of the resource.
     def id=(id)
-      @attributes[self.class.primary_key] = id
+      write_attribute(self.class.primary_key, id)
     end
 
     # Test for equality. Resource are equal if and only if +other+ is the same object or
@@ -1619,7 +1619,7 @@ module ActiveResource
       attributes = Formats.remove_root(attributes) if remove_root
 
       attributes.each do |key, value|
-        @attributes[key.to_s] =
+        write_attribute(key.to_s,
           case value
           when Array
             resource = nil
@@ -1637,6 +1637,7 @@ module ActiveResource
           else
             value.duplicable? ? value.dup : value
           end
+        )
       end
       self
     end
@@ -1716,11 +1717,25 @@ module ActiveResource
     end
 
     def read_attribute_for_serialization(n)
-      if !attributes[n].nil?
-        attributes[n]
+      if !read_attribute(n).nil?
+        read_attribute(n)
       elsif respond_to?(n)
         send(n)
       end
+    end
+
+    def read_attribute(attr_name)
+      name = attr_name.to_s
+
+      name = self.class.primary_key if name == "id" && self.class.primary_key
+      @attributes[name]
+    end
+
+    def write_attribute(attr_name, value)
+      name = attr_name.to_s
+
+      name = self.class.primary_key if name == "id" && self.class.primary_key
+      @attributes[name] = value
     end
 
     protected
@@ -1865,12 +1880,12 @@ module ActiveResource
         if method_name =~ /(=|\?)$/
           case $1
           when "="
-            @attributes[$`] = arguments.first
+            write_attribute($`, arguments.first)
           when "?"
-            attributes[$`]
+            read_attribute($`)
           end
         else
-          return attributes[method_name] if attributes.include?(method_name)
+          return read_attribute(method_name) if attributes.include?(method_name)
           # not set right now but we know about it
           return nil if known_attributes.include?(method_name)
           super
