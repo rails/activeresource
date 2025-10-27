@@ -96,18 +96,11 @@ module ActiveResource
       #   Inventory.find
       #   # => raises ResourceNotFound
       def find(options = {})
-        find_singleton(options)
+        prefix_options, query_options = split_options(options[:params])
+        path = singleton_path(prefix_options, query_options)
+
+        super(:one, options.merge(from: path, params: prefix_options))
       end
-
-      private
-        # Find singleton resource
-        def find_singleton(options)
-          prefix_options, query_options = split_options(options[:params])
-
-          path = singleton_path(prefix_options, query_options)
-          resp = self.format.decode(self.connection.get(path, self.headers).body)
-          instantiate_record(resp, prefix_options)
-        end
     end
 
     ##

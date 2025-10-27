@@ -303,6 +303,15 @@ class FinderTest < ActiveSupport::TestCase
     assert_equal "David", david.name
   end
 
+  def test_find_single_by_from_with_prefix
+    max = { id: 1, name: "Max" }.to_json
+    ActiveResource::HttpMock.respond_to { |m| m.get "/person/1/pets/favorite.json", {}, max }
+
+    pet = Pet.find(:one, from: "/person/1/pets/favorite.json", params: { person_id: 1 })
+    assert_equal "Max", pet.name
+    assert_equal ({ person_id: 1 }), pet.prefix_options
+  end
+
   def test_find_single_by_symbol_from
     ActiveResource::HttpMock.respond_to { |m| m.get "/people/leader.json", {}, @david }
 
