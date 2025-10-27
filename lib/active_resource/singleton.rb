@@ -109,31 +109,32 @@ module ActiveResource
           instantiate_record(resp, prefix_options)
         end
     end
+
+    ##
+    # :method: destroy
+    # :call-seq:
+    #     destroy
+    #
     # Deletes the resource from the remote service.
     #
     # ==== Examples
     #   weather = Weather.find
     #   weather.destroy
     #   Weather.find # 404 (Resource Not Found)
-    def destroy
-      connection.delete(singleton_path, self.class.headers)
+    def destroy(path = singleton_path)
+      super
     end
 
 
     protected
       # Update the resource on the remote service
-      def _update
-        connection.put(singleton_path(prefix_options), encode, self.class.headers).tap do |response|
-          load_attributes_from_response(response)
-        end
+      def _update(path = singleton_path)
+        super
       end
 
       # Create (i.e. \save to the remote service) the \new resource.
-      def create
-        connection.post(singleton_path, encode, self.class.headers).tap do |response|
-          self.id = id_from_response(response)
-          load_attributes_from_response(response)
-        end
+      def create(path = singleton_path)
+        super
       end
 
     private
