@@ -134,5 +134,9 @@ module ActiveResource
       def singleton_path(options = nil)
         self.class.singleton_path(options || prefix_options)
       end
+
+      def find_self
+        self.class.find(@prefix_options)
+      end
   end
 end

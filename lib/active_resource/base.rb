@@ -1555,7 +1555,7 @@ module ActiveResource
     #   my_branch.name # => "Wilson Road"
     def reload
       run_callbacks :reload do
-        self.load(self.class.find(to_param, params: @prefix_options).attributes, false, true)
+        self.load(find_self.attributes, false, true)
       end
     end
 
@@ -1809,6 +1809,10 @@ module ActiveResource
             end
           end
         end
+      end
+
+      def find_self
+        self.class.find(to_param, params: @prefix_options)
       end
 
       def const_valid?(*const_args)

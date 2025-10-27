@@ -164,6 +164,21 @@ class CallbacksTest < ActiveSupport::TestCase
     ], developer.history
   end
 
+  def test_reload_singleton
+    weather = Weather.find
+    weather.reload
+    assert_equal [
+      [ :before_reload,               :method ],
+      [ :before_reload,               :proc   ],
+      [ :before_reload,               :object ],
+      [ :before_reload,               :block  ],
+      [ :after_reload,                :method ],
+      [ :after_reload,                :proc   ],
+      [ :after_reload,                :object ],
+      [ :after_reload,                :block  ]
+    ], weather.history
+  end
+
   def test_update
     developer = Developer.find(1)
     developer.save
