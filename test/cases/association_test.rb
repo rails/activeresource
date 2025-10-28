@@ -39,6 +39,24 @@ class AssociationTest < ActiveSupport::TestCase
   def test_has_many
     External::Person.send(:has_many, :people)
     assert_equal 1, External::Person.reflections.select { |name, reflection| reflection.macro.eql?(:has_many) }.count
+
+    ActiveResource::HttpMock.respond_to.get "/people.json?person_id=1", {}, { people: [ { id: 2, name: "Related" } ] }.to_json
+    person = External::Person.new({ id: 1 }, true)
+
+    people = person.people
+
+    assert_equal [ "Related" ], people.map(&:name)
+  end
+
+  def test_has_many_chain
+    External::Person.send(:has_many, :people)
+
+    ActiveResource::HttpMock.respond_to.get "/people.json?name=Related&person_id=1", {}, { people: [ { id: 2, name: "Related" } ] }.to_json
+    person = External::Person.new({ id: 1 }, true)
+
+    people = person.people.where(name: "Related")
+
+    assert_equal [ "Related" ], people.map(&:name)
   end
 
   def test_has_many_on_new_record
