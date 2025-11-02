@@ -21,6 +21,7 @@ class NotificationsTest < ActiveSupport::TestCase
     assert_equal "http://37s.sunrise.i:3000/people.json?name=Matz", payload[:request_uri]
     assert_equal({ "Accept" => "application/json" }, payload[:headers])
     assert_nil payload[:body]
+    assert_kind_of Net::HTTP::Get, payload[:request]
     assert_kind_of ActiveResource::Response, payload[:result]
   end
 
@@ -31,6 +32,7 @@ class NotificationsTest < ActiveSupport::TestCase
     assert_equal "http://37s.sunrise.i:3000/people.json", payload[:request_uri]
     assert_equal({ "Content-Type" => "application/json" }, payload[:headers])
     assert_equal({ "person" => { "name" => "Matz" } }.to_json, payload[:body])
+    assert_kind_of Net::HTTP::Post, payload[:request]
     assert_kind_of ActiveResource::Response, payload[:result]
   end
 

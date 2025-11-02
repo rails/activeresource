@@ -133,6 +133,7 @@ module ActiveResource
           payload[:request_uri] = request.uri.to_s
           payload[:headers]     = request.each_capitalized.to_h
           payload[:body]        = body
+          payload[:request]     = request
           payload[:result]      = http.request(request)
         end
         handle_response(result)
