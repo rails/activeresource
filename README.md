@@ -342,11 +342,12 @@ ActiveSupport::Notifications.subscribe('request.active_resource')  do |name, sta
 
 The `payload` is a `Hash` with the following keys:
 
+* `request` as a [Net::HTTPRequest](https://docs.ruby-lang.org/en/master/Net/HTTPRequest.html)
 * `method` as a `Symbol`
 * `request_uri` as a `String`
 * `headers` as a `Hash`
 * `body` as a `String` when available
-* `result` as an `Net::HTTPResponse`
+* `result` as a [Net::HTTPResponse](https://docs.ruby-lang.org/en/master/Net/HTTPResponse.html)
 
 ## License
 
