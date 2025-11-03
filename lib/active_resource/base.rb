@@ -818,12 +818,14 @@ module ActiveResource
         # Clear prefix parameters in case they have been cached
         @prefix_parameters = nil
 
+        code, line = <<-RUBY_EVAL, __LINE__ + 1
+          def prefix_source() "#{value}" end
+          def prefix(options={}) "#{prefix_call}" end
+        RUBY_EVAL
+
         silence_warnings do
           # Redefine the new methods.
-          instance_eval <<-RUBY_EVAL, __FILE__, __LINE__ + 1
-            def prefix_source() "#{value}" end
-            def prefix(options={}) "#{prefix_call}" end
-          RUBY_EVAL
+          instance_eval code, __FILE__, line
         end
       rescue Exception => e
         logger.error "Couldn't set prefix: #{e}\n  #{code}" if logger
