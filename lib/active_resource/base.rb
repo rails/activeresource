@@ -380,6 +380,8 @@ module ActiveResource
     class_attribute :connection_class
     self.connection_class = Connection
 
+    class_attribute :lazy_collections, instance_accessor: false, default: false
+
     class << self
       include ThreadsafeAttributes
       threadsafe_attribute :_headers, :_connection, :_user, :_password, :_bearer_token, :_site, :_proxy
@@ -1126,7 +1128,11 @@ module ActiveResource
       # This is an alias for find(:all). You can pass in all the same
       # arguments to this method as you can to <tt>find(:all)</tt>
       def all(*args)
-        WhereClause.new(self, *args)
+        if lazy_collections
+          WhereClause.new(self, *args)
+        else
+          find(:all, *args)
+        end
       end
 
       # This is an alias for all. You can pass in all the same

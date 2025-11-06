@@ -8,6 +8,7 @@ module ActiveResource
     config.eager_load_namespaces << ActiveResource
 
     config.active_resource = ActiveSupport::OrderedOptions.new
+    config.active_resource.lazy_collections = false
 
     initializer "active_resource.set_configs" do |app|
       ActiveSupport.on_load(:active_resource) do

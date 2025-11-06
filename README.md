@@ -192,6 +192,29 @@ people = Person.where(last_name: "Durden")
 people.first  # => <Person::xxx 'first_name' => 'Tyler' ...>
 ```
 
+Collections are retrieved immediately by default. To defer the loading of the
+records until their first access, set `Base.lazy_collections = true`:
+
+```ruby
+Person.lazy_collections = true
+
+# Builds a lazy collection with an initial filter
+people = Person.where(first_name: "Tyler")
+
+# Modifies the lazy collection with an additional filter
+people = people.where(last_name: "Durden")
+
+# Expects a response of
+#
+# [
+#   {"id":1,"first_name":"Tyler","last_name":"Durden"},
+# ]
+#
+# for GET http://api.people.com:3000/people.json?first_name=Tyler&last_name=Durden
+
+people.first  # => <Person::xxx 'first_name' => 'Tyler' ...>
+```
+
 ### Create
 
 Creating a new resource submits the JSON form of the resource as the body of the request and expects

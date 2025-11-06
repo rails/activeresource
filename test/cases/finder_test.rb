@@ -61,6 +61,28 @@ class FinderTest < ActiveSupport::TestCase
     assert_equal "David", all.last.name
   end
 
+  def test_all_immediately_finds_by_default
+    requests = ActiveResource::HttpMock.requests
+
+    collection = Person.all
+
+    assert_equal [ "/people.json" ], requests.map(&:path)
+    assert_kind_of Person, collection.first
+  end
+
+  def test_all_with_lazy_collections
+    requests = ActiveResource::HttpMock.requests
+
+    collection = DeferredPerson.all
+
+    assert_empty requests.map(&:path)
+
+    resource = collection.first
+
+    assert_equal [ "/people.json" ], requests.map(&:path)
+    assert_kind_of Person, resource
+  end
+
   def test_all_with_params
     all = StreetAddress.all(params: { person_id: 1 })
     assert_equal 1, all.size
@@ -84,7 +106,7 @@ class FinderTest < ActiveSupport::TestCase
   def test_where_with_multiple_where_clauses
     ActiveResource::HttpMock.respond_to.get "/people.json?id=2&name=david", {}, @people_david
 
-    people = Person.where(id: 2).where(name: "david")
+    people = DeferredPerson.where(id: 2).where(name: "david")
     assert_equal 1, people.size
     assert_kind_of Person, people.first
     assert_equal 2, people.first.id
@@ -94,7 +116,7 @@ class FinderTest < ActiveSupport::TestCase
   def test_where_chained_from_all
     ActiveResource::HttpMock.respond_to.get "/records.json?id=2", {}, @people_david
 
-    people = Person.all(from: "/records.json").where(id: 2)
+    people = DeferredPerson.all(from: "/records.json").where(id: 2)
     assert_equal 1, people.size
     assert_kind_of Person, people.first
     assert_equal 2, people.first.id
@@ -104,7 +126,7 @@ class FinderTest < ActiveSupport::TestCase
   def test_where_with_chained_into_all
     ActiveResource::HttpMock.respond_to.get "/records.json?id=2&name=david", {}, @people_david
 
-    people = Person.where(id: 2).all(from: "/records.json", params: { name: "david" })
+    people = DeferredPerson.where(id: 2).all(from: "/records.json", params: { name: "david" })
     assert_equal 1, people.size
     assert_kind_of Person, people.first
     assert_equal 2, people.first.id
@@ -113,7 +135,7 @@ class FinderTest < ActiveSupport::TestCase
 
   def test_where_loading
     ActiveResource::HttpMock.respond_to.get "/people.json?id=2", {}, @people_david
-    people = Person.where(id: 2)
+    people = DeferredPerson.where(id: 2)
 
     assert_changes -> { ActiveResource::HttpMock.requests.count }, from: 0, to: 1 do
       people.load
@@ -125,7 +147,7 @@ class FinderTest < ActiveSupport::TestCase
 
   def test_where_reloading
     ActiveResource::HttpMock.respond_to.get "/people.json?id=2", {}, @people_david
-    people = Person.where(id: 2)
+    people = DeferredPerson.where(id: 2)
 
     assert_changes -> { ActiveResource::HttpMock.requests.count }, from: 0, to: 1 do
       assert_equal 1, people.size

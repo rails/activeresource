@@ -4,6 +4,11 @@ class Person < ActiveResource::Base
   self.site = "http://37s.sunrise.i:3000"
 end
 
+class DeferredPerson < Person
+  self.element_name = "person"
+  self.lazy_collections = true
+end
+
 module External
   class Person < ActiveResource::Base
     self.site = "http://atq.caffeine.intoxication.it"

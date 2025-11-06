@@ -15,7 +15,7 @@ class NotificationsTest < ActiveSupport::TestCase
   end
 
   def test_get_request_with_params
-    payload = capture_notifications { Person.where(name: "Matz").load }
+    payload = capture_notifications { Person.where(name: "Matz") }
 
     assert_equal :get, payload[:method]
     assert_equal "http://37s.sunrise.i:3000/people.json?name=Matz", payload[:request_uri]
