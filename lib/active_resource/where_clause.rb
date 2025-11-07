@@ -2,13 +2,13 @@
 
 module ActiveResource
   class WhereClause < BasicObject # :nodoc:
-    delegate :==, to: :resources
-    delegate_missing_to :resources
+    delegate :==, to: :collection
+    delegate_missing_to :collection
 
     def initialize(resource_class, options = {})
       @resource_class = resource_class
       @options = options
-      @resources = nil
+      @collection = nil
       @loaded = false
     end
 
@@ -22,7 +22,7 @@ module ActiveResource
 
     def load
       unless @loaded
-        @resources = @resource_class.find(:all, @options)
+        @collection = @resource_class.find(:all, @options)
         @loaded = true
       end
 
@@ -34,14 +34,15 @@ module ActiveResource
       load
     end
 
+    def collection
+      load
+      @collection
+    end
+
     private
-      def resources
-        load
-        @resources
-      end
 
       def reset
-        @resources = nil
+        @collection = nil
         @loaded = false
       end
   end
