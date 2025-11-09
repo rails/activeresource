@@ -1276,8 +1276,16 @@ module ActiveResource
         end
     end
 
-    attr_accessor :attributes # :nodoc:
     attr_accessor :prefix_options # :nodoc:
+
+    def attributes=(value) # :nodoc:
+      ActiveResource.deprecator.warn("#attributes= is deprecated. Call #load on the instance instead.")
+      @attributes = value
+    end
+
+    def attributes # :nodoc:
+      AttributeSet.new(@attributes)
+    end
 
     # If no schema has been defined for the class (see
     # <tt>ActiveResource::schema=</tt>), the default automatic schema is
@@ -1385,7 +1393,7 @@ module ActiveResource
 
     # Sets the <tt>\id</tt> attribute of the resource.
     def id=(id)
-      attributes[self.class.primary_key] = id
+      @attributes[self.class.primary_key] = id
     end
 
     # Test for equality. Resource are equal if and only if +other+ is the same object or
@@ -1439,7 +1447,7 @@ module ActiveResource
     #   next_invoice.customer # => That Company
     def dup
       self.class.new.tap do |resource|
-        resource.attributes     = @attributes
+        resource.send :instance_variable_set, "@attributes", @attributes
         resource.prefix_options = @prefix_options
       end
     end
@@ -1842,7 +1850,7 @@ module ActiveResource
         if method_name =~ /(=|\?)$/
           case $1
           when "="
-            attributes[$`] = arguments.first
+            @attributes[$`] = arguments.first
           when "?"
             attributes[$`]
           end
