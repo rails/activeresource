@@ -371,6 +371,7 @@ module ActiveResource
       @@logger = logger
     end
 
+    class_attribute :lazy_collections, default: true, instance_accessor: false
     class_attribute :_query_format
     class_attribute :_format
     class_attribute :_collection_parser
@@ -383,6 +384,16 @@ module ActiveResource
     class << self
       include ThreadsafeAttributes
       threadsafe_attribute :_headers, :_connection, :_user, :_password, :_bearer_token, :_site, :_proxy
+
+      def new_lazy_collections=(value)
+        ActiveResource.deprecator.warn(<<~MSG)
+          ActiveResource::Base#lazy_collections= is deprecated with no replacement.
+        MSG
+
+        self.old_lazy_collections = value
+      end
+      alias_method :old_lazy_collections=, :lazy_collections=
+      alias_method :lazy_collections=, :new_lazy_collections=
 
       # Creates a schema for this resource - setting the attributes that are
       # known prior to fetching an instance from the remote system.
@@ -1126,7 +1137,11 @@ module ActiveResource
       # This is an alias for find(:all). You can pass in all the same
       # arguments to this method as you can to <tt>find(:all)</tt>
       def all(*args)
-        WhereClause.new(self, *args)
+        if lazy_collections
+          WhereClause.new(self, *args)
+        else
+          find(:all, *args)
+        end
       end
 
       # This is an alias for all. You can pass in all the same

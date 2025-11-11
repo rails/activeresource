@@ -192,6 +192,16 @@ people = Person.where(last_name: "Durden")
 people.first  # => <Person::xxx 'first_name' => 'Tyler' ...>
 ```
 
+##### A note on finding all resources
+
+Previously, Active Resource would eagerly load resources when `Person.all` was called. This behaviour is now
+deprecated and Active Resource now lazy loads collections. The http request is deferred until the collection is
+explicitly accessed.
+
+You can opt-in to the new behaviour by setting the `ActiveResource::Base.lazy_collections = false`.
+Note that this setting is temporary to allow your application to progressivly transition to the new behaviour.
+This setting will be removed in the next versions of Active Resource.
+
 ### Create
 
 Creating a new resource submits the JSON form of the resource as the body of the request and expects

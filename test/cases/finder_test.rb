@@ -61,6 +61,30 @@ class FinderTest < ActiveSupport::TestCase
     assert_equal "David", all.last.name
   end
 
+  def test_all_loads_the_collection_lazily
+    all = Person.all
+    assert_empty(ActiveResource::HttpMock.requests)
+
+    assert_equal(2, all.size)
+    assert_not_empty(ActiveResource::HttpMock.requests)
+  end
+
+  def test_all_loads_the_collection_eagerly
+    previous_value = ActiveResource::Base.lazy_collections
+
+    assert_deprecated(/ActiveResource::Base#lazy_collections= is deprecated/, ActiveResource.deprecator) do
+      ActiveResource::Base.lazy_collections = false
+    end
+
+    all = Person.all
+    assert_not_empty(ActiveResource::HttpMock.requests)
+    assert_equal(2, all.size)
+  ensure
+    assert_deprecated(/ActiveResource::Base#lazy_collections= is deprecated/, ActiveResource.deprecator) do
+      ActiveResource::Base.lazy_collections = previous_value
+    end
+  end
+
   def test_all_with_params
     all = StreetAddress.all(params: { person_id: 1 })
     assert_equal 1, all.size
