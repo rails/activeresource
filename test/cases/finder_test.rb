@@ -109,6 +109,7 @@ class FinderTest < ActiveSupport::TestCase
     ActiveResource::HttpMock.respond_to.get "/people.json?id=2&name=david", {}, @people_david
 
     people = Person.where(id: 2).where(name: "david")
+    assert_kind_of Person.collection_parser, people.collection
     assert_equal 1, people.size
     assert_kind_of Person, people.first
     assert_equal 2, people.first.id
