@@ -131,7 +131,7 @@ module ActiveResource::Associations
       if instance_variable_defined?(ivar_name)
         instance_variable_get(ivar_name)
       elsif attributes.include?(method_name)
-        attributes[method_name]
+        read_attribute(method_name)
       elsif association_id = send(reflection.foreign_key)
         instance_variable_set(ivar_name, reflection.klass.find(association_id))
       end
@@ -146,7 +146,7 @@ module ActiveResource::Associations
       if instance_variable_defined?(ivar_name)
         instance_variable_get(ivar_name)
       elsif attributes.include?(method_name)
-        attributes[method_name]
+        read_attribute(method_name)
       elsif !new_record?
         instance_variable_set(ivar_name, reflection.klass.find(:all, params: { "#{self.class.element_name}_id": self.id }))
       else
@@ -164,7 +164,7 @@ module ActiveResource::Associations
       if instance_variable_defined?(ivar_name)
         instance_variable_get(ivar_name)
       elsif attributes.include?(method_name)
-        attributes[method_name]
+        read_attribute(method_name)
       elsif reflection.klass.respond_to?(:singleton_name)
         instance_variable_set(ivar_name, reflection.klass.find(params: { "#{self.class.element_name}_id": self.id }))
       else
