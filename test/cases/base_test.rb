@@ -1743,4 +1743,38 @@ class BaseTest < ActiveSupport::TestCase
   ensure
     ActiveResource::Base.include_format_in_path = true
   end
+
+  def test_deprecate_attributes_write
+    person = Person.find(1)
+
+    assert_deprecated("#attributes= is deprecated. Call #load on the instance instead.", ActiveResource.deprecator) do
+      person.attributes = { "name" => "changed" }
+    end
+
+    assert_equal "changed", person.name
+  end
+
+  def test_deprecate_attributes_store
+    [ :[]=, :store ].each do |store|
+      person = Person.find(1)
+
+      assert_deprecated("Writing to the attributes hash is deprecated. Set attributes directly on the instance instead.", ActiveResource.deprecator) do
+        person.attributes.send(store, "name", "changed")
+      end
+
+      assert_equal "changed", person.name
+    end
+  end
+
+  def test_deprecate_attributes_update
+    [ :update, :merge! ].each do |update|
+      person = Person.find(1)
+
+      assert_deprecated("Writing to the attributes hash is deprecated. Set attributes directly on the instance instead.", ActiveResource.deprecator) do
+        person.attributes.send(update, "name" => "changed")
+      end
+
+      assert_equal "changed", person.name
+    end
+  end
 end
