@@ -345,6 +345,12 @@ class ConnectionTest < ActiveSupport::TestCase
     end
   end
 
+  def test_site_missing_error_message
+    assert_raises ArgumentError, match: "Missing site URI" do
+      ActiveResource::Connection.new(nil)
+    end
+  end
+
   def keep_net_connection_status
     old = ActiveResource::HttpMock.net_connection_enabled?
     begin

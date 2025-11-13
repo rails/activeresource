@@ -33,6 +33,20 @@ class BaseTest < ActiveSupport::TestCase
   # Tests relating to setting up the API-connection configuration
   ########################################################################
 
+  def test_site_missing_error_message
+    Person.site = nil
+
+    assert_raises ArgumentError, match: "Missing site URI" do
+      Person.find(1)
+    end
+    assert_raises ArgumentError, match: "Missing site URI" do
+      Person.element_url(1)
+    end
+    assert_raises ArgumentError, match: "Missing site URI" do
+      Person.collection_url(1)
+    end
+  end
+
   def test_site_accessor_accepts_uri_or_string_argument
     site = URI.parse("http://localhost")
 
