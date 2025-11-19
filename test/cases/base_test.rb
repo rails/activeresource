@@ -43,6 +43,17 @@ class BaseTest < ActiveSupport::TestCase
     assert_equal site, Person.site
   end
 
+  def test_prefix_error_message
+    previous_prefix = Person.prefix
+    previous_logger, Person.logger = Person.logger, ActiveSupport::Logger.new(output = StringIO.new)
+
+    error = assert_raises(NoMethodError) { Person.prefix = nil }
+    assert_equal "Couldn't set prefix: #{error}", output.string.strip
+  ensure
+    Person.prefix = previous_prefix
+    Person.logger = previous_logger
+  end
+
   def test_should_use_site_prefix_and_credentials
     assert_equal "http://foo:bar@beast.caboo.se", Forum.site.to_s
     assert_equal "http://foo:bar@beast.caboo.se/forums/:forum_id", Topic.site.to_s
