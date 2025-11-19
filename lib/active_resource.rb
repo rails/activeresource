@@ -35,6 +35,7 @@ module ActiveResource
 
   URI_PARSER = defined?(URI::RFC2396_PARSER) ? URI::RFC2396_PARSER : URI::RFC2396_Parser.new
 
+  autoload :AttributeSet
   autoload :Base
   autoload :Callbacks
   autoload :Coder
