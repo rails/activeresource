@@ -806,6 +806,7 @@ module ActiveResource
       # Gets the \prefix for a resource's nested URL (e.g., <tt>prefix/collectionname/1.json</tt>)
       # This method is regenerated at runtime based on what the \prefix is set to.
       def prefix(options = {})
+        raise ArgumentError, "Missing site URI" unless site
         default = site.path
         default << "/" unless default[-1..-1] == "/"
         # generate the actual method based on the current site path
@@ -912,6 +913,7 @@ module ActiveResource
       #   # => https://37s.sunrise.com/posts/5/comments/1.json?active=1
       #
       def element_url(id, prefix_options = {}, query_options = nil)
+        raise ArgumentError, "Missing site URI" unless site
         URI.join(site, element_path(id, prefix_options, query_options)).to_s
       end
 
@@ -984,6 +986,7 @@ module ActiveResource
       #   # => https://example.com/posts/5/comments.json?active=1
       #
       def collection_url(prefix_options = {}, query_options = nil)
+        raise ArgumentError, "Missing site URI" unless site
         URI.join(site, collection_path(prefix_options, query_options)).to_s
       end
 
