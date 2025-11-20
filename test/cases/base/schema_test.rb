@@ -14,6 +14,7 @@ class SchemaTest < ActiveSupport::TestCase
   end
 
   def teardown
+    Person.cast_values = false
     Person.schema = nil # hack to stop test bleedthrough...
   end
 
@@ -160,6 +161,51 @@ class SchemaTest < ActiveSupport::TestCase
     }
   end
 
+  test "classes can alias attributes for a schema they inherit from their ancestors" do
+    base = Class.new(ActiveResource::Base) do
+      schema { attribute :base_attribute }
+    end
+    person = Class.new(base) do
+      schema { alias_attribute :aliased_attribute, :base_attribute }
+    end
+
+    resource = person.new
+
+    assert_changes -> { resource.base_attribute }, to: "value" do
+      resource.aliased_attribute = "value"
+    end
+    assert_equal [ "base_attribute" ], resource.attribute_names
+    assert_equal "value", resource.serializable_hash["base_attribute"]
+    assert_not_includes resource.serializable_hash, "aliased_attribute"
+  end
+
+  test "classes can extend the schema they inherit from their ancestors" do
+    base = Class.new(ActiveResource::Base) do
+      schema { attribute :created_at, :datetime }
+    end
+    cast_values = Class.new(base) do
+      schema(cast_values: true) { attribute :accepted_terms_and_conditions, :boolean }
+    end
+    uncast_values = Class.new(base) do
+      schema(cast_values: false) { attribute :line1, :string }
+    end
+
+    cast_resource = cast_values.new
+    uncast_resource = uncast_values.new
+
+    assert_changes -> { cast_resource.accepted_terms_and_conditions }, to: true do
+      cast_resource.accepted_terms_and_conditions = "1"
+    end
+    assert_changes -> { cast_resource.created_at.try(:to_date) }, from: nil, to: Date.new(2025, 1, 1) do
+      cast_resource.created_at = "2025-01-01"
+    end
+    assert_changes -> { uncast_resource.line1 }, to: 123 do
+      uncast_resource.line1 = 123
+    end
+    assert_changes -> { uncast_resource.created_at }, from: nil, to: "2025-01-01" do
+      uncast_resource.created_at = "2025-01-01"
+    end
+  end
 
   #####################################################
   # Using the schema syntax
@@ -424,5 +470,88 @@ class SchemaTest < ActiveSupport::TestCase
     new_schema = { "age" => "integer", "name" => "string" }
     Person.schema = new_schema
     assert_equal Person.new(age: 20, name: "Matz").known_attributes, [ "age", "name" ]
+  end
+
+  test "clone with schema that casts values" do
+    Person.cast_values = true
+    Person.schema = { "age" => "integer" }
+    person = Person.new({ Person.primary_key => 1, "age" => "10" }, true)
+
+    person_c = person.clone
+
+    assert_predicate person_c, :new?
+    assert_nil person_c.send(Person.primary_key)
+    assert_equal 10, person_c.age
+  end
+
+  test "known primary_key attributes should be cast" do
+    Person.schema cast_values: true do
+      attribute Person.primary_key, :integer
+    end
+
+    person = Person.new(Person.primary_key => "1")
+
+    assert_equal 1, person.send(Person.primary_key)
+  end
+
+  test "cast_values: true supports implicit types" do
+    Person.schema cast_values: true do
+      attribute :name
+    end
+
+    person = Person.new(name: "String")
+
+    assert_equal "String", person.name
+  end
+
+  test "known attributes should be cast" do
+    Person.schema cast_values: true do
+      attribute :born_on, :date
+    end
+
+    person = Person.new(born_on: "2000-01-01")
+
+    assert_equal Date.new(2000, 1, 1), person.born_on
+  end
+
+  test "known boolean attributes should be cast as predicates" do
+    Person.schema cast_values: true do
+      attribute :alive, :boolean
+    end
+
+    assert_predicate Person.new(alive: "1"), :alive?
+    assert_predicate Person.new(alive: "true"), :alive?
+    assert_predicate Person.new(alive: true), :alive?
+    assert_not_predicate Person.new, :alive?
+    assert_not_predicate Person.new(alive: nil), :alive?
+    assert_not_predicate Person.new(alive: "0"), :alive?
+    assert_not_predicate Person.new(alive: "false"), :alive?
+    assert_not_predicate Person.new(alive: false), :alive?
+  end
+
+  test "known attributes should be support default values" do
+    Person.schema cast_values: true do
+      attribute :name, :string, default: "Default Name"
+    end
+
+    person = Person.new
+
+    assert_equal "Default Name", person.name
+  end
+
+  test "unknown attributes should not be cast" do
+    Person.cast_values = true
+
+    person = Person.new(age: "10")
+
+    assert_equal "10", person.age
+  end
+
+  test "unknown attribute type raises ArgumentError" do
+    assert_raises ArgumentError, match: /Unknown Attribute type: :junk/ do
+      Person.schema cast_values: true do
+        attribute :name, :junk
+      end
+    end
   end
 end
