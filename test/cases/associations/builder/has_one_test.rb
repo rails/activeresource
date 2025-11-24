@@ -25,4 +25,14 @@ class ActiveResource::Associations::Builder::HasOneTest < ActiveSupport::TestCas
     assert_equal :inventory, reflection.name
     assert_equal Inventory, reflection.klass
   end
+
+  def test_valid_options
+    assert @klass.build(Product, :inventory, class_name: "Product")
+    assert @klass.build(Product, :inventory, foreign_key: "product_id")
+    assert @klass.build(Product, :inventory, primary_key: "id")
+
+    assert_raise ArgumentError do
+      @klass.build(Product, :inventory, soo_invalid: true)
+    end
+  end
 end
