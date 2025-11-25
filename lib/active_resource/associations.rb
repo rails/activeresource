@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "active_support/core_ext/module/redefine_method"
+
 module ActiveResource::Associations
   module Builder
     autoload :Association, "active_resource/associations/builder/association"
@@ -124,10 +126,9 @@ module ActiveResource::Associations
 
     if method_defined?(method_name)
       instance_variable_set(ivar_name, nil)
-      remove_method(method_name)
     end
 
-    define_method(method_name) do
+    redefine_method(method_name) do
       if instance_variable_defined?(ivar_name)
         instance_variable_get(ivar_name)
       elsif attributes.include?(method_name)
@@ -142,7 +143,7 @@ module ActiveResource::Associations
     method_name = reflection.name
     ivar_name = :"@#{method_name}"
 
-    define_method(method_name) do
+    redefine_method(method_name) do
       if instance_variable_defined?(ivar_name)
         instance_variable_get(ivar_name)
       elsif attributes.include?(method_name)
@@ -160,7 +161,9 @@ module ActiveResource::Associations
     method_name = reflection.name
     ivar_name = :"@#{method_name}"
 
-    define_method(method_name) do
+    instance_variable_set(ivar_name, nil)
+
+    redefine_method(method_name) do
       if instance_variable_defined?(ivar_name)
         instance_variable_get(ivar_name)
       elsif attributes.include?(method_name)
