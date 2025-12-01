@@ -16,6 +16,13 @@ module ActiveResource::Associations
   # [:class_name]
   #   Specify the class name of the association. This class name would
   #   be used for resolving the association class.
+  # [:foreign_key]
+  #   Specify the foreign key used for the association. By default, the key is
+  #   inferred from the associated `element_name` class method with an "_id"
+  #   suffix.
+  # [:primary_key]
+  #   Specify the primary key used for the association. By default, the key is
+  #   inferred from the `primary_key` class method.
   #
   # ==== Example for [:class_name] - option
   # GET /posts/123.json delivers following response body:
@@ -50,6 +57,13 @@ module ActiveResource::Associations
   # [:class_name]
   #   Specify the class name of the association. This class name would
   #   be used for resolving the association class.
+  # [:foreign_key]
+  #   Specify the foreign key used for the association. By default, the key is
+  #   inferred from the associated `element_name` class method with an "_id"
+  #   suffix.
+  # [:primary_key]
+  #   Specify the primary key used for the association. By default, the key is
+  #   inferred from the `primary_key` class method.
   #
   # ==== Example for [:class_name] - option
   # GET /posts/1.json delivers following response body:
@@ -141,14 +155,18 @@ module ActiveResource::Associations
   def defines_has_many_finder_method(reflection)
     method_name = reflection.name
     ivar_name = :"@#{method_name}"
+    options = reflection.options
 
     define_method(method_name) do
+      foreign_key = options.fetch(:foreign_key, "#{self.class.element_name}_id")
+      primary_key = send(options.fetch(:primary_key, self.class.primary_key))
+
       if instance_variable_defined?(ivar_name)
         instance_variable_get(ivar_name)
       elsif attributes.include?(method_name)
         read_attribute(method_name)
       elsif !new_record?
-        instance_variable_set(ivar_name, reflection.klass.where("#{self.class.element_name}_id": self.id))
+        instance_variable_set(ivar_name, reflection.klass.where(foreign_key => primary_key))
       else
         instance_variable_set(ivar_name, self.class.collection_parser.new)
       end
@@ -159,16 +177,20 @@ module ActiveResource::Associations
   def defines_has_one_finder_method(reflection)
     method_name = reflection.name
     ivar_name = :"@#{method_name}"
+    options = reflection.options
 
     define_method(method_name) do
+      foreign_key = options.fetch(:foreign_key, "#{self.class.element_name}_id")
+      primary_key = send(options.fetch(:primary_key, self.class.primary_key))
+
       if instance_variable_defined?(ivar_name)
         instance_variable_get(ivar_name)
       elsif attributes.include?(method_name)
         read_attribute(method_name)
       elsif reflection.klass.respond_to?(:singleton_name)
-        instance_variable_set(ivar_name, reflection.klass.find(params: { "#{self.class.element_name}_id": self.id }))
+        instance_variable_set(ivar_name, reflection.klass.find(params: { foreign_key => primary_key }))
       else
-        instance_variable_set(ivar_name, reflection.klass.find(:one, from: "/#{self.class.collection_name}/#{self.id}/#{method_name}#{self.class.format_extension}"))
+        instance_variable_set(ivar_name, reflection.klass.find(:one, from: "/#{self.class.collection_name}/#{primary_key}/#{method_name}#{self.class.format_extension}"))
       end
     end
   end

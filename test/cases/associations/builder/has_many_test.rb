@@ -25,4 +25,14 @@ class ActiveResource::Associations::Builder::HasManyTest < ActiveSupport::TestCa
     assert_equal :street_address, reflection.name
     assert_equal StreetAddress, reflection.klass
   end
+
+  def test_valid_options
+    assert @klass.build(Person, :street_address, class_name: "StreetAddress")
+    assert @klass.build(Person, :street_address, foreign_key: "person_id")
+    assert @klass.build(Person, :street_address, primary_key: "id")
+
+    assert_raise ArgumentError do
+      @klass.build(Person, :street_address, soo_invalid: true)
+    end
+  end
 end
