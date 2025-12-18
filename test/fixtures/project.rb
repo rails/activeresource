@@ -11,6 +11,7 @@ class Project < ActiveResource::Base
   validates :name, presence: true
   validates :description, presence: false, length: { maximum: 10 }
   validate :description_greater_than_three_letters
+  validates :summary, presence: { on: :completed }
 
   # to test the validate *callback* works
   def description_greater_than_three_letters
