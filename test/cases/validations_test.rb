@@ -32,10 +32,28 @@ class ValidationsTest < ActiveSupport::TestCase
     assert_raise(ActiveResource::ResourceInvalid) { p.save! }
   end
 
+  def test_save_with_context
+    p = new_project(summary: nil)
+    assert_not p.save(context: :completed)
+    assert_equal [ "can't be blank" ], p.errors.messages_for(:summary)
+  end
+
+  def test_save_bang_with_context
+    p = new_project(summary: nil)
+    assert_raise(ActiveResource::ResourceInvalid) { p.save!(context: :completed) }
+    assert_equal [ "can't be blank" ], p.errors.messages_for(:summary)
+  end
+
   def test_save_without_validation
     p = new_project(name: nil)
     assert_not p.save
     assert p.save(validate: false)
+  end
+
+  def test_save_bang_without_validation
+    p = new_project(name: nil)
+    assert_raises(ActiveResource::ResourceInvalid) { p.save! }
+    assert p.save!(validate: false)
   end
 
   def test_validate_callback
@@ -54,6 +72,14 @@ class ValidationsTest < ActiveSupport::TestCase
     project = Project.new(description: "123456789012345")
     assert_not project.valid?
     assert_equal [ "is too long (maximum is 10 characters)" ], project.errors[:description]
+  end
+
+  def test_validation_context
+    project = new_project(summary: "")
+
+    assert_predicate project, :valid?
+    assert_not project.valid?(:completed)
+    assert_equal [ "can't be blank" ], project.errors.messages_for(:summary)
   end
 
   def test_invalid_method
