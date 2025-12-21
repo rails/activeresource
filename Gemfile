@@ -9,6 +9,7 @@ gem "activesupport", github: "rails/rails", branch: branch
 gem "activemodel", github: "rails/rails", branch: branch
 gem "activejob", github: "rails/rails", branch: branch
 gem "activerecord", github: "rails/rails", branch: branch
+gem "rack"
 gem "sqlite3", branch == "7-0-stable" ? "~> 1.4" : nil
 
 gem "rubocop"
@@ -18,6 +19,7 @@ gem "rubocop-performance"
 gem "rubocop-rails"
 gem "rubocop-rails-omakase"
 
+gem "minitest", "< 6"
 gem "minitest-bisect"
 
 gemspec

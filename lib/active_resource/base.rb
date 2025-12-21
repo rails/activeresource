@@ -1151,7 +1151,34 @@ module ActiveResource
 
       # This is an alias for all. You can pass in all the same
       # arguments to this method as you can to <tt>all</tt> and <tt>find(:all)</tt>
+      #
+      # #where accepts conditions in one of several formats. In the examples below, the resulting
+      # URL is given as an illustration.
+      #
+      # === \String
+      #
+      # A string is passed as URL query parameters.
+      #
+      #    Person.where("name=Matz")
+      #    # https://api.people.com/people.json?name=Matz
+      #
+      # === \Hash
+      #
+      # #where will also accept a hash condition, in which the keys are fields and the values
+      # are values to be searched for.
+      #
+      # Fields can be symbols or strings. Values can be single values, arrays, or ranges.
+      #
+      #   Person.where(name: "Matz")
+      #   # https://api.people.com/people.json?name=Matz
+      #
+      #   Person.where(person: { name: "Matz" })
+      #   # https://api.people.com/people.json?person[name]=Matz
+      #
+      #   Article.where(tags: ["Ruby", "Rails"])
+      #   # https://api.people.com/people.json?tags[]=Ruby&tags[]=Rails
       def where(clauses = {})
+        clauses = query_format.decode(clauses) if clauses.is_a?(String)
         clauses = sanitize_forbidden_attributes(clauses)
         raise ArgumentError, "expected a clauses Hash, got #{clauses.inspect}" unless clauses.is_a? Hash
         all(params: clauses)

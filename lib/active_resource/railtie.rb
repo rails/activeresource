@@ -39,5 +39,9 @@ module ActiveResource
         teardown { ActiveResource::HttpMock.reset! }
       end
     end
+
+    config.after_initialize do
+      Formats::UrlEncodedFormat.query_parser ||= :rack if defined?(Rack::Utils)
+    end
   end
 end
