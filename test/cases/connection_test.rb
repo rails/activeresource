@@ -243,7 +243,8 @@ class ConnectionTest < ActiveSupport::TestCase
     @http = mock("new Net::HTTP")
     @conn.expects(:http).returns(@http)
     @http.expects(:request).raises(Timeout::Error, "execution expired")
-    assert_raise(ActiveResource::TimeoutError) { @conn.get("/people_timeout.json") }
+    error = assert_raise(ActiveResource::TimeoutError) { @conn.get("/people_timeout.json") }
+    assert_kind_of Net::HTTPRequest, error.request
   end
 
   def test_setting_timeout
@@ -285,21 +286,24 @@ class ConnectionTest < ActiveSupport::TestCase
     http = Net::HTTP.new("")
     @conn.expects(:http).returns(http)
     http.expects(:request).raises(OpenSSL::SSL::SSLError, "Expired certificate")
-    assert_raise(ActiveResource::SSLError) { @conn.get("/people/1.json") }
+    error = assert_raise(ActiveResource::SSLError) { @conn.get("/people/1.json") }
+    assert_kind_of Net::HTTPRequest, error.request
   end
 
   def test_handle_econnrefused
     http = Net::HTTP.new("")
     @conn.expects(:http).returns(http)
     http.expects(:request).raises(Errno::ECONNREFUSED, "Failed to open TCP connection")
-    assert_raise(ActiveResource::ConnectionRefusedError) { @conn.get("/people/1.json") }
+    error = assert_raise(ActiveResource::ConnectionRefusedError) { @conn.get("/people/1.json") }
+    assert_kind_of Net::HTTPRequest, error.request
   end
 
   def test_handle_econnrefused_with_backwards_compatible_error
     http = Net::HTTP.new("")
     @conn.expects(:http).returns(http)
     http.expects(:request).raises(Errno::ECONNREFUSED, "Failed to open TCP connection")
-    assert_raise(Errno::ECONNREFUSED) { @conn.get("/people/1.json") }
+    error = assert_raise(Errno::ECONNREFUSED) { @conn.get("/people/1.json") }
+    assert_kind_of Net::HTTPRequest, error.request
   end
 
   def test_auth_type_can_be_string
@@ -378,7 +382,7 @@ class ConnectionTest < ActiveSupport::TestCase
     end
 
     def handle_response(response)
-      @conn.__send__(:handle_response, response)
+      @conn.__send__(:handle_response, nil, response)
     end
 
     def decode(response)
