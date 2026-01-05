@@ -1504,7 +1504,7 @@ module ActiveResource
     # of the <tt>before_*</tt> callbacks throw +:abort+ the action is
     # cancelled and <tt>save!</tt> raises ActiveResource::ResourceInvalid.
     def save!
-      save || raise(ResourceInvalid.new(self))
+      save || raise(ResourceInvalid.new(nil, self))
     end
 
     ##
