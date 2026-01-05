@@ -46,6 +46,9 @@ class AssociationTest < ActiveSupport::TestCase
     people = person.people
 
     assert_equal [ "Related" ], people.map(&:name)
+  ensure
+    reflection = External::Person.reflections.delete(:people)
+    External::Person.remove_method(:people) if reflection
   end
 
   def test_has_many_chain
@@ -57,6 +60,9 @@ class AssociationTest < ActiveSupport::TestCase
     people = person.people.where(name: "Related")
 
     assert_equal [ "Related" ], people.map(&:name)
+  ensure
+    reflection = External::Person.reflections.delete(:people)
+    External::Person.remove_method(:people) if reflection
   end
 
   def test_has_many_on_new_record
