@@ -1298,11 +1298,6 @@ module ActiveResource
 
     attr_accessor :prefix_options # :nodoc:
 
-    def attributes=(value) # :nodoc:
-      ActiveResource.deprecator.warn("#attributes= is deprecated. Call #load on the instance instead.")
-      @attributes = value
-    end
-
     def attributes # :nodoc:
       AttributeSet.new(@attributes)
     end
@@ -1368,7 +1363,7 @@ module ActiveResource
       # the raw objects to be cloned so we bypass load by directly setting the attributes hash.
       resource = self.class.new({})
       resource.prefix_options = self.prefix_options
-      resource.send :instance_variable_set, "@attributes", cloned
+      resource.attributes = cloned
       resource
     end
 
@@ -1467,7 +1462,7 @@ module ActiveResource
     #   next_invoice.customer # => That Company
     def dup
       self.class.new.tap do |resource|
-        resource.send :instance_variable_set, "@attributes", @attributes
+        resource.attributes = @attributes
         resource.prefix_options = @prefix_options
       end
     end
@@ -1744,6 +1739,10 @@ module ActiveResource
     end
 
     protected
+      def attributes=(attrs)
+        @attributes = attrs
+      end
+
       def connection(refresh = false)
         self.class.connection(refresh)
       end

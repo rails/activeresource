@@ -1249,6 +1249,40 @@ class BaseTest < ActiveSupport::TestCase
     assert_not_equal matz.non_ar_hash, matz_c.non_ar_hash
   end
 
+  def test_dup
+    matz = Person.find(1)
+    matz_d = matz.dup
+    assert matz_d.new?
+    matz.attributes.each do |k, v|
+      assert_equal v, matz_d.send(k)
+    end
+  end
+
+  def test_dup_preserves_primary_key
+    matz = Person.find(1)
+    matz_d = matz.dup
+    assert_equal matz.id, matz_d.id
+  end
+
+  def test_nested_dup
+    addy = StreetAddress.find(1, params: { person_id: 1 })
+    addy_d = addy.dup
+    assert addy_d.new?
+    addy.attributes.each do |k, v|
+      assert_equal v, addy_d.send(k)
+    end
+    assert_equal addy.prefix_options, addy_d.prefix_options
+  end
+
+  def test_dup_with_nested_resource
+    matz = Person.find(1)
+    matz.address = StreetAddress.find(1, params: { person_id: matz.id })
+    matz_d = matz.dup
+    assert matz_d.new?
+    assert_equal matz.address, matz_d.address
+    assert_equal matz.address.object_id, matz_d.address.object_id
+  end
+
   def test_update
     matz = Person.find(:first)
     matz.name = "David"
@@ -1767,16 +1801,6 @@ class BaseTest < ActiveSupport::TestCase
 
   ensure
     ActiveResource::Base.include_format_in_path = true
-  end
-
-  def test_deprecate_attributes_write
-    person = Person.find(1)
-
-    assert_deprecated("#attributes= is deprecated. Call #load on the instance instead.", ActiveResource.deprecator) do
-      person.attributes = { "name" => "changed" }
-    end
-
-    assert_equal "changed", person.name
   end
 
   def test_deprecate_attributes_store
