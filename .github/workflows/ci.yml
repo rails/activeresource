@@ -9,10 +9,16 @@ jobs:
       fail-fast: false
       matrix:
         ruby: ["3.1", "3.2", "3.3", "3.4", "4.0"]
-        branch: ["7-2-stable", "8-0-stable", "main"]
+        branch: ["7-2-stable", "8-0-stable", "8-1-stable", "main"]
         exclude:
           - ruby: "3.1"
             branch: "8-0-stable"
+          - ruby: "3.1"
+            branch: "8-1-stable"
+          - ruby: "3.1"
+            branch: "main"
+          - ruby: "3.2"
+            branch: "main"
         include:
           - ruby: head
             branch: main
