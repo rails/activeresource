@@ -8,88 +8,25 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        ruby: ["3.1", "3.2", "3.3"]
+        branch: ["7-2-stable", "8-0-stable", "main"]
+        exclude:
+          - ruby: "3.1"
+            branch: "8-0-stable"
         include:
-          - ruby: "2.7"
-            env:
-              BRANCH: 7-0-stable
-            experimental: false
-          - ruby: "3.0"
-            env:
-              BRANCH: 7-0-stable
-            experimental: false
-          - ruby: "3.1"
-            env:
-              BRANCH: 7-0-stable
-            experimental: false
-          - ruby: "3.2"
-            env:
-              BRANCH: 7-0-stable
-            experimental: false
-          - ruby: "3.3"
-            env:
-              BRANCH: 7-0-stable
-
-          - ruby: "2.7"
-            env:
-              BRANCH: 7-1-stable
-            experimental: false
-          - ruby: "3.0"
-            env:
-              BRANCH: 7-1-stable
-            experimental: false
-          - ruby: "3.1"
-            env:
-              BRANCH: 7-1-stable
-            experimental: false
-          - ruby: "3.2"
-            env:
-              BRANCH: 7-1-stable
-            experimental: false
-          - ruby: "3.3"
-            env:
-              BRANCH: 7-1-stable
-
-          - ruby: "3.1"
-            env:
-              BRANCH: 7-2-stable
-            experimental: false
-          - ruby: "3.2"
-            env:
-              BRANCH: 7-2-stable
-            experimental: false
-          - ruby: "3.3"
-            env:
-              BRANCH: 7-2-stable
-
-          - ruby: "3.2"
-            env:
-              BRANCH: 8-0-stable
-            experimental: false
-          - ruby: "3.3"
-            env:
-              BRANCH: 8-0-stable
-
-          - ruby: "3.2"
-            env:
-              BRANCH: main
-            experimental: true
-          - ruby: "3.3"
-            env:
-              BRANCH: main
-            experimental: true
           - ruby: head
-            env:
-              BRANCH: main
-            experimental: true
+            branch: main
     steps:
       - uses: actions/checkout@v4
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
-        env: ${{ matrix.env }}
+        env:
+          BRANCH: ${{ matrix.branch }}
         with:
           ruby-version: ${{ matrix.ruby }}
           bundler-cache: true
       - name: Run tests
         run: bundle exec rake
-        env: ${{ matrix.env }}
-        continue-on-error: ${{ matrix.experimental }}
+        env:
+          BRANCH: ${{ matrix.branch }}
+        continue-on-error: ${{ matrix.branch == 'main' || matrix.ruby == 'head' }}
