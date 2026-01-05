@@ -1030,7 +1030,7 @@ class BaseTest < ActiveSupport::TestCase
   def test_predicate_for_an_unknown_attribute_returns_nil
     post = Post.new
 
-    assert_not_predicate post, :unknown_attribute?
+    assert_nil post.unknown_attribute?
   end
 
   def test_custom_header
