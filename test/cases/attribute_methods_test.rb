@@ -85,6 +85,6 @@ class AttributeMethodsTest < ActiveSupport::TestCase
   test "read_attribute unknown attribute" do
     person = Person.new
 
-    person.read_attribute("unknown")
+    assert_nil person.read_attribute("unknown")
   end
 end
