@@ -1798,9 +1798,25 @@ class BaseTest < ActiveSupport::TestCase
     assert_equal "/customers",      Customer.collection_path
     assert_equal "/customers/1",    Customer.element_path(1)
     assert_equal "/customers/new",  Customer.new_element_path
-
   ensure
     ActiveResource::Base.include_format_in_path = true
+  end
+
+  def test_deprecate_attributes_write
+    person = Person.find(1)
+
+    assert_deprecated("#attributes= is deprecated. Call #load on the instance instead.", ActiveResource.deprecator) do
+      person.attributes = { "name" => "changed" }
+    end
+
+    assert_equal "changed", person.name
+  end
+
+  def test_object_does_not_respond_to_attributes_write
+    person = Person.find(1)
+
+    assert_not_respond_to person, :attributes=
+    assert_respond_to person, :attributes=, include_all: true
   end
 
   def test_deprecate_attributes_store

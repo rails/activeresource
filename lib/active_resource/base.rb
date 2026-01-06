@@ -1881,6 +1881,11 @@ module ActiveResource
       def method_missing(method_symbol, *arguments) # :nodoc:
         method_name = method_symbol.to_s
 
+        if method_name == "attributes="
+          ActiveResource.deprecator.warn("#attributes= is deprecated. Call #load on the instance instead.")
+          return @attributes = arguments.first
+        end
+
         if method_name =~ /(=|\?)$/
           case $1
           when "="
