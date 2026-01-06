@@ -2,6 +2,8 @@
 
 module ActiveResource::Associations::Builder
   class HasOne < Association
+    self.valid_options += [ :primary_key, :foreign_key ]
+
     self.macro = :has_one
 
     def build
