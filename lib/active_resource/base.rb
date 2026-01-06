@@ -463,6 +463,7 @@ module ActiveResource
             @schema[k] = v
             @known_attributes << k
           end
+          define_attribute_methods @known_attributes
 
           @schema
         else
@@ -492,6 +493,7 @@ module ActiveResource
           # purposefully nulling out the schema
           @schema = nil
           @known_attributes = []
+          undefine_attribute_methods
           return
         end
 
@@ -1730,6 +1732,7 @@ module ActiveResource
       name = self.class.primary_key if name == "id" && self.class.primary_key
       @attributes[name]
     end
+    alias_method :attribute, :read_attribute
 
     def write_attribute(attr_name, value)
       name = attr_name.to_s
@@ -1737,6 +1740,7 @@ module ActiveResource
       name = self.class.primary_key if name == "id" && self.class.primary_key
       @attributes[name] = value
     end
+    alias_method :attribute=, :write_attribute
 
     protected
       def attributes=(attrs)
@@ -1908,7 +1912,7 @@ module ActiveResource
     extend ActiveResource::Associations
 
     include Callbacks, CustomMethods, Validations, Serialization
-    include ActiveModel::Conversion
+    include ActiveModel::Conversion, ActiveModel::AttributeMethods
     include ActiveModel::ForbiddenAttributesProtection
     include ActiveModel::Serializers::JSON
     include ActiveModel::Serializers::Xml
