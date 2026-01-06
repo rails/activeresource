@@ -129,6 +129,34 @@ module ActiveResource
   #   Person.format.decode(person.encode)
   #   # => {"first_name"=>"First", "last_name"=>"Last"}
   #
+  # === Attribute change tracking
+  #
+  # Active Resources track local attribute changes by integrating with
+  # ActiveModel::Dirty.
+  #
+  # Changes are discard when Active Resource successfuly saves the resource
+  # to the remote server or reloads data from the remote server:
+  #
+  #   person = Person.find(1)
+  #   person.name           # => "Matz"
+  #   person.name = "Changed"
+  #
+  #   person.name_changed?  # => true
+  #   person.name_changes   # => ["Matz", "Changed"]
+  #   person.save
+  #
+  #   person.name_changed?  # => false
+  #   person.name_changes   # => []
+  #
+  #   person.name = "Matz"
+  #   person.name_changed?  # => true
+  #   person.name_changes   # => ["Changed", "Matz"]
+  #
+  #   person.reload
+  #   person.name           # => "Changed"
+  #   person.name_changed?  # => false
+  #   person.name_changes   # => []
+  #
   # === Custom REST methods
   #
   # Since simple CRUD/life cycle methods can't accomplish every task, Active Resource also supports
@@ -463,6 +491,7 @@ module ActiveResource
             @schema[k] = v
             @known_attributes << k
           end
+          define_attribute_methods @known_attributes
 
           @schema
         else
@@ -492,6 +521,7 @@ module ActiveResource
           # purposefully nulling out the schema
           @schema = nil
           @known_attributes = []
+          undefine_attribute_methods
           return
         end
 
@@ -1730,13 +1760,16 @@ module ActiveResource
       name = self.class.primary_key if name == "id" && self.class.primary_key
       @attributes[name]
     end
+    alias_method :attribute, :read_attribute
 
     def write_attribute(attr_name, value)
       name = attr_name.to_s
 
       name = self.class.primary_key if name == "id" && self.class.primary_key
+      attribute_will_change!(name) if known_attributes.include?(name) && @attributes[name] != value
       @attributes[name] = value
     end
+    alias_method :attribute=, :write_attribute
 
     protected
       def attributes=(attrs)
@@ -1903,6 +1936,7 @@ module ActiveResource
     extend ActiveResource::Associations
 
     include Callbacks, CustomMethods, Validations, Serialization
+    include Dirty
     include ActiveModel::Conversion
     include ActiveModel::ForbiddenAttributesProtection
     include ActiveModel::Serializers::JSON
