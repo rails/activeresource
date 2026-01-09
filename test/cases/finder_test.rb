@@ -178,6 +178,33 @@ class FinderTest < ActiveSupport::TestCase
     assert_kind_of StreetAddress, addresses.first
   end
 
+  def test_where_clause_string
+    query = URI.encode_www_form([ [ "id", "1" ] ])
+    ActiveResource::HttpMock.respond_to { |m| m.get "/people.json?" + query, {}, @people_david }
+    people = Person.where(query)
+    assert_equal 1, people.size
+    assert_kind_of Person, people.first
+    assert_equal "David", people.first.name
+  end
+
+  def test_where_clause_string_chained
+    ActiveResource::HttpMock.respond_to { |m| m.get "/people.json?a=1&b=2&c=3&id=2", {}, @people_david }
+    people = Person.where("id=2").where(a: 1).where("b=2").where(c: 3)
+    assert_equal [ "David" ], people.map(&:name)
+  end
+
+  def test_where_clause_string_with_multiple_params
+    previous_query_parser = ActiveResource::Formats::UrlEncodedFormat.query_parser
+    ActiveResource::Formats::UrlEncodedFormat.query_parser = :rack
+
+    query = URI.encode_www_form([ [ "id[]", "1" ], [ "id[]", "2" ] ])
+    ActiveResource::HttpMock.respond_to { |m| m.get "/people.json?" + query, {}, @people }
+    people = Person.where(query)
+    assert_equal [ "Matz", "David" ], people.map(&:name)
+  ensure
+    ActiveResource::Formats::UrlEncodedFormat.query_parser = previous_query_parser
+  end
+
   def test_where_with_clause_in
     ActiveResource::HttpMock.respond_to { |m| m.get "/people.json?id%5B%5D=2", {}, @people_david }
     people = Person.where(id: [ 2 ])
