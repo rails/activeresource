@@ -1472,6 +1472,12 @@ module ActiveResource
     # is Json for the final object as it looked after the \save (which would include attributes like +created_at+
     # that weren't part of the original submit).
     #
+    # With <tt>save</tt> validations run by default. If any of them fail
+    # ActiveResource::ResourceInvalid gets raised, and nothing is POSTed to
+    # the remote system. To skip validations, pass <tt>validate: false</tt>. To
+    # validate withing a custom context, pass the <tt>:context</tt> option.
+    # See ActiveResource::Validations for more information.
+    #
     # There's a series of callbacks associated with <tt>save</tt>. If any
     # of the <tt>before_*</tt> callbacks throw +:abort+ the action is
     # cancelled and <tt>save</tt> raises ActiveResource::ResourceInvalid.
@@ -1484,7 +1490,7 @@ module ActiveResource
     #   my_company.new? # => false
     #   my_company.size = 10
     #   my_company.save # sends PUT /companies/1 (update)
-    def save
+    def save(**options)
       run_callbacks :save do
         new? ? create : _update
       end
@@ -1495,16 +1501,17 @@ module ActiveResource
     # If the resource is new, it is created via +POST+, otherwise the
     # existing resource is updated via +PUT+.
     #
-    # With <tt>save!</tt> validations always run. If any of them fail
+    # With <tt>save!</tt> validations run by default. If any of them fail
     # ActiveResource::ResourceInvalid gets raised, and nothing is POSTed to
-    # the remote system.
+    # the remote system. To skip validations, pass <tt>validate: false</tt>. To
+    # validate withing a custom context, pass the <tt>:context</tt> option.
     # See ActiveResource::Validations for more information.
     #
     # There's a series of callbacks associated with <tt>save!</tt>. If any
     # of the <tt>before_*</tt> callbacks throw +:abort+ the action is
     # cancelled and <tt>save!</tt> raises ActiveResource::ResourceInvalid.
-    def save!
-      save || raise(ResourceInvalid.new(nil, self))
+    def save!(**options)
+      save(**options) || raise(ResourceInvalid.new(nil, self))
     end
 
     ##
