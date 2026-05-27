@@ -13,6 +13,7 @@ module ActiveResource
     end
 
     def where(clauses = {})
+      clauses = @resource_class.query_format.decode(clauses) if clauses.is_a?(::String)
       all(params: clauses)
     end
 
