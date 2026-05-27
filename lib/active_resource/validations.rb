@@ -283,7 +283,7 @@ module ActiveResource
       # ones. Otherwise we get an endless loop and can never change the
       # fields so as to make the resource valid.
       @remote_errors = nil
-      if perform_validation && valid? || !perform_validation
+      if perform_validation && valid?(options[:context]) || !perform_validation
         save_without_validation
         true
       else
@@ -314,6 +314,14 @@ module ActiveResource
     # saved.
     # Remote errors can only be cleared by trying to re-save the resource.
     #
+    # If the argument is +false+ (default is +nil+), the context is set to <tt>:create</tt> if
+    # {new_record?}[rdoc-ref:Base#new_record?] is +true+, and to <tt>:update</tt> if it is not.
+    # If the argument is an array of contexts, <tt>post.valid?([:create, :update])</tt>, the validations are
+    # run within multiple contexts.
+    #
+    # \Validations with no <tt>:on</tt> option will run no matter the context. \Validations with
+    # some <tt>:on</tt> option will only run in the specified context.
+    #
     # ==== Examples
     #   my_person = Person.create(params[:person])
     #   my_person.valid?
@@ -324,6 +332,8 @@ module ActiveResource
     #   # => false
     #
     def valid?(context = nil)
+      context ||= new_record? ? :create : :update
+
       run_callbacks :validate do
         super
         load_remote_errors(@remote_errors, true) if defined?(@remote_errors) && @remote_errors.present?
