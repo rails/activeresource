@@ -5,6 +5,19 @@ require "net/https"
 require "date"
 require "time"
 
+# Define the Net::HTTP::Query class for runtimes where it is not yet available.
+#
+# See https://github.com/ruby/net-http/pull/309
+# See https://www.rfc-editor.org/rfc/rfc10008.html
+#
+unless Net::HTTP.const_defined?(:Query)
+  class Net::HTTP::Query < Net::HTTPRequest
+    METHOD = "QUERY"
+    REQUEST_HAS_BODY = true
+    RESPONSE_HAS_BODY = true
+  end
+end
+
 module ActiveResource
   # Class to handle connections to remote web services.
   # This class is used by ActiveResource::Base to interface with REST
@@ -12,6 +25,7 @@ module ActiveResource
   class Connection
     HTTP_FORMAT_HEADER_NAMES = {
       get: "Accept",
+      query: "Content-Type",
       put: "Content-Type",
       post: "Content-Type",
       patch: "Content-Type",
@@ -20,6 +34,7 @@ module ActiveResource
     }
     HTTP_METHODS = {
       get: Net::HTTP::Get,
+      query: Net::HTTP::Query,
       put: Net::HTTP::Put,
       post: Net::HTTP::Post,
       patch: Net::HTTP::Patch,
@@ -89,6 +104,16 @@ module ActiveResource
     # Used to get (find) resources.
     def get(path, headers = {})
       with_auth { request(:get, path, headers) }
+    end
+
+    # Executes a QUERY request (see the HTTP QUERY method,
+    # https://www.rfc-editor.org/rfc/rfc10008.html, if unfamiliar).
+    # Used to get (find) resources by transmitting the query in the request
+    # +body+ instead of the request URI. Like GET, QUERY is safe and idempotent,
+    # but it accepts a request body so that larger or more complex queries can be
+    # expressed without encoding them into the path.
+    def query(path, body = "", headers = {})
+      with_auth { request(:query, path, body.to_s, headers) }
     end
 
     # Executes a DELETE request (see HTTP protocol documentation if unfamiliar).

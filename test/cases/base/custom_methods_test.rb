@@ -44,6 +44,8 @@ class CustomMethodsTest < ActiveSupport::TestCase
       mock.get    "/products/1/inventories/1/shallow.json", {}, @inventory
       mock.put    "/products/1/inventories/1/promote.json?name=Warehouse", {}, nil, 204
       mock.delete "/products/1/inventories/1/deactivate.json", {}, nil, 200
+      mock.query  "/people/search.json", {}, @matz_array
+      mock.query  "/people/1/similar.json", {}, @matz
     end
 
     Person.user = nil
@@ -89,6 +91,16 @@ class CustomMethodsTest < ActiveSupport::TestCase
                   "id" => 1, "street" => "12345 Street", "zip" => "27519"
     assert_equal ActiveResource::Response.new("", 204, {}),
                    StreetAddress.find(1, params: { person_id: 1 }).put(:normalize_phone, locale: "US")
+  end
+
+  def test_custom_collection_query_method
+    # QUERY against a collection URL, transmitting the query in the request body
+    assert_equal([ { "id" => 1, "name" => "Matz" } ], Person.query(:search, {}, { name: "Matz" }.to_json))
+  end
+
+  def test_custom_element_query_method
+    # QUERY against an element URL
+    assert_equal({ "id" => 1, "name" => "Matz" }, Person.find(1).query(:similar, {}, { name: "Matz" }.to_json))
   end
 
   def test_custom_new_element_method

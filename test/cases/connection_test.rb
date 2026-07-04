@@ -31,6 +31,8 @@ class ConnectionTest < ActiveSupport::TestCase
       mock.post   "/people.json",   {}, nil, 201, "Location" => "/people/5.json"
       mock.post   "/members.json",  {}, @header, 201, "Location" => "/people/6.json"
       mock.head   "/people/1.json", {}, nil, 200
+      mock.query  "/people/search.json", {}, @people
+      mock.query  "/members/search.json", @header, @david
     end
   end
 
@@ -186,6 +188,17 @@ class ConnectionTest < ActiveSupport::TestCase
     response = @conn.head("/people/1.json")
     assert response.body.blank?
     assert_equal 200, response.code
+  end
+
+  def test_query
+    people = decode(@conn.query("/people/search.json", { name: "Matz" }.to_json))
+    assert_equal "Matz", people.dig(0, "person", "name")
+    assert_equal "David", people.dig(1, "person", "name")
+  end
+
+  def test_query_with_header
+    david = decode(@conn.query("/members/search.json", { name: "David" }.to_json, @header))
+    assert_equal "David", david["name"]
   end
 
   def test_get_with_header
