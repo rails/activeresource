@@ -17,8 +17,8 @@ module ActiveResource
   #
   #   mock.http_method(path, request_headers = {}, body = nil, status = 200, response_headers = {})
   #
-  # * <tt>http_method</tt> - The HTTP method to listen for. This can be +get+, +post+, +patch+, +put+, +delete+ or
-  #   +head+.
+  # * <tt>http_method</tt> - The HTTP method to listen for. This can be +get+, +post+, +patch+, +put+, +delete+,
+  #   +head+, or +query+.
   # * <tt>path</tt> - A string, starting with a "/", defining the URI that is expected to be
   #   called.
   # * <tt>request_headers</tt> - Headers that are expected along with the request. This argument uses a
@@ -82,7 +82,7 @@ module ActiveResource
         @responses = responses
       end
 
-      [ :post, :patch, :put, :get, :delete, :head ].each do |method|
+      [ :post, :patch, :put, :get, :delete, :head, :query ].each do |method|
         # def post(path, request_headers = {}, body = nil, status = 200, response_headers = {}, options: {})
         #   @responses[Request.new(:post, path, nil, request_headers, options)] = Response.new(body || "", status, response_headers)
         # end
@@ -267,7 +267,7 @@ module ActiveResource
     end
 
     # body?       methods
-    { true  => %w[post patch put],
+    { true  => %w[post patch put query],
       false => %w[get delete head] }.each do |has_body, methods|
       methods.each do |method|
         # def post(path, body, headers, options = {})

@@ -61,6 +61,23 @@ module ActiveResource
           derooted.is_a?(Array) ? derooted.map { |e| Formats.remove_root(e) } : derooted
         end
 
+        # Invokes a QUERY to a given custom REST method. Like GET, QUERY is safe
+        # and idempotent, but the query is transmitted in the request +body+
+        # rather than the request URI. For example:
+        #
+        #   Person.query(:search, {}, { name: "Ryan" }.to_json)  # QUERY /people/search.json
+        #   # => [{:id => 1, :name => 'Ryan'}]
+        #
+        # Note: the objects returned from this method are not automatically converted
+        # into ActiveResource::Base instances - they are ordinary Hashes. If you are expecting
+        # ActiveResource::Base instances, use the <tt>find</tt> class method with the
+        # <tt>:from</tt> option.
+        def query(custom_method_name, options = {}, body = "")
+          hashified = format.decode(connection.query(custom_method_collection_url(custom_method_name, options), body, headers).body)
+          derooted  = Formats.remove_root(hashified)
+          derooted.is_a?(Array) ? derooted.map { |e| Formats.remove_root(e) } : derooted
+        end
+
         def post(custom_method_name, options = {}, body = "")
           connection.post(custom_method_collection_url(custom_method_name, options), body, headers)
         end
@@ -93,6 +110,10 @@ module ActiveResource
 
     def get(method_name, options = {})
       self.class.format.decode(connection.get(custom_method_element_url(method_name, options), self.class.headers).body)
+    end
+
+    def query(method_name, options = {}, body = "")
+      self.class.format.decode(connection.query(custom_method_element_url(method_name, options), body, self.class.headers).body)
     end
 
     def post(method_name, options = {}, body = nil)
