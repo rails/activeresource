@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "active_resource"
+require "active_resource" unless defined?(ActiveResource)
 require "rails"
 
 module ActiveResource
