@@ -10,6 +10,7 @@ gem "activemodel", github: "rails/rails", branch: branch
 gem "activejob", github: "rails/rails", branch: branch
 gem "activerecord", github: "rails/rails", branch: branch
 gem "sqlite3", branch == "7-0-stable" ? "~> 1.4" : nil
+gem "json", branch == "7-2-stable" ? "< 3" : nil
 
 gem "rubocop"
 gem "rubocop-minitest"
