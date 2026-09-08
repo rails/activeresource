@@ -1188,14 +1188,14 @@ class BaseTest < ActiveSupport::TestCase
 
     # Test that save exceptions get bubbled up too
     ActiveResource::HttpMock.respond_to do |mock|
-      mock.post   "/people.json", {}, nil, 409
+      mock.post "/people.json", {}, nil, 409
     end
     assert_raise(ActiveResource::ResourceConflict) { Person.create(name: "Rick") }
   end
 
   def test_create_without_location
     ActiveResource::HttpMock.respond_to do |mock|
-      mock.post   "/people.json", {}, nil, 201
+      mock.post "/people.json", {}, nil, 201
     end
     person = Person.create(name: "Rick")
     assert_nil person.id
@@ -1209,7 +1209,7 @@ class BaseTest < ActiveSupport::TestCase
     assert_equal rick.age, rick_bang.age
 
     ActiveResource::HttpMock.respond_to do |mock|
-      mock.post   "/people.json", {}, nil, 422
+      mock.post "/people.json", {}, nil, 422
     end
     assert_raise(ActiveResource::ResourceInvalid) { Person.create!(name: "Rick") }
   end
