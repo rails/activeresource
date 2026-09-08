@@ -2,7 +2,7 @@
 // https://github.com/microsoft/vscode-dev-containers/tree/v0.209.6/containers/ruby
 {
 	"name": "activeresource",
-	"image": "ghcr.io/rails/devcontainer/images/ruby:3.4.5",
+	"image": "ghcr.io/rails/devcontainer/images/ruby:4.0.6",
 
 	"remoteUser": "vscode",
 	"features": {
