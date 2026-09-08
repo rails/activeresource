@@ -1,8 +1,5 @@
 # frozen_string_literal: true
 
-require "active_resource" unless defined?(ActiveResource)
-require "rails"
-
 module ActiveResource
   class Railtie < Rails::Railtie
     config.eager_load_namespaces << ActiveResource
