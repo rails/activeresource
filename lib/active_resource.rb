@@ -42,6 +42,7 @@ module ActiveResource
   autoload :Coder
   autoload :Connection
   autoload :CustomMethods
+  autoload :Dirty
   autoload :Formats
   autoload :HttpMock
   autoload :Rescuable
