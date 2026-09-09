@@ -212,6 +212,21 @@ class CustomMethodsTest < ActiveSupport::TestCase
 
     assert_equal ActiveResource::Response.new(luis, 204), Person.find("luís").put(:deactivate)
   end
+
+  def test_custom_element_method_identifier_is_encoded_for_a_path_not_a_form
+    ann = { person: { id: "ann mary", name: "Ann Mary" } }.to_json
+    ann_plus = { person: { id: "ann+mary", name: "Ann Plus Mary" } }.to_json
+
+    ActiveResource::HttpMock.respond_to do |mock|
+      mock.get "/people/ann%20mary.json", {}, ann
+      mock.put "/people/ann%20mary/deactivate.json", {}, ann, 204
+      mock.get "/people/ann%2Bmary.json", {}, ann_plus
+      mock.put "/people/ann%2Bmary/deactivate.json", {}, ann_plus, 204
+    end
+
+    assert_equal ActiveResource::Response.new(ann, 204), Person.find("ann mary").put(:deactivate)
+    assert_equal ActiveResource::Response.new(ann_plus, 204), Person.find("ann+mary").put(:deactivate)
+  end
 end
 
 class SingletonCustomMethodsTest < ActiveSupport::TestCase

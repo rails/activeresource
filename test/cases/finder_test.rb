@@ -352,6 +352,14 @@ class FinderTest < ActiveSupport::TestCase
     assert_equal "David", david.name
   end
 
+  def test_find_identifier_encoding_for_space
+    ActiveResource::HttpMock.respond_to { |m| m.get "/people/ann%20mary.json", {}, @david }
+
+    david = Person.find("ann mary")
+
+    assert_equal "David", david.name
+  end
+
   def test_find_identifier_encoding_for_path_traversal
     ActiveResource::HttpMock.respond_to { |m| m.get "/people/..%2F.json", {}, @david }
 
