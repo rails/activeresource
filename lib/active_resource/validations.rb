@@ -283,7 +283,7 @@ module ActiveResource
       # ones. Otherwise we get an endless loop and can never change the
       # fields so as to make the resource valid.
       @remote_errors = nil
-      if perform_validation && valid? || !perform_validation
+      if perform_validation && valid?(options[:context]) || !perform_validation
         save_without_validation
         true
       else
