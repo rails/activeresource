@@ -19,6 +19,7 @@ gem "rubocop-performance"
 gem "rubocop-rails"
 gem "rubocop-rails-omakase"
 
+gem "minitest", "< 6"
 gem "minitest-bisect"
 
 gemspec
