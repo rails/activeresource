@@ -371,6 +371,8 @@ module ActiveResource
       @@logger = logger
     end
 
+    class_attribute :cast_values, default: false, instance_accessor: false
+    class_attribute :schema_definition, default: Schema, instance_accessor: false # :nodoc:
     class_attribute :lazy_collections, default: true, instance_accessor: false
     class_attribute :_query_format
     class_attribute :_format
@@ -441,16 +443,45 @@ module ActiveResource
       #
       # Attribute-types must be one of: <tt>string, text, integer, float, decimal, datetime, timestamp, time, date, binary, boolean</tt>
       #
-      # Note: at present the attribute-type doesn't do anything, but stay
-      # tuned...
-      # Shortly it will also *cast* the value of the returned attribute.
-      # ie:
-      # j.age                 # => 34   # cast to an integer
-      # j.weight              # => '65' # still a string!
+      # To *cast* the value of the returned attribute, declare the Schema with
+      # the +:cast_values+ set to true.
       #
-      def schema(&block)
+      #   class Person < ActiveResource::Base
+      #     schema cast_values: true do
+      #       integer 'age'
+      #     end
+      #   end
+      #
+      #   p = Person.new
+      #   p.age = "18"
+      #   p.age # => 18
+      #
+      # To configure inheriting resources to cast values, set the +cast_values+
+      # class attribute:
+      #
+      #   class ApplicationResource < ActiveResource::Base
+      #     self.cast_values = true
+      #   end
+      #
+      #   class Person < ApplicationResource
+      #     schema do
+      #       integer 'age'
+      #     end
+      #   end
+      #
+      #   p = Person.new
+      #   p.age = "18"
+      #   p.age # => 18
+      #
+      # To set all resources application-wide to cast values, set
+      # +config.active_resource.cast_values+:
+      #
+      #   # config/application.rb
+      #   config.active_resource.cast_values = true
+      def schema(cast_values: self.cast_values, &block)
         if block_given?
-          schema_definition = Schema.new
+          self.schema_definition = Class.new(schema_definition)
+          schema_definition.cast_values = cast_values
           schema_definition.instance_eval(&block)
 
           # skip out if we didn't define anything
@@ -490,6 +521,7 @@ module ActiveResource
       def schema=(the_schema)
         unless the_schema.present?
           # purposefully nulling out the schema
+          self.schema_definition = Schema
           @schema = nil
           @known_attributes = []
           return
@@ -1331,6 +1363,7 @@ module ActiveResource
     def initialize(attributes = {}, persisted = false)
       @attributes     = {}.with_indifferent_access
       @prefix_options = {}
+      @schema         = self.class.schema_definition.new
       @persisted = persisted
       load(attributes, false, persisted)
     end
@@ -1364,6 +1397,7 @@ module ActiveResource
       resource = self.class.new({})
       resource.prefix_options = self.prefix_options
       resource.attributes = cloned
+      resource.schema = @schema.clone
       resource
     end
 
@@ -1697,7 +1731,7 @@ module ActiveResource
       method_name = method.to_s
       if attributes.nil?
         super
-      elsif known_attributes.include?(method_name)
+      elsif known_attributes.include?(method_name) || @schema.respond_to?(method)
         true
       elsif method_name =~ /(?:=|\?)$/ && known_attributes.include?($`)
         true
@@ -1706,6 +1740,10 @@ module ActiveResource
         # would return true for generated readers, even if the attribute wasn't present
         super
       end
+    end
+
+    def serializable_hash(options = nil)
+      @schema.serializable_hash(options).merge!(super)
     end
 
     def to_json(options = {})
@@ -1728,17 +1766,27 @@ module ActiveResource
       name = attr_name.to_s
 
       name = self.class.primary_key if name == "id" && self.class.primary_key
-      @attributes[name]
+      if @schema.respond_to?(name)
+        @schema.send(name)
+      else
+        @attributes[name]
+      end
     end
 
     def write_attribute(attr_name, value)
       name = attr_name.to_s
 
       name = self.class.primary_key if name == "id" && self.class.primary_key
-      @attributes[name] = value
+      if @schema.respond_to?("#{name}=")
+        @schema.send("#{name}=", value)
+      else
+        @attributes[name] = value
+      end
     end
 
     protected
+      attr_writer :schema
+
       def attributes=(attrs)
         @attributes = attrs
       end
@@ -1886,7 +1934,9 @@ module ActiveResource
           return @attributes = arguments.first
         end
 
-        if method_name =~ /(=|\?)$/
+        if @schema.respond_to?(method_name)
+          @schema.send(method_name, *arguments)
+        elsif method_name =~ /(=|\?)$/
           case $1
           when "="
             write_attribute($`, arguments.first)
