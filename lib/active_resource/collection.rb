@@ -74,13 +74,13 @@ module ActiveResource # :nodoc:
     alias map! collect!
 
     def first_or_create(attributes = {})
-      first || resource_class.create(original_params.update(attributes))
+      first || resource_class.create(original_params.merge(attributes))
     rescue NoMethodError
       raise "Cannot create resource from resource type: #{resource_class.inspect}"
     end
 
     def first_or_initialize(attributes = {})
-      first || resource_class.new(original_params.update(attributes))
+      first || resource_class.new(original_params.merge(attributes))
     rescue NoMethodError
       raise "Cannot build resource from resource type: #{resource_class.inspect}"
     end

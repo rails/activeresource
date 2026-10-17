@@ -105,6 +105,39 @@ class FinderTest < ActiveSupport::TestCase
     assert_kind_of StreetAddress, addresses.first
   end
 
+  def test_first_or_initialize_keeps_prefix_options_from_where
+    ActiveResource::HttpMock.respond_to.get "/people/1/addresses.json?street=Main", {}, { addresses: [] }.to_json
+
+    address = StreetAddress.where(person_id: 1, street: "Main").first_or_initialize(country: "Australia")
+
+    assert_predicate address, :new?
+    assert_equal({ person_id: 1 }, address.prefix_options)
+    assert_equal "Main", address.street
+    assert_equal "Australia", address.country
+  end
+
+  def test_first_or_create_keeps_prefix_options_from_where
+    ActiveResource::HttpMock.respond_to do |mock|
+      mock.get "/people/1/addresses.json?street=Main", {}, { addresses: [] }.to_json
+      mock.post "/people/1/addresses.json", {}, nil, 201, "Location" => "/people/1/addresses/5"
+    end
+
+    address = StreetAddress.where(person_id: 1, street: "Main").first_or_create(country: "Australia")
+
+    assert_equal "5", address.id
+    assert_equal({ person_id: 1 }, address.prefix_options)
+    assert ActiveResource::HttpMock.requests.any? { |request| request.method == :post && request.path == "/people/1/addresses.json" }
+  end
+
+  def test_first_or_initialize_does_not_change_original_params
+    ActiveResource::HttpMock.respond_to.get "/people/1/addresses.json?street=Main", {}, { addresses: [] }.to_json
+
+    addresses = StreetAddress.find(:all, params: { person_id: 1, street: "Main" })
+    addresses.first_or_initialize(country: "Australia")
+
+    assert_equal({ person_id: 1, street: "Main" }, addresses.original_params)
+  end
+
   def test_where_with_multiple_where_clauses
     ActiveResource::HttpMock.respond_to.get "/people.json?id=2&name=david", {}, @people_david
 
