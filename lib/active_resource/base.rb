@@ -1228,7 +1228,7 @@ module ActiveResource
               format.decode(connection.get(path, headers).body)
             end
 
-          instantiate_collection(response || [], query_options, prefix_options)
+          instantiate_collection(response || [], prefix_options.merge(query_options), prefix_options)
         rescue ActiveResource::ResourceNotFound
           # Swallowing ResourceNotFound exceptions and return nil - as per
           # ActiveRecord.
