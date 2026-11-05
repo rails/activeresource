@@ -1740,6 +1740,33 @@ class BaseTest < ActiveSupport::TestCase
     assert post.author.name == ActiveSupport::JSON.decode(@matz)["person"]["name"]
   end
 
+  def test_non_singleton_has_one_child_route_includes_site_path
+    accepts = { "Accept" => "application/json" }
+    ActiveResource::HttpMock.respond_to do |mock|
+      mock.get "/api/v1/posts/1.json", accepts, @post
+      mock.get "/api/v1/posts/1/author.json", accepts, @matz
+    end
+
+    post_class = Class.new(ActiveResource::Base)
+    post_class.site = "http://37s.sunrise.i:3000/api/v1"
+    post_class.element_name = "post"
+    post_class.send(:has_one, :author, class_name: "Person")
+    post = post_class.find(1)
+    assert_equal "Matz", post.author.name
+  end
+
+  def test_non_singleton_has_one_child_route_includes_prefix_options
+    accepts = { "Accept" => "application/json" }
+    ActiveResource::HttpMock.respond_to do |mock|
+      mock.get "/posts/5/comments/1.json", accepts, { id: 1, post_id: 5 }.to_json
+      mock.get "/posts/5/comments/1/author.json", accepts, @matz
+    end
+
+    Comment.send(:has_one, :author, class_name: "Person")
+    comment = Comment.find(1, params: { post_id: 5 })
+    assert_equal "Matz", comment.author.name
+  end
+
   def test_with_custom_formatter
     addresses = [ { id: "1", street: "1 Infinite Loop", city: "Cupertino", state: "CA" } ].to_xml(root: :addresses)
 
